@@ -14,11 +14,11 @@ A principal necessidade que a solução deverá atender é funcionar como um **r
 
 ### Adolescentes e pré-adolescentes — 10 a 17 anos
 
-São os principais usuários do aplicativo, em sua maioria estudantes. Essa faixa etária pode apresentar dificuldade para falar sobre situações de bullying, cyberbullying e problemas emocionais.
+- São os principais usuários do aplicativo, em sua maioria estudantes. Essa faixa etária pode apresentar dificuldade para falar sobre situações de bullying, cyberbullying e problemas emocionais.
 
-O aplicativo deverá servir como uma ponte entre os estudantes que buscam ajuda, seus responsáveis e as pessoas competentes da instituição de ensino.
+- O aplicativo deverá servir como uma ponte entre os estudantes que buscam ajuda, seus responsáveis e as pessoas competentes da instituição de ensino.
 
-Os adolescentes poderão utilizar a solução diariamente para registrar seus sentimentos, reportar situações de bullying e cyberbullying e buscar informações ou apoio durante momentos difíceis.
+- Os adolescentes poderão utilizar a solução diariamente para registrar seus sentimentos, reportar situações de bullying e cyberbullying e buscar informações ou apoio durante momentos difíceis.
 
 ### Professores e orientadores
 
@@ -172,4 +172,4 @@ Dessa forma, quando o usuário estiver enfrentando uma situação mais grave ou 
 
 ### 4. Relação com o estudo de caso 
 
-A nossa análise chegou a conclusão de que o MenteLeve deve ser um app como seu nome, leve. O aplicativo deve conter uma forma de comunicação opcionalmente anônima e segura para alunos com responsáveis da saúde mental na instituição, o requisito de não login expositivo para os alunos motivou a tomada de decisão para que apenas professores tivessem login institucional, mas levantou uma dúvida quanto a distribuição do app. Os servições de hotline e emergência deverão permacer disponíveis para o modo offline, assim como o diário, que não será armazenado pelo servidor do app. O diário deve ter diferentes modos, escrita livre, pontos positivos do dia. Visando engajar e manter a usabilidade do app e uma espécie de “Tratamento constante”, O grupo também entrou em consenso para criação de um mascote, o mesmo sendo interativo e representando a usabilidade do app de forma não sufucante, como uma alternativa às não notificação como requisitos. O design deve ser amigável e com uma atmosfera aconchegante, para isso decidimos o uso de cores suaves e tonalidades que reforcem conforto azul-céu e branco.  
+  A nossa análise chegou a conclusão de que o MenteLeve deve ser um app como seu nome, leve. O aplicativo deve conter uma forma de comunicação opcionalmente anônima e segura para alunos com responsáveis da saúde mental na instituição, o requisito de não login expositivo para os alunos motivou a tomada de decisão para que apenas professores tivessem login institucional, mas levantou uma dúvida quanto a distribuição do app. Os servições de hotline e emergência deverão permacer disponíveis para o modo offline, assim como o diário, que não será armazenado pelo servidor do app. O diário deve ter diferentes modos, escrita livre, pontos positivos do dia. Visando engajar e manter a usabilidade do app e uma espécie de “Tratamento constante”, O grupo também entrou em consenso para criação de um mascote, o mesmo sendo interativo e representando a usabilidade do app de forma não sufucante, como uma alternativa às não notificação como requisitos. O design deve ser amigável e com uma atmosfera aconchegante, para isso decidimos o uso de cores suaves e tonalidades que reforcem conforto azul-céu e branco.  
