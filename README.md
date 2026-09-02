@@ -25,4 +25,4 @@ Abraão                                 | `<preencher>`                         
 | Alexandre Pedro de Matos Ferreira      | `<preencher>`                                                            |
 | Marcos Paulo                           | `<preencher>`                                                            |
 | Mateus Henrique de Araújo Santos
-Rayelen Oliveira|                                Objetivo da documentação, Readme e revisão final do rpositório.                           |
+Rayelen Oliveira|                                Objetivo da documentação, Readme e revisão final do repositório.                           |
