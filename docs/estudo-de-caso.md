@@ -69,15 +69,15 @@ O aplicativo também incentiva a prática de hábitos saudáveis relacionados à
 
 A identidade do aplicativo está relacionada aos conceitos de:
 
-* Bullying;
-* Cyberbullying;
-* Autoestima;
-* Ansiedade;
-* Depressão juvenil;
-* Escuta ativa;
-* CVV;
-* Rede de apoio;
-* Denúncia escolar.
+- Bullying;
+- Cyberbullying;
+- Autoestima;
+- Ansiedade;
+- Depressão juvenil;
+- Escuta ativa;
+- CVV;
+- Rede de apoio;
+- Denúncia escolar.
 
 A personalidade da solução deverá ser **suave, acolhedora e protetora**. A interface deve utilizar cores claras, como azul-céu e branco, além de formas arredondadas.
 
