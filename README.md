@@ -22,7 +22,7 @@ MenteLeve é um aplicativo móvel de apoio à saúde emocional de adolescentes d
 | Integrante                             | Responsabilidade nesta atividade                                         |
 | -------------------------------------- | ------------------------------------------------------------------------ |
 Abraão                                 | `<preencher>`                                                            |
-| Alexandre Pedro de Matos Ferreira      | `Pesquisa de referências e desenvolvimento de protótipo`                                                            |
+| Alexandre Pedro de Matos Ferreira      | `Pesquisa de referências e desenvolvimento de protótipo                                                            |
 | Marcos Paulo                           | `<preencher>`                                                            |
 | Mateus Henrique de Araújo Santos       |       Desenvolvimento da documentação, estruturação de requisitos e personas                   |
 Rayelen Oliveira|                                Objetivo da documentação, Readme e revisão final do repositório.                           |
