@@ -24,5 +24,5 @@ MenteLeve é um aplicativo móvel de apoio à saúde emocional de adolescentes d
 Abraão                                 | `<preencher>`                                                            |
 | Alexandre Pedro de Matos Ferreira      | `<preencher>`                                                            |
 | Marcos Paulo                           | `<preencher>`                                                            |
-| Mateus Henrique de Araújo Santos
+| Mateus Henrique de Araújo Santos       |       Desenvolvimento da documentação, estruturação de requisitos e personas                   |
 Rayelen Oliveira|                                Objetivo da documentação, Readme e revisão final do repositório.                           |
