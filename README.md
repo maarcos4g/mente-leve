@@ -2,7 +2,7 @@
 
 ## Integrantes 
 
-1. Abrãao
+1. Abraão Luiz Ribeiro da Cruz Dantas
 2. Alexandre Pedro de Matos Ferreira
 3. Marcos Paulo
 4. Mateus Henrique De Araújo Santos
@@ -21,7 +21,7 @@ MenteLeve é um aplicativo móvel de apoio à saúde emocional de adolescentes d
 
 | Integrante                             | Responsabilidade nesta atividade                                         |
 | -------------------------------------- | ------------------------------------------------------------------------ |
-Abraão                                 | `<preencher>`                                                            |
+Abraão Luiz Ribeiro da Cruz Dantas       | Arquitetura do app, lógica de negócio e armazenamento offline                                                            |
 | Alexandre Pedro de Matos Ferreira      | Pesquisa de referências e desenvolvimento de protótipo                                                            |
 | Marcos Paulo                           | Desenvolvimento do protótipo                                                            |
 | Mateus Henrique de Araújo Santos       |       Desenvolvimento da documentação, estruturação de requisitos e personas                   |
