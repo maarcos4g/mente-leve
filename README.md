@@ -25,4 +25,4 @@ Abraão Luiz Ribeiro da Cruz Dantas       | Arquitetura do app, lógica de negó
 | Alexandre Pedro de Matos Ferreira      | Pesquisa de referências e desenvolvimento de protótipo                                                            |
 | Marcos Paulo                           | Desenvolvimento do protótipo                                                            |
 | Mateus Henrique de Araújo Santos       |       Desenvolvimento da documentação, estruturação de requisitos e personas                   |
-Rayelen Oliveira|                                Objetivo da documentação, Readme e revisão final do repositório.                           |
+Rayelen Oliveira|                               Pesquisa sobre necessidades e dificuldades do usuário, dados que possam influenciar o aplicativo e md da pesquisa.                           |
