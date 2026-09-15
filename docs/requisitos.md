@@ -17,12 +17,10 @@
 * **RF09 – Publicação e Atualização de Conteúdos:** A psicóloga deve ser capaz de gerir, validar e atualizar os conteúdos de apoio e respostas do FAQ.
 * **RF10 – Painel de Triagem de Denúncias e Queixas:** O sistema deve fornecer um painel para leitura e acompanhamento das denúncias e queixas anônimas submetidas pelos alunos.
 * **RF11 – Resposta e Acolhimento à Queixa:** A psicóloga deve ser capaz de responder às solicitações dos estudantes prestando aconselhamento e mediação institucional.
-* **RF12 - Canal de Contato com responsáveis:** O sistema deve permitir a psicóloga responder e se comunicar com os pais via canal de contato exclusivo para ambos perfis.
 
 ### 1.3. Perfil de Pais e Responsáveis (Orientação e Contato)
-* **RF13 – Acesso a Conteúdos Informativos:** O sistema deve disponibilizar guias e orientações sobre sintomas, saúde mental juvenil e prevenção para os responsáveis.
-* **RF14 – Canal de Comunicação com a Escola:** O sistema deve fornecer aos pais um canal direto de contato com professores e responsáveis pela saúde mental da instituição.
-* **RF15 - Autenticação de Responsável:** O sistema deve permitir um login restrito para os pais, baseado em credenciais previamente cadastradas no mesmo.
+* **RF12 – Acesso a Conteúdos Informativos:** O sistema deve disponibilizar guias e orientações sobre sintomas, saúde mental juvenil e prevenção para os responsáveis.
+* **RF13 - Autenticação de Responsável:** O sistema deve permitir um login restrito para os pais, baseado em credenciais previamente cadastradas no mesmo.
 
 ---
 
