@@ -164,22 +164,19 @@ Classificação dos requisitos funcionais de acordo com sua relevância para a p
 
 * **RF01 – Registro Rápido de Emoções:** é a funcionalidade central do app, citada nas restrições do estudo de caso (até 3 interações) e na navegação principal.
 * **RF02 – Diário Reflexivo e Pontos Positivos:** compõe, junto ao RF01, o Diário de Sentimentos — um dos quatro pilares descritos na proposta do app.
-* **RF03 – Mascote de Acolhimento:** entrega o acolhimento imediato prometido pela proposta de valor, transformando o registro em resposta empática.
-* **RF04 – Discagem Rápida de Emergência (CVV 188):** garante o acesso à ajuda em situações de sofrimento intenso, mesmo offline; é um requisito de segurança inegociável.
-* **RF05 – Consulta ao FAQ Educativo:** um dos recursos citados desde a descrição do projeto para combater a falta de informação sobre bullying/saúde mental.
-* **RF06 – Envio de Queixas e Denúncias Anônimas:** representa os "canais de denúncia", também citados na descrição do app como pilar da proposta.
+* **RF03 – Discagem Rápida de Emergência (CVV 188):** garante o acesso à ajuda em situações de sofrimento intenso, mesmo offline; é um requisito de segurança inegociável.
+* **RF04 – Consulta ao FAQ Educativo:** um dos recursos citados desde a descrição do projeto para combater a falta de informação sobre bullying/saúde mental.
+* **RF05 – Envio de Queixas e Denúncias Anônimas:** representa os "canais de denúncia", também citados na descrição do app como pilar da proposta.
 
 ### 4.2. Importantes — agregam valor, mas não são fundamentais
 
-* **RF07 – Histórico Local do Diário:** enriquece a experiência (permite reler pontos positivos), mas o app cumpriria seu propósito imediato de acolhimento mesmo sem consulta ao histórico.
-* **RF08 – Autenticação Institucional:** necessária para viabilizar a gestão de conteúdo e a triagem de denúncias pela escola, mas é suporte de backoffice, não parte da experiência do aluno.
-* **RF09 – Publicação e Atualização de Conteúdos:** mantém FAQ e mensagens de acolhimento atualizados e validados, mas o app pode operar inicialmente com um conteúdo estático fixo.
-* **RF10 – Painel de Triagem de Denúncias e Queixas:** fecha o ciclo do RF06 permitindo acompanhamento institucional, mas a denúncia em si (RF06) já cumpre a função essencial de dar vazão ao relato do aluno.
-* **RF11 – Resposta e Acolhimento à Queixa:** complementa o RF10 com retorno ativo da psicóloga, agregando valor à rede de apoio sem ser indispensável ao MVP do aluno.
+* **RF06 – Histórico Local do Diário:** enriquece a experiência (permite reler pontos positivos), mas o app cumpriria seu propósito imediato de acolhimento mesmo sem consulta ao histórico.
+* **RF07 – Autenticação Institucional:** necessária para viabilizar a gestão de conteúdo e a triagem de denúncias pela escola, mas é suporte de backoffice, não parte da experiência do aluno.
+* **RF08 – Publicação e Atualização de Conteúdos:** mantém FAQ e mensagens de acolhimento atualizados e validados, mas o app pode operar inicialmente com um conteúdo estático fixo.
+* **RF09 – Painel de Triagem de Denúncias e Queixas:** fecha o ciclo do RF06 permitindo acompanhamento institucional, mas a denúncia em si (RF05) já cumpre a função essencial de dar vazão ao relato do aluno.
+* **RF10 – Resposta e Acolhimento à Queixa:** complementa o RF09 com retorno ativo da psicóloga, agregando valor à rede de apoio sem ser indispensável ao MVP do aluno.
 
 ### 4.3. Secundárias — podem ser desenvolvidas posteriormente
 
-* **RF12 – Canal de Contato com Responsáveis:** funcionalidade voltada à rede de apoio complementar (psicóloga ↔ pais), citada no estudo de caso como suporte adicional, não como núcleo da proposta.
-* **RF13 – Acesso a Conteúdos Informativos (pais):** valor educativo para responsáveis, mas não afeta a experiência de acolhimento imediato do adolescente.
-* **RF14 – Canal de Comunicação com a Escola (pais):** amplia a rede de apoio, porém depende de adoção institucional e pode ser incorporada em uma fase posterior.
-* **RF15 – Autenticação de Responsável:** só é necessária para viabilizar RF12–RF14; sem essas funcionalidades secundárias, o login de responsáveis não tem uso imediato.
+* **RF11 – Acesso a Conteúdos Informativos (pais):** valor educativo para responsáveis, mas não afeta a experiência de acolhimento imediato do adolescente.
+* **RF12 – Autenticação de Responsável:** só é necessária para viabilizar RF12–RF14; sem essas funcionalidades secundárias, o login de responsáveis não tem uso imediato.
