@@ -12,6 +12,6 @@
 
 ## [15/09/2026]
 
-## Adicionado
+### Adicionado
 
 - Descrição de Funcionalidades e Requisitos
