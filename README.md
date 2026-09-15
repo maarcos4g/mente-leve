@@ -25,4 +25,4 @@ Abraão Luiz Ribeiro da Cruz Dantas       | Arquitetura do app, lógica de negó
 | Alexandre Pedro de Matos Ferreira      | Restrições e condições - Pesquisa sobre o problema e benchmark                                                           |
 | Marcos Paulo                           | Restrições e condições - Desenvolvimento do protótipo - benchmark                                                            |
 | Mateus Henrique de Araújo Santos       |       Desenvolvimento da documentação, estruturação e desenvolvimento de requisitos e Personas                   |
-Rayelen Oliveira|                              Desenvolvimento Pesquisa e do problema e revisão final do readme - Pesquisa sobre necessidades e dificuldades do usuário, dados que possam influenciar o aplicativo e md da pesquisa.                           |
+Rayelen Oliveira|                              Desenvolvimento Pesquisa e do problema e revisão final do readme - Pesquisa sobre necessidades e dificuldades do usuário, dados que possam influenciar o aplicativo e md da pesquisa - Priorização das funcionalidades.                           |
