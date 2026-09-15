@@ -135,24 +135,19 @@ Identificação das operações de CRUD associadas a cada requisito funcional, q
 
 * **C - RF01** - Registro de emoção (emoji + data/hora)
 * **C - RF02** - Entrada de diário reflexivo (texto livre) e checklist de pontos positivos do dia
-* **R - RF03** - Consulta ao registro de humor mais recente, para gerar a mensagem de acolhimento do mascote
-* **RF04** - Não aplicável: aciona um recurso do sistema operacional (discagem telefônica ao CVV 188), sem manipulação de dados do aplicativo
-* **R - RF05** - Consulta ao conteúdo de perguntas e respostas do FAQ educativo
-* **C - RF06** - Denúncia/queixa anônima enviada pelo aluno
-* **R - RF07** - Consulta ao histórico local de registros do diário
-* **R - RF08** - Consulta às credenciais institucionais para validação do login (não há criação/alteração de credenciais nesta funcionalidade)
-* **C - RF09** - Criação de novos conteúdos de apoio e itens do FAQ
-* **R - RF09** - Consulta aos conteúdos existentes para validação
-* **U - RF09** - Atualização de conteúdos de apoio e respostas do FAQ já publicados
-* **R - RF10** - Consulta às denúncias e queixas anônimas submetidas pelos alunos, no painel de triagem
-* **C - RF11** - Registro da resposta/aconselhamento da psicóloga à queixa do aluno
-* **U - RF11** - Atualização do status da queixa (ex.: de "pendente" para "respondida")
-* **C - RF12** - Nova mensagem enviada no canal de contato entre psicóloga e responsáveis
-* **R - RF12** - Consulta ao histórico de mensagens trocadas no canal
-* **R - RF13** - Consulta aos guias e orientações informativas disponibilizados aos responsáveis
-* **C - RF14** - Nova mensagem enviada no canal de comunicação entre pais e escola
-* **R - RF14** - Consulta ao histórico de mensagens do canal com a escola
-* **R - RF15** - Consulta às credenciais previamente cadastradas para validação do login do responsável
+* **RF03** - Não aplicável: aciona um recurso do sistema operacional (discagem telefônica ao CVV 188), sem manipulação de dados do aplicativo
+* **R - RF04** - Consulta ao conteúdo de perguntas e respostas do FAQ educativo
+* **C - RF05** - Denúncia/queixa anônima enviada pelo aluno
+* **R - RF06** - Consulta ao histórico local de registros do diário
+* **R - RF07** - Consulta às credenciais institucionais para validação do login (não há criação/alteração de credenciais nesta funcionalidade)
+* **C - RF08** - Criação de novos conteúdos de apoio e itens do FAQ
+* **R - RF08** - Consulta aos conteúdos existentes para validação
+* **U - RF08** - Atualização de conteúdos de apoio e respostas do FAQ já publicados
+* **R - RF09** - Consulta às denúncias e queixas anônimas submetidas pelos alunos, no painel de triagem
+* **C - RF10** - Registro da resposta/aconselhamento da psicóloga à queixa do aluno
+* **U - RF10** - Atualização do status da queixa (ex.: de "pendente" para "respondida")
+* **R - RF11** - Consulta aos guias e orientações informativas disponibilizados aos responsáveis
+* **R - RF12** - Consulta às credenciais previamente cadastradas para validação do login do responsável
 
 ---
 
