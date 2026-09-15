@@ -89,13 +89,7 @@
 - **Necessidade do usuário que atende:** Capacitar os responsáveis a reconhecer sinais de alerta e saber como agir de forma adequada, sem julgamento, diante de um filho em sofrimento.
 - **Justificativa:** O estudo de caso já cita professores como "engajamento preventivo"; o mesmo se aplica aos pais. Muitos responsáveis não sabem identificar sintomas de ansiedade, depressão ou bullying, e essa funcionalidade reduz a lacuna de informação antes mesmo de uma crise acontecer.
 
-### RF13 – Canal de Comunicação com a Escola
-
-- **Descrição:** Canal direto que permite aos pais entrarem em contato com professores e com os responsáveis pela saúde mental na instituição.
-- **Necessidade do usuário que atende:** Ter um meio formal e rápido de buscar informações ou relatar preocupações sobre o filho junto à escola.
-- **Justificativa:** Fecha o ciclo de rede de apoio proposto no estudo de caso (aluno–escola–família), permitindo que os pais também iniciem contato quando notarem mudanças de comportamento em casa, e não apenas quando a escola os aciona.
-
-### RF14 – Autenticação de Responsável
+### RF13 – Autenticação de Responsável
 
 - **Descrição:** Sistema de login restrito para os pais/responsáveis, com base em credenciais previamente cadastradas junto à instituição ou ao aplicativo.
 - **Necessidade do usuário que atende:** Garantir que apenas o responsável legal do aluno tenha acesso aos canais de comunicação e conteúdos direcionados a esse perfil.
