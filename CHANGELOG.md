@@ -9,3 +9,9 @@
 ### Adicionado
 
 - PESQUISA, BENCHMARK E PERSONAS
+
+## [15/09/2026]
+
+## Adicionado
+
+- Descrição de Funcionalidades e Requisitos
