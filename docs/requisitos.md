@@ -21,31 +21,26 @@
 - **Necessidade do usuário que atende:** Ter flexibilidade na forma de se expressar, respeitando tanto os dias em que o adolescente tem disposição/necessidade de elaborar por escrito o que sente, quanto os dias em que prefere um registro mais rápido e leve, focado no positivo.
 - **Justificativa:** Alternativa ao Diário de Sentimentos com emojis.
 
-### RF03 – Mascote de Acolhimento
 
-- **Descrição:** Um mascote interativo que interpreta o humor do usuário e exibe mensagens de acolhimento.
-- **Necessidade do usuário que atende:** Sentir-se acompanhado e validado emocionalmente sem julgamento.
-- **Justificativa:** Como o app não pode usar login nem identificar o usuário, o mascote cria um vínculo afetivo e de engajamento contínuo.
-
-### RF04 – FAQ
+### RF03 – FAQ
 
 - **Descrição:** Seção para tirar dúvidas sobre bullying e temas de saúde mental.
 - **Necessidade do usuário que atende:** Obter informações confiáveis em um lugar de fácil e rápido acesso.
 - **Justificativa:** Ter um lugar para tirar dúvidas rapidamente em um local confiável.
 
-### RF05 – Canais de Denúncia e Orientação
+### RF04 – Canais de Denúncia e Orientação
 
 - **Descrição:** Lista com canais oficiais para denúncias e apoio, e orientações sobre como buscar ajuda.
 - **Necessidade do usuário que atende:** Saber onde buscar ajuda.
 - **Justificativa:** Centralizar canais de apoio em um lugar seguro facilita a tomada de decisão do usuário.
 
-### RF06 – Botão de Emergência
+### RF05 – Botão de Emergência
 
 - **Descrição:** Botão sempre visível na tela que disca para o CVV (188).
 - **Necessidade do usuário que atende:** Ter acesso imediato a ajuda.
 - **Justificativa:** O acesso fixo facilita ser utilizado em qualquer hora com a menor quantidade de cliques.
 
-### RF07 – Canal de Comunicação com Professores
+### RF06 – Canal de Comunicação com Professores
 
 - **Descrição:** Canal para se comunicar com professores de forma anônima por chat (login institucional restrito aos professores).
 - **Necessidade do usuário que atende:** Comunicação sem exposição.
@@ -55,25 +50,25 @@
 
 ## 2. Perfil da Psicóloga Escolar (Gestão de Conteúdo e Mediação)
 
-### RF08 – Autenticação Institucional
+### RF07 – Autenticação Institucional
 
 - **Descrição:** Sistema de login restrito para a psicóloga escolar e equipe pedagógica, utilizando credenciais institucionais fornecidas pela escola.
 - **Necessidade do usuário que atende:** Garantir que apenas profissionais autorizados e identificados tenham acesso a informações sensíveis dos alunos e às ferramentas de gestão do app.
 - **Justificativa:** Diferente do adolescente (que não pode ter login, sob risco de expor sua identidade), a psicóloga atua como figura de responsabilidade institucional e precisa ser rastreável e autenticada para garantir segurança, accountability e conformidade com protocolos escolares de atendimento.
 
-### RF09 – Painel de Publicação e Atualização de Conteúdos
+### RF08 – Painel de Publicação e Atualização de Conteúdos
 
 - **Descrição:** Painel administrativo onde a psicóloga pode criar, validar, editar e atualizar os conteúdos de apoio exibidos no FAQ e demais materiais informativos do app.
 - **Necessidade do usuário que atende:** Manter as informações acolhedoras do FAQ sempre atualizadas, precisas e alinhadas às boas práticas psicológicas.
 - **Justificativa:** Manter as informações atualizadas e sempre validadas.
 
-### RF10 – Painel de Triagem de Denúncias e Queixas
+### RF09 – Painel de Triagem de Denúncias e Queixas
 
 - **Descrição:** Interface que reúne, organiza e permite o acompanhamento das denúncias e queixas anônimas enviadas pelos alunos através do app.
 - **Necessidade do usuário que atende:** Permitir que a escola identifique e priorize casos que exigem atenção ou intervenção, sem perder o registro dos relatos recebidos.
 - **Justificativa:** Sem um painel centralizado, denúncias anônimas enviadas pelos alunos poderiam se perder ou não receber tratamento adequado. Essa funcionalidade transforma o "espaço seguro" do adolescente em ação concreta por parte da instituição, fechando o ciclo entre relato e resposta.
 
-### RF11 – Resposta e Acolhimento à Queixa
+### RF10 – Resposta e Acolhimento à Queixa
 
 - **Descrição:** Funcionalidade que permite à psicóloga responder diretamente às solicitações e queixas dos estudantes, oferecendo aconselhamento e mediação institucional.
 - **Necessidade do usuário que atende:** Receber um retorno humano e profissional após relatar uma situação de sofrimento, e não apenas uma resposta automática.
@@ -83,13 +78,13 @@
 
 ## 3. Perfil de Pais e Responsáveis (Orientação e Contato)
 
-### RF12 – Acesso a Conteúdos Informativos
+### RF11 – Acesso a Conteúdos Informativos
 
 - **Descrição:** Seção com guias, artigos e orientações voltados aos pais sobre sintomas de sofrimento emocional, saúde mental juvenil, bullying e formas de prevenção.
 - **Necessidade do usuário que atende:** Capacitar os responsáveis a reconhecer sinais de alerta e saber como agir de forma adequada, sem julgamento, diante de um filho em sofrimento.
 - **Justificativa:** O estudo de caso já cita professores como "engajamento preventivo"; o mesmo se aplica aos pais. Muitos responsáveis não sabem identificar sintomas de ansiedade, depressão ou bullying, e essa funcionalidade reduz a lacuna de informação antes mesmo de uma crise acontecer.
 
-### RF13 – Autenticação de Responsável
+### RF12 – Autenticação de Responsável
 
 - **Descrição:** Sistema de login restrito para os pais/responsáveis, com base em credenciais previamente cadastradas junto à instituição ou ao aplicativo.
 - **Necessidade do usuário que atende:** Garantir que apenas o responsável legal do aluno tenha acesso aos canais de comunicação e conteúdos direcionados a esse perfil.
@@ -101,22 +96,20 @@
 ### 1.1. Perfil do Aluno (Foco em Acolhimento, Pertencimento, Anonimato e Registro)
 * **RF01 – Registro Rápido de Emoções:** O sistema deve permitir que o aluno selecione seu estado emocional através de emojis grandes, salvando o registro em até 3 interações.
 * **RF02 – Diário Reflexivo e Pontos Positivos:** O sistema deve oferecer ao aluno opções de escrita reflexiva livre e ferramenta de checklist dos pontos positivos do dia.
-* **RF03 – Mascote de Acolhimento:** O sistema deve apresentar um personagem interativo que interprete o humor registrado pelo aluno e exiba mensagens imediatas de acolhimento e superação.
-* **RF04 – Discagem Rápida de Emergência (CVV 188):** O sistema deve manter um botão fixo para chamada telefônica ao CVV 188 que funcione sem sinal de dados/internet.
-* **RF05 – Consulta ao FAQ Educativo:** O sistema deve disponibilizar perguntas e respostas acolhedoras sobre bullying, cyberbullying e saúde mental.
-* **RF06 – Envio de Queixas e Denúncias Anônimas:** O sistema deve permitir que o aluno envie relatos ou denúncias à escola sem exigir login ou qualquer dado identificável.
-* **RF07 – Histórico Local do Diário:** O sistema deve permitir que o aluno visualize seus registros de sentimentos anteriores diretamente no dispositivo.
+* **RF03 – Discagem Rápida de Emergência (CVV 188):** O sistema deve manter um botão fixo para chamada telefônica ao CVV 188 que funcione sem sinal de dados/internet.
+* **RF04 – Consulta ao FAQ Educativo:** O sistema deve disponibilizar perguntas e respostas acolhedoras sobre bullying, cyberbullying e saúde mental.
+* **RF05 – Envio de Queixas e Denúncias Anônimas:** O sistema deve permitir que o aluno envie relatos ou denúncias à escola sem exigir login ou qualquer dado identificável.
+* **RF06 – Histórico Local do Diário:** O sistema deve permitir que o aluno visualize seus registros de sentimentos anteriores diretamente no dispositivo.
 
 ### 1.2. Perfil da Psicóloga Escolar (Gestão de Conteúdo e Mediação)
-* **RF08 – Autenticação Institucional:** O sistema deve permitir o login restrito para a psicóloga e equipe pedagógica através de credenciais institucionais.
-* **RF09 – Publicação e Atualização de Conteúdos:** A psicóloga deve ser capaz de gerir, validar e atualizar os conteúdos de apoio e respostas do FAQ.
-* **RF10 – Painel de Triagem de Denúncias e Queixas:** O sistema deve fornecer um painel para leitura e acompanhamento das denúncias e queixas anônimas submetidas pelos alunos.
-* **RF11 – Resposta e Acolhimento à Queixa:** A psicóloga deve ser capaz de responder às solicitações dos estudantes prestando aconselhamento e mediação institucional.
+* **RF07 – Autenticação Institucional:** O sistema deve permitir o login restrito para a psicóloga e equipe pedagógica através de credenciais institucionais.
+* **RF08 – Publicação e Atualização de Conteúdos:** A psicóloga deve ser capaz de gerir, validar e atualizar os conteúdos de apoio e respostas do FAQ.
+* **RF09 – Painel de Triagem de Denúncias e Queixas:** O sistema deve fornecer um painel para leitura e acompanhamento das denúncias e queixas anônimas submetidas pelos alunos.
+* **RF10 – Resposta e Acolhimento à Queixa:** A psicóloga deve ser capaz de responder às solicitações dos estudantes prestando aconselhamento e mediação institucional.
 
 ### 1.3. Perfil de Pais e Responsáveis (Orientação e Contato)
-* **RF12 – Acesso a Conteúdos Informativos:** O sistema deve disponibilizar guias e orientações sobre sintomas, saúde mental juvenil e prevenção para os responsáveis.
-* **RF13 - Autenticação de Responsável:** O sistema deve permitir um login restrito para os pais, baseado em credenciais previamente cadastradas no mesmo.
-
+* **RF11 – Acesso a Conteúdos Informativos:** O sistema deve disponibilizar guias e orientações sobre sintomas, saúde mental juvenil e prevenção para os responsáveis.
+* **RF12 - Autenticação de Responsável:** O sistema deve permitir um login restrito para os pais, baseado em credenciais previamente cadastradas no mesmo.
 
 ---
 
