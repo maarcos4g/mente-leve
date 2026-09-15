@@ -15,3 +15,4 @@
 ### Adicionado
 
 - Descrição de Funcionalidades e Requisitos
+- Documento para apresentação (Slides)
