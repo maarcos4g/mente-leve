@@ -16,3 +16,9 @@
 
 - Descrição de Funcionalidades e Requisitos
 - Documento para apresentação (Slides)
+
+## [21/09/2026]
+
+### Adicionado
+
+- Protótipo de baixa fidelidade
