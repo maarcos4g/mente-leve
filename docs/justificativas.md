@@ -48,13 +48,13 @@ A escolha de **`#FAFAFA`** (e não branco puro `#FFFFFF`) para os painéis e sup
 
 ### Justificativa
 
-**Poppins** foi adotada como fonte principal da interface por ser uma sans-serif geométrica com formas arredondadas e características humanistas, transmitindo ao mesmo tempo **modernidade e acolhimento** — valores centrais da identidade do MenteLeve. Sua ampla gama de pesos (Light 275 até SemiBold 600) permite criar uma hierarquia tipográfica clara sem precisar recorrer a uma segunda família.
+**Poppins** foi adotada como a família tipográfica principal da interface por combinar geometria contemporânea com traços humanistas e arredondados. Essa construção transmite simultaneamente **modernidade e acolhimento** — atributos essenciais à identidade do MenteLeve. Sua ampla escala de pesos (do Light 275 ao SemiBold 600) viabiliza uma hierarquia visual coesa e versátil dentro de um único sistema tipográfico.
 
-**Noto Sans** foi usada exclusivamente no logotipo por sua neutralidade e legibilidade em qualquer tamanho, garantindo que a marca seja reconhecível mesmo em dimensões reduzidas (ex.: dentro do cabeçalho das telas).
+**Noto Sans** foi reservada exclusivamente para o logotipo devido à sua neutralidade estrutural e alta legibilidade em diferentes escalas. Essa escolha assegura a integridade e o reconhecimento imediato da marca, mesmo em aplicações compactas (como no cabeçalho das telas).
 
-A utilização do peso **Light (275)** para textos de corpo e descrições mais longas (como os subtítulos de onboarding) contribui para uma leitura leve e não intimidante, alinhada ao perfil emocional do usuário. O contraste entre o Light do corpo e o SemiBold dos botões e títulos orienta o olhar do usuário com clareza, reduzindo o esforço cognitivo em momentos de vulnerabilidade emocional.
+A aplicação do peso **Light (275)** no corpo de texto e em descrições extensas (a exemplo do onboarding) proporciona uma experiência de leitura fluida, arejada e não impositiva, respeitando o estado emocional do usuário. O contraste funcional entre o Light das áreas de leitura e o SemiBold dos botões e títulos estabelece caminhos visuais intuitivos, minimizando o esforço cognitivo em momentos de vulnerabilidade.
 
-O tamanho mínimo de 14sp para inputs e rótulos garante **legibilidade em celulares de entrada**, e o contraste entre texto e fundo respeita as diretrizes de acessibilidade WCAG AA.
+A definição de 14sp como tamanho mínimo para campos de formulário e rótulos assegura **ótima legibilidade mesmo em dispositivos de entrada**, enquanto o contraste entre elementos textuais e o fundo segue rigorosamente os padrões de acessibilidade da WCAG (nível AA).
 
 ---
 
