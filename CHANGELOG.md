@@ -22,3 +22,9 @@
 ### Adicionado
 
 - Protótipo de baixa fidelidade
+
+## [05/10/2025]
+
+- Apresentação da Unidade I
+- Protótipo de Alta Fidelidade
+- Justificativas UI/UX
