@@ -1,0 +1,7 @@
+# Ambiente e Credenciais Seguras
+.env
+.env.*
+!.env.example
+
+# Automações, scripts e artefatos de agentes
+.agents/
