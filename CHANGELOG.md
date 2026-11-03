@@ -38,4 +38,6 @@
 - Declaração formal de Escopo do Projeto e Calendário de Sprints (`docs/escopo.md`).
 - Registro de uso e governança de Inteligência Artificial (`docs/uso-de-ia.md`).
 - Arquivo `.gitignore` para proteção de credenciais de ambiente e arquivos de apoio.
-
+- Diagramas de Caso de uso
+- Modelagem e mapeamento de Classes
+- Esquema Firestore
