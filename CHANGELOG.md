@@ -45,6 +45,8 @@
 ## [03/11/2026]
 
 ### Adicionado
+
+- EAP/WBS simplificada do projeto (`docs/eap.md`): diagrama Mermaid, estrutura hierárquica, dicionário com critérios de aceite e matriz de rastreabilidade RF/RNF x pacotes de trabalho.
 - Fluxograma de navegação real do aplicativo, com rotas nomeadas, transições de tela e estados vazio/erro.
   - Fluxo 1: entrada e autenticação (onboarding, codinome, seleção de perfil, login institucional e de responsável).
   - Fluxo 2: aluno, com registro de humor, histórico do diário (criar, editar e excluir) e botão CVV 188.
