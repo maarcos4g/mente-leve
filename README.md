@@ -21,7 +21,7 @@ MenteLeve é um aplicativo móvel de apoio à saúde emocional de adolescentes d
 
 | Integrante                             | Responsabilidade nesta atividade                                         |
 | -------------------------------------- | ------------------------------------------------------------------------ |
-Abraão Luiz Ribeiro da Cruz Dantas       | Arquitetura do app, lógica de negócio - benchmark - funcionalidades                                                  |
+| Abraão Luiz Ribeiro da Cruz Dantas     | Arquitetura do app, lógica de negócio - benchmark - funcionalidades - Elaboração da EAP/WBS simplificada do projeto |
 | Alexandre Pedro de Matos Ferreira      | Restrições e condições - Pesquisa sobre o problema e benchmark - Slides de apresentação de funcionalidades e requisitos - Prototipo de Baixa e alta Fidelidade - Justificativas de UI/UX                                 |
 | Marcos Paulo                           | Restrições e condições - Desenvolvimento do protótipo - benchmark - Prototipo de Baixa e alta Fidelidade                                                             |
 | Mateus Henrique de Araújo Santos       |       Desenvolvimento da documentação, estruturação e desenvolvimento de requisitos e Personas, Orquestração e desenvolvimento do Conteúdo da Apresentação final Unidade I, Diagramas de Caso de Uso, Modelagem e mapeamento de Classes, Modelagem do esquema Firestore              |

@@ -41,3 +41,9 @@
 - Diagramas de Caso de uso
 - Modelagem e mapeamento de Classes
 - Esquema Firestore
+
+## [03/11/2026]
+
+### Adicionado
+
+- EAP/WBS simplificada do projeto (`docs/eap.md`): diagrama Mermaid, estrutura hierárquica, dicionário com critérios de aceite e matriz de rastreabilidade RF/RNF x pacotes de trabalho.
