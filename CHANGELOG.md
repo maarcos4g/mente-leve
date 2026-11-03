@@ -41,3 +41,14 @@
 - Diagramas de Caso de uso
 - Modelagem e mapeamento de Classes
 - Esquema Firestore
+
+## [03/11/2026]
+
+### Adicionado
+- Fluxograma de navegação real do aplicativo, com rotas nomeadas, transições de tela e estados vazio/erro.
+  - Fluxo 1: entrada e autenticação (onboarding, codinome, seleção de perfil, login institucional e de responsável).
+  - Fluxo 2: aluno, com registro de humor, histórico do diário (criar, editar e excluir) e botão CVV 188.
+  - Fluxo 3: aluno, com canais de apoio, FAQ e denúncia anônima (fila offline e leitura da resposta).
+  - Fluxo 4: psicóloga (triagem, resposta, gestão de FAQ e guias) e responsável (consulta de guias).
+- Legenda de cores (tela, entrada/destino, concluído, erro, vazio/pendente, CVV ou sem protótipo, só no protótipo).
+- Estados de erro e vazio mapeados: credencial inválida, sem conexão, falha ao salvar, diário vazio, sem discador, FAQ e guias sem cache, triagem sem denúncias, denúncia aguardando envio e sem resposta.
