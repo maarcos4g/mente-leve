@@ -4,9 +4,6 @@ import 'package:mente_leve/shared/themes/app_text_styles.dart';
 import 'package:mente_leve/shared/themes/tailwind_colors.dart';
 import 'package:mente_leve/shared/widgets/button/button_widget.dart';
 
-/// Estrutura base das telas de login de perfis (psicólogo e responsável):
-/// cabeçalho azul com logo, título, subtítulo, ilustração, campos, botão
-/// "Entrar" e link "Voltar".
 class ProfileAuthScaffold extends StatelessWidget {
   const ProfileAuthScaffold({
     super.key,
@@ -20,7 +17,6 @@ class ProfileAuthScaffold extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final String subtitle;
 
-  /// Caminho do asset da ilustração (ex.: `assets/images/parents.png`).
   final String illustration;
   final List<Widget> fields;
   final VoidCallback onSubmit;
