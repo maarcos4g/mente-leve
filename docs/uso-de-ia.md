@@ -1,55 +1,78 @@
 # Registro de Uso de Inteligência Artificial — MenteLeve
 
-## 1. Contexto e Abordagem
+Este documento registra como a equipe do **MenteLeve** utiliza ferramentas de Inteligência Artificial Generativa como apoio ao desenvolvimento do projeto.
 
-O uso de Inteligência Artificial Generativa no projeto vem sendo adotado como ferramenta de apoio técnico para acelerar tarefas operacionais de engenharia e planejamento, servindo como suporte nas tomadas de decisão e na escrita de scripts auxiliares.
-
-Até o presente momento, o trabalho esteve concentrado na **estruturação do backlog ágil, integração com o Jira Cloud e planejamento das entregas**. Nenhum código do aplicativo móvel foi implementado ainda nesta etapa.
+Nosso objetivo é utilizar a IA de forma ética, prática e transparente: como uma ferramenta de suporte para tirar dúvidas de sintaxe, revisar código, sugerir melhorias de organização e acelerar tarefas repetitivas. Toda a arquitetura, lógica do aplicativo e decisões de projeto continuam sendo avaliadas, testadas e implementadas diretamente pelos membros da equipe.
 
 ---
 
-## 2. Atividades em que a IA foi Utilizada
+## 1. Registros de Uso por Integrante
 
-### 2.1. Planejamento Ágil e Divisão do Backlog
-- Auxílio na divisão do projeto em Épicos temáticos e decomposição em Stories e Tasks.
-- Apoio na formulação de Critérios de Aceite para cada tarefa.
-- Estruturação do calendário e da distribuição de carga de trabalho entre as 4 sprints planejadas.
+### 👤 Alexandre Pedro de Matos Ferreira
 
-### 2.2. Automação e Integração com a API do Jira
-- Desenvolvimento de scripts em Python para automatizar a criação em lote das tarefas e épicos na API do Jira Cloud.
-- Montagem da estrutura de dados em *Atlassian Document Format* (ADF) para formatação de texto das descrições.
-- Criação de rotinas para vinculação hierárquica (tarefas filhas conectadas aos seus respectivos épicos pais) e alocação de tarefas dentro de cada Sprint.
+* **Automação e Integração com Jira:**
+  * **O que foi feito:** Apoio na estruturação inicial das tarefas do projeto e escrita de um script em Python para cadastrar os itens na API do Jira.
+  * **Como a IA ajudou:** Ajudou na montagem básica da requisição HTTP e na formatação das descrições.
+  * **Dificuldades e ajustes manuais:** A IA indicou um código de campo incorreto para as estimativas (`customfield_10026`), que causava erro `400` na API do Jira. Foi necessário consultar a documentação para achar o campo certo (`customfield_10016`). Além disso, ela sugeriu nomes de sprint com mais de 30 caracteres, que foram reduzidos manualmente.
 
----
+* **Revisão Técnica de Código (Pull Request #5 — 05/11):**
+  * **O que foi feito:** Revisão do PR com o setup inicial do Flutter, temas e telas de login/avatar.
+  * **Como a IA ajudou:** Ajudou a analisar o código em busca de possíveis problemas visuais antes do merge na `main`. Apontou o risco de *overflow* (quando o teclado do celular sobe e estoura a tela) na tela de identificação do aluno por falta de scroll, e sugeriu unificar cores soltas para o padrão do tema.
+  * **Dificuldades e ajustes manuais:** A IA inicialmente considerou recursos muito recentes do Flutter (como `spacing` em Row/Column), mas optamos por manter `SizedBox` para evitar problemas de compilação em computadores com versões anteriores do SDK.
 
-## 3. Prompts Utilizados
-
-### Prompt 1: Estruturação de Script para API do Jira
-> *"Crie um script em Python que conecte à API do Jira Cloud para cadastrar épicos e tarefas no projeto SCRUM."*
-
-### Prompt 2: Organização e Escopo das Sprints
-> *"Com base nas funcionalidades do projeto MenteLeve, estruture uma proposta de calendário de 4 sprints de desenvolvimento, organizando o que deve ser prioridade inicial até as fases finais, distribuindo o backlog de forma equilibrada."*
+* **Organização do Repositório e Documentação (05/11):**
+  * **O que foi feito:** Reorganização da pasta `docs/`, padronização das imagens de fluxograma e simplificação dos registros de documentação.
+  * **Como a IA ajudou:** Sugeriu uma divisão limpa de pastas para apresentações, protótipos e diagramas, facilitando a navegação de quem visita o projeto no GitHub.
 
 ---
 
-## 4. Problemas Encontrados na IA e Correções Realizadas
-
-Durante o desenvolvimento das automações e configurações com o Jira, a IA gerou respostas com erros técnicos que precisaram ser identificados e corrigidos manualmente:
-
-### 1. Seleção Incorreta do Campo de Story Points
-* **O problema:** A IA sugeriu utilizar o campo `customfield_10026` para estimativas, baseando-se em uma busca por aproximação. A API do Jira rejeitou as requisições com erro `HTTP 400`, pois esse campo correspondia a outro tipo de dado da instância.
-* **A solução:** Foi feita uma consulta aos metadados de campos da API (`/rest/api/3/field`), identificando que o campo real de estimativa era o `customfield_10016` (*Story point estimate*). O script foi corrigido para apontar para o identificador correto.
-
-### 2. Limite de Caracteres no Nome das Sprints
-* **O problema:** Ao tentar criar sprints com títulos longos descritivos sugeridos pela IA, a API do Jira retornou erro informando que o nome da sprint deve ter menos de 30 caracteres.
-* **A solução:** Os nomes das sprints foram simplificados para um padrão conciso (ex.: `Sprint 1 (01/11 - 08/11)`), e as informações descritivas foram transferidas para o campo de metas (*goal*).
-
-### 3. Falha de Encoding de Caracteres Acentuados no Windows
-* **O problema:** Em rotinas de leitura e manipulação de textos gerados pela API, o uso padrão de `json.dumps()` transformou caracteres acentuados da língua portuguesa (como `Responsável` e `Épico`) em sequências de escape Unicode (`\u00e1`), fazendo com que verificações condicionais falhassem silenciosamente.
-* **A solução:** Foi adicionado o parâmetro `ensure_ascii=False` na serialização e ajustado o encoding do ambiente para UTF-8.
-
-### 4. Conflito entre Campos de Vínculo Hierárquico
-* **O problema:** A IA tentou enviar simultaneamente o campo moderno `parent` e o campo legado `customfield_10014` (*Epic Link*), gerando redundância e avisos de campo inválido na API.
-* **A solução:** A estrutura do payload foi ajustada para utilizar exclusivamente o campo `parent`, que é o padrão suportado para projetos no Jira Cloud.
+### 👤 Abraão Luiz Ribeiro da Cruz Dantas
+* **Foco:** Arquitetura do app, lógica de negócio e EAP.
+* **Registros de uso:**
+  * **Atividade:** Apoio na estruturação e revisão dos tópicos da EAP (Estrutura Analítica do Projeto).
+  * **Ferramenta:** ChatGPT / Gemini.
+  * **Como ajudou:** Sugestão de divisão de pacotes de trabalho para organizar as entregas do projeto.
+  * *(Espaço reservado para o integrante detalhar novos usos)*
 
 ---
+
+### 👤 Marcos Paulo
+* **Foco:** Prototipação e desenvolvimento de telas e componentes Flutter.
+* **Registros de uso:**
+  * **Atividade:** Apoio na estruturação de widgets e telas iniciais do aplicativo.
+  * **Ferramenta:** ChatGPT / Copilot.
+  * **Como ajudou:** Dúvidas pontuais sobre widgets de layout e renderização de arquivos SVG.
+  * *(Espaço reservado para o integrante detalhar novos usos)*
+
+---
+
+### 👤 Mateus Henrique de Araújo Santos
+* **Foco:** Documentação técnica, requisitos, casos de uso e modelagem de dados.
+* **Registros de uso:**
+  * **Atividade:** Apoio na formatação e conferência dos diagramas de caso de uso e classes de domínio.
+  * **Ferramenta:** ChatGPT / Claude.
+  * **Como ajudou:** Revisão textual das descrições dos casos de uso e checagem de tipos de dados nos diagramas.
+  * *(Espaço reservado para o integrante detalhar novos usos)*
+
+---
+
+### 👤 Rayelen de Jesus Oliveira
+* **Foco:** Pesquisa com usuários, dados de impacto e fluxo de navegação do app.
+* **Registros de uso:**
+  * **Atividade:** Apoio no levantamento de referências e organização do fluxo de navegação entre telas.
+  * **Ferramenta:** ChatGPT / Gemini.
+  * **Como ajudou:** Estruturação de ideias para os estados de tela (vazio, sucesso e erro) nos fluxogramas dos perfis de usuário.
+  * *(Espaço reservado para o integrante detalhar novos usos)*
+
+---
+
+## 2. Como Registrar Novos Usos (Guia Rápido para a Equipe)
+
+Sempre que utilizar IA para apoiar alguma atividade do projeto, adicione um item na sua seção seguindo este modelo simples:
+
+```markdown
+* **Data / Atividade:** [Ex: 10/11 - Criação da tela de diário com emojis]
+* **Ferramenta utilizada:** [Ex: ChatGPT, Copilot, Gemini]
+* **Como ajudou / Prompt principal:** [Ex: Ajudei a montar a lista de emojis e capturar o clique]
+* **O que precisou ser corrigido ou ajustado:** [Ex: A IA sugeriu um pacote desatualizado, trocamos pela implementação nativa do Flutter]
+```

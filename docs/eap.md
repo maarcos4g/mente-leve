@@ -174,14 +174,14 @@ Legenda de status: ✅ Concluído · 🔄 Em andamento · ⏳ Pendente.
 | 2.2 | Pesquisa e benchmark          | `docs/pesquisa.md`, `docs/benchmark.md`                     | Dados do problema e apps concorrentes analisados     |   —    |   ✅   |
 | 2.3 | Personas                      | `docs/personas.md`                                          | Uma persona por perfil de usuário                    |   —    |   ✅   |
 | 2.4 | Funcionalidades e requisitos  | `docs/funcionalidades.md`, `docs/requisitos.md`             | RF, RNF, CRUD e priorização documentados             |   —    |   ✅   |
-| 2.5 | Apresentações da Unidade I    | `docs/apresentacaoRequisitos.pdf`, `docs/apresentacaoFinalUnidadeI.pdf` | Apresentadas em sala                     |   —    |   ✅   |
+| 2.5 | Apresentações da Unidade I    | `docs/apresentacoes/apresentacaoRequisitos.pdf`, `docs/apresentacoes/apresentacaoFinalUnidadeI.pdf` | Apresentadas em sala                     |   —    |   ✅   |
 
 ### 3. Design UI/UX
 
 | ID  | Pacote de trabalho                | Descrição / entregável                                                 | Critério de aceite                                                    | Prior. | Status |
 | --- | --------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | :----: | :----: |
-| 3.1 | Protótipo de baixa fidelidade     | `docs/prototipoBaixaFidelidade.pdf`                                    | Fluxos principais dos três perfis desenhados                         |   —    |   ✅   |
-| 3.2 | Protótipo de alta fidelidade      | `docs/prototipoAltaFidelidade.pdf` (Figma)                             | Telas de onboarding, multi-login, auth e home finalizadas             |   —    |   ✅   |
+| 3.1 | Protótipo de baixa fidelidade     | `docs/prototipos/prototipoBaixaFidelidade.pdf`                         | Fluxos principais dos três perfis desenhados                         |   —    |   ✅   |
+| 3.2 | Protótipo de alta fidelidade      | `docs/prototipos/prototipoAltaFidelidade.pdf` (Figma)                  | Telas de onboarding, multi-login, auth e home finalizadas             |   —    |   ✅   |
 | 3.3 | Design system e justificativas    | `docs/justificativas.md` (tokens de cor, tipografia, navegação)        | Tokens documentados e aderentes ao RNF08                              |   —    |   ✅   |
 | 3.4 | Ilustrações, emojis e mascote     | Assets otimizados (SVG/WebP) do mascote e dos emojis de humor          | Assets leves, legíveis em tela pequena e no modo noturno              |   E    |   ⏳   |
 

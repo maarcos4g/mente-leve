@@ -54,3 +54,15 @@
   - Fluxo 4: psicóloga (triagem, resposta, gestão de FAQ e guias) e responsável (consulta de guias).
 - Legenda de cores (tela, entrada/destino, concluído, erro, vazio/pendente, CVV ou sem protótipo, só no protótipo).
 - Estados de erro e vazio mapeados: credencial inválida, sem conexão, falha ao salvar, diário vazio, sem discador, FAQ e guias sem cache, triagem sem denúncias, denúncia aguardando envio e sem resposta.
+
+## [05/11/2026]
+
+### Modificado
+
+- Reorganização da pasta `docs/` com criação de subdiretórios dedicados para apresentações (`docs/apresentacoes/`) e protótipos (`docs/prototipos/`).
+- Padronização dos nomes dos fluxogramas (`docs/fluxogramas/`) em formato limpo (*kebab-case*), sem espaços ou caracteres especiais.
+- Atualização e simplificação do registro de uso de IA (`docs/uso-de-ia.md`), estruturado por integrante com template rápido e registros das atividades de revisão técnica e governança.
+
+### Adicionado
+
+- Criação do sumário de documentação (`docs/README.md`) com mapa de navegação e índice detalhado dos artefatos do projeto.
