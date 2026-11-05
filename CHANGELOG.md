@@ -65,3 +65,10 @@
 - Registro de uso de IA (`docs/uso-de-ia.md`) reorganizado por sprint e colaborador, com prompts utilizados e problemas e ajustes manuais de cada atividade.
 - Criação das subpastas `docs/modelagem/` (casos de uso, diagrama de classes, modelagem Firestore e mapeamento Dart) e `docs/levantamento/` (benchmark, escopo, estudo de caso, funcionalidades, justificativas, pesquisa e requisitos).
 - Links internos e referências a documentos atualizados para os novos caminhos (`docs/eap.md`, `docs/levantamento/escopo.md` e imagens dos documentos de modelagem).
+
+
+### Adicionado
+
+- Estrutura-base do projeto flutter.
+- Implementação do Design System (Cores, tipografias, assets).
+- Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
