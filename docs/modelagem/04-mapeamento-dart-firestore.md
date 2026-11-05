@@ -2,7 +2,7 @@
 
 Mostra para onde cada classe de domínio vai e como os campos são convertidos.
 
-![Mapeamento](diagramas/mapeamento-dart-firestore.png)
+![Mapeamento](../diagramas/mapeamento-dart-firestore.png)
 
 ```mermaid
 flowchart LR

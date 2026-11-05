@@ -11,12 +11,12 @@
 
 ## Visão do aluno
 
-![Casos de uso do aluno](diagramas/uc-aluno.png)
+![Casos de uso do aluno](../diagramas/uc-aluno.png)
 
 
 ## Visão dos perfis institucionais
 
-![Casos de uso dos perfis institucionais](diagramas/uc-institucional.png)
+![Casos de uso dos perfis institucionais](../diagramas/uc-institucional.png)
 
 
 O UC12 (tratar falha de conexão) é incluído por todo caso de uso que lê ou grava no Firestore. Nas imagens ele aparece ligado aos principais.

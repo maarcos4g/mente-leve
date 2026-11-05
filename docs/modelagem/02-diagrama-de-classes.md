@@ -2,7 +2,7 @@
 
 Entidades principais do MenteLeve, com atributos, métodos e relacionamentos.
 
-![Diagrama de classes](diagramas/diagrama-de-classes.png)
+![Diagrama de classes](../diagramas/diagrama-de-classes.png)
 
 Código-fonte do diagrama:
 

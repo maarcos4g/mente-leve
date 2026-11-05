@@ -104,11 +104,11 @@ O cronograma de desenvolvimento foi estruturado em **4 Sprints semanais**, total
 > **Meta da Sprint (*Sprint Goal*):** Estruturar a governança ágil, formalizar EAP e escopo, produzir diagramas de classe e banco Firestore, e configurar o ambiente Flutter com Design System.
 > 
 > * **Entregáveis Técnicos:**
->   - [x] Declaração de Escopo do Projeto formalizada (`docs/escopo.md`)
+>   - [x] Declaração de Escopo do Projeto formalizada (`docs/levantamento/escopo.md`)
 >   - [ ] Estrutura Analítica do Projeto simplificada (`docs/eap.md`)
->   - [ ] Diagrama de Casos de Uso com novas regras de negócio (`docs/casos-de-uso.md`)
->   - [ ] Diagrama de Classes e Modelos de Domínio Dart (`docs/diagrama-classes.md`)
->   - [ ] Modelagem do Banco Firestore e Mapeamento Objeto-Documento (`docs/modelagem-firestore.md`)
+>   - [ ] Diagrama de Casos de Uso com novas regras de negócio (`docs/modelagem/01-casos-de-uso.md`)
+>   - [ ] Diagrama de Classes e Modelos de Domínio Dart (`docs/modelagem/02-diagrama-de-classes.md`)
+>   - [ ] Modelagem do Banco Firestore e Mapeamento Objeto-Documento (`docs/modelagem/03-modelagem-firestore.md`)
 >   - [ ] Setup do projeto Flutter, arquitetura em camadas e `ThemeData` (paleta azul-céu e Poppins)
 >   - [ ] Telas iniciais (Home com card de humor e Login Institucional)
 
@@ -154,7 +154,7 @@ O cronograma de desenvolvimento foi estruturado em **4 Sprints semanais**, total
 
 | Sprint | Período | Meta da Sprint (*Sprint Goal*) | Carga (SP) | Entregáveis Principais |
 | :--- | :--- | :--- | :---: | :--- |
-| **Sprint 1** | **01/11 a 08/11** | Estruturação de Governança, EAP, Modelagem de Dados, Setup do Projeto Flutter e Telas Base. | **39 SP** | `docs/eap.md`, `docs/escopo.md`, Diagramas UML (Casos de Uso e Classes), Esquema Firestore, Setup Flutter, Design System (`ThemeData`), Home e Login. |
+| **Sprint 1** | **01/11 a 08/11** | Estruturação de Governança, EAP, Modelagem de Dados, Setup do Projeto Flutter e Telas Base. | **39 SP** | `docs/eap.md`, `docs/levantamento/escopo.md`, Diagramas UML (Casos de Uso e Classes), Esquema Firestore, Setup Flutter, Design System (`ThemeData`), Home e Login. |
 | **Sprint 2** | **08/11 a 15/11** | Implementação do Firebase Core, Autenticação Institucional, Diário de Sentimentos e Mascote. | **38 SP** | `firebase_core`, `firebase_auth`, Cache local do Diário (Hive), Seletor de Emojis em 3 toques, Diário Reflexivo e Mascote com mensagens empáticas. |
 | **Sprint 3** | **15/11 a 22/11** | Funcionalidades de Suporte, Botão CVV 188, FAQ Sincronizado e Painel da Psicóloga. | **24 SP** | Integração `url_launcher` para discagem offline 188, CRUD do FAQ no Firestore, Painel de Triagem com filtros de queixas e Regras de Segurança RBAC. |
 | **Sprint 4** | **22/11 a 01/12** | QA Rigoroso, Homologação no Emulador Android, Governança de IA e Preparação para a Defesa Oral. | **20 SP** | `docs/uso-de-ia.md`, APK validado sem erros no emulador, testes de falha de conexão (offline), slides da apresentação e consolidação final do README/CHANGELOG. |

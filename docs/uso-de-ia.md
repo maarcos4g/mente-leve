@@ -47,7 +47,56 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Marcos Paulo
 
-*(A preencher pelo integrante)*
+* **Reorganização da pasta `docs/` em subpastas temáticas (05/11):**
+  * **O que foi feito:** Criação das subpastas `docs/modelagem/` (casos de uso, diagrama de classes, modelagem Firestore e mapeamento Dart) e `docs/levantamento/` (benchmark, escopo, estudo de caso, funcionalidades, justificativas, pesquisa e requisitos), mantendo as pastas já existentes sem alteração.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um especialista em documentação de projetos de software.
+    >
+    > **Tarefa:** reorganizar a pasta `docs/`.
+    >
+    > **Regras:**
+    > 1. Manter as pastas que já existem, sem alterá-las.
+    > 2. Mover casos de uso, diagrama de classes, modelagem Firestore e mapeamento Dart para uma nova subpasta.
+    > 3. Mover benchmark, escopo, estudo de caso, funcionalidades, justificativas, pesquisa e requisitos para outra nova subpasta.
+    > 4. Criar as subpastas dentro de `docs/` e sugerir os nomes delas.
+    > 5. Atualizar os links internos que quebrarem com a mudança.
+  * **Como a IA ajudou:** Sugeriu os nomes das pastas, moveu os arquivos com `git mv` (preservando o histórico) e corrigiu os caminhos das imagens e as referências em `eap.md`, `escopo.md` e `CHANGELOG.md`.
+  * **Dificuldades e ajustes manuais:** As referências antigas em `escopo.md` e `CHANGELOG.md` já estavam desatualizadas (nomes que não batiam com os arquivos reais), e foram corrigidas na mesma ocasião. Os nomes das subpastas foram revisados antes de seguir.
+
+* **Telas de login do psicólogo e do responsável (03/11):**
+  * **O que foi feito:** Criação das telas `PsychologistAuthView` e `ParentsAuthView`, de seus controllers com validação de formulário e do widget reutilizável `ProfileAuthScaffold` (cabeçalho com logo, ilustração, campos e botão de entrada).
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um desenvolvedor Flutter sênior.
+    >
+    > **Tarefa:** criar as telas de login dos perfis psicólogo e responsável, seguindo o padrão visual da tela de login do aluno.
+    >
+    > **Requisitos:**
+    > 1. Psicólogo: campos de e-mail institucional e senha, com validação de e-mail por expressão regular.
+    > 2. Responsável: campos de número de identificação (teclado numérico) e senha fornecida pela escola.
+    > 3. Mensagens de erro para campo vazio e e-mail inválido.
+    > 4. Um controller por tela (`formKey` e métodos de validação), sem integrar a autenticação ainda.
+    > 5. Extrair o layout em comum para um widget reutilizável, evitando código duplicado entre as telas.
+    > 6. Usar as cores do tema e o campo de texto compartilhado do projeto.
+  * **Como a IA ajudou:** Estruturou o `ProfileAuthScaffold` com `SingleChildScrollView`, o que evita *overflow* quando o teclado sobe, e reaproveitou o mesmo widget nas duas telas, deixando cada uma só com os campos e o texto de apoio.
+  * **Dificuldades e ajustes manuais:** A integração com a autenticação ficou como pendência (comentário no `onSubmit`), pois depende do backend. Foi necessário revisar manualmente as cores usadas no cabeçalho para manter o padrão do tema.
+
+* **Criação do arquivo de cores Tailwind (03/11):**
+  * **O que foi feito:** Criação de `lib/shared/themes/tailwind_colors.dart`, com a paleta do Tailwind CSS (v3.4) como constantes Dart, para uso como `TailwindColors.sky500`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um desenvolvedor Flutter com experiência em design systems.
+    >
+    > **Tarefa:** criar uma classe `TailwindColors` com a paleta de cores do Tailwind CSS v3.4.
+    >
+    > **Requisitos:**
+    > 1. Uma constante `Color` para cada tom (50 a 950) de cada família de cores, além de `black` e `white`.
+    > 2. Nomes no padrão `familiaTom` (ex.: `blue500`, `slate900`).
+    > 3. Construtor privado e constantes `static const`, sem instanciar a classe.
+    > 4. Valores em hexadecimal idênticos aos da documentação oficial do Tailwind.
+  * **Como a IA ajudou:** Gerou as constantes de todas as famílias da paleta, organizadas por comentários de seção, o que evitou digitar os valores à mão.
+  * **Dificuldades e ajustes manuais:** Os valores hexadecimais gerados precisaram ser conferidos com a documentação oficial do Tailwind, já que a IA pode errar algum tom. Também foi preciso confirmar que as cores usadas nas telas (como `sky500` e `zinc50`) existem na classe.
 
 ### Mateus Henrique de Araújo Santos
 
