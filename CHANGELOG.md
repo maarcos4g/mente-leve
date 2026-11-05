@@ -65,4 +65,6 @@
 
 ### Adicionado
 
-- Criação do sumário de documentação (`docs/README.md`) com mapa de navegação e índice detalhado dos artefatos do projeto.
+- Estrutura-base do projeto flutter.
+- Implementação do Design System (Cores, tipografias, assets).
+- Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
