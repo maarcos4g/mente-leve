@@ -1,55 +1,107 @@
 # Registro de Uso de Inteligência Artificial — MenteLeve
 
-## 1. Contexto e Abordagem
+Este documento registra como a equipe do **MenteLeve** utiliza ferramentas de Inteligência Artificial Generativa como apoio ao desenvolvimento do projeto.
 
-O uso de Inteligência Artificial Generativa no projeto vem sendo adotado como ferramenta de apoio técnico para acelerar tarefas operacionais de engenharia e planejamento, servindo como suporte nas tomadas de decisão e na escrita de scripts auxiliares.
-
-Até o presente momento, o trabalho esteve concentrado na **estruturação do backlog ágil, integração com o Jira Cloud e planejamento das entregas**. Nenhum código do aplicativo móvel foi implementado ainda nesta etapa.
+O objetivo é manter o registro transparente: a IA é utilizada como suporte técnico para tirar dúvidas, revisar código e auxiliar em tarefas operacionais, sendo que todo o trabalho é revisado e validado pelos integrantes.
 
 ---
 
-## 2. Atividades em que a IA foi Utilizada
+## Registros de Uso por Sprint
 
-### 2.1. Planejamento Ágil e Divisão do Backlog
-- Auxílio na divisão do projeto em Épicos temáticos e decomposição em Stories e Tasks.
-- Apoio na formulação de Critérios de Aceite para cada tarefa.
-- Estruturação do calendário e da distribuição de carga de trabalho entre as 4 sprints planejadas.
+## Sprint 1
 
-### 2.2. Automação e Integração com a API do Jira
-- Desenvolvimento de scripts em Python para automatizar a criação em lote das tarefas e épicos na API do Jira Cloud.
-- Montagem da estrutura de dados em *Atlassian Document Format* (ADF) para formatação de texto das descrições.
-- Criação de rotinas para vinculação hierárquica (tarefas filhas conectadas aos seus respectivos épicos pais) e alocação de tarefas dentro de cada Sprint.
+### Alexandre Pedro de Matos Ferreira
 
----
+* **Automação e Integração com Jira:**
+  * **O que foi feito:** Apoio na estruturação inicial das tarefas do projeto (épicos, histórias e tarefas, com critérios de aceite e calendário de quatro sprints) e escrita de um script em Python para cadastrar os itens na API do Jira Cloud.
+  * **Ferramenta utilizada:** Antigravity (Gemini 3.6 flash).
+  * **Prompts utilizados:**
+    * > Atue como um Scrum Master experiente. Escreva um script em Python que crie épicos e tarefas em lote em um projeto SCRUM do Jira Cloud via API, com descrições em Atlassian Document Format, tarefas filhas vinculadas aos épicos e atribuídas às sprints.
+    * > Atue como um gerente de projetos ágil. Monte um calendário de desenvolvimento em quatro sprints, priorizado da fase inicial até a final.
+  * **Como a IA ajudou:** Ajudou na montagem da requisição HTTP, na formatação das descrições, na vinculação das tarefas filhas aos épicos e na atribuição das tarefas às sprints.
+  * **Dificuldades e ajustes manuais:**
+    1. **Campo de estimativa:** A IA indicou um código de campo incorreto (`customfield_10026`), que causava erro `400` na API do Jira. Foi necessário consultar os metadados dos campos e a documentação para achar o campo certo (`customfield_10016`).
+    2. **Nome das sprints:** A IA sugeriu nomes com mais de 30 caracteres, que a API rejeita. Os nomes foram reduzidos manualmente e as descrições movidas para o objetivo (*goal*) da sprint.
+    3. **Acentuação no Windows:** O `json.dumps()` escapava os caracteres em português, quebrando verificações condicionais. A correção foi usar `ensure_ascii=False` e definir a codificação UTF-8.
+    4. **Campos de hierarquia:** A IA enviava ao mesmo tempo `parent` e o campo legado `customfield_10014` (Epic Link), gerando avisos. O payload passou a usar somente `parent`.
 
-## 3. Prompts Utilizados
+* **Revisão Técnica de Código (Pull Request #5 — 05/11):**
+  * **O que foi feito:** Revisão do PR com o setup inicial do Flutter, temas e telas de login/avatar.
+  * **Ferramenta utilizada:** Antigravity (Gemini 3.6 flash).
+  * **Prompt utilizado:**
+    > Atue como um desenvolvedor Flutter sênior. Revise o código deste Pull Request (setup inicial, temas e telas de login/avatar) e aponte possíveis problemas visuais e inconsistências antes do merge na `main`.
+  * **Como a IA ajudou:** Apontou o risco de *overflow* (quando o teclado do celular sobe e estoura a tela) na tela de identificação do aluno por falta de scroll, e sugeriu unificar cores soltas para o padrão do tema.
+  * **Dificuldades e ajustes manuais:** A IA considerou recursos muito recentes do Flutter (como `spacing` em Row/Column), mas mantivemos o uso de `SizedBox` para evitar problemas de compilação em computadores com versões anteriores do SDK.
 
-### Prompt 1: Estruturação de Script para API do Jira
-> *"Crie um script em Python que conecte à API do Jira Cloud para cadastrar épicos e tarefas no projeto SCRUM."*
+* **Organização do Repositório e Documentação (05/11):**
+  * **O que foi feito:** Reorganização da pasta `docs/`, padronização dos nomes dos fluxogramas e criação do sumário (`docs/README.md`).
+  * **Ferramenta utilizada:** Antigravity (Gemini 3.6 flash).
+  * **Prompt utilizado:**
+    > Atue como um especialista em documentação de projetos. Reorganize a pasta `docs/` separando apresentações, protótipos e diagramas, padronize os nomes dos fluxogramas e crie um sumário para facilitar a navegação no GitHub.
+  * **Como a IA ajudou:** Auxiliou na estrutura de pastas e na padronização dos nomes.
+  * **Dificuldades e ajustes manuais:** Nenhuma dificuldade relevante registrada.
 
-### Prompt 2: Organização e Escopo das Sprints
-> *"Com base nas funcionalidades do projeto MenteLeve, estruture uma proposta de calendário de 4 sprints de desenvolvimento, organizando o que deve ser prioridade inicial até as fases finais, distribuindo o backlog de forma equilibrada."*
+### Abraão Luiz Ribeiro da Cruz Dantas
 
----
+*(A preencher pelo integrante)*
 
-## 4. Problemas Encontrados na IA e Correções Realizadas
+### Marcos Paulo
 
-Durante o desenvolvimento das automações e configurações com o Jira, a IA gerou respostas com erros técnicos que precisaram ser identificados e corrigidos manualmente:
+* **Reorganização da pasta `docs/` em subpastas temáticas (05/11):**
+  * **O que foi feito:** Criação das subpastas `docs/modelagem/` (casos de uso, diagrama de classes, modelagem Firestore e mapeamento Dart) e `docs/levantamento/` (benchmark, escopo, estudo de caso, funcionalidades, justificativas, pesquisa e requisitos), mantendo as pastas já existentes sem alteração.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um especialista em documentação de projetos de software.
+    >
+    > **Tarefa:** reorganizar a pasta `docs/`.
+    >
+    > **Regras:**
+    > 1. Manter as pastas que já existem, sem alterá-las.
+    > 2. Mover casos de uso, diagrama de classes, modelagem Firestore e mapeamento Dart para uma nova subpasta.
+    > 3. Mover benchmark, escopo, estudo de caso, funcionalidades, justificativas, pesquisa e requisitos para outra nova subpasta.
+    > 4. Criar as subpastas dentro de `docs/` e sugerir os nomes delas.
+    > 5. Atualizar os links internos que quebrarem com a mudança.
+  * **Como a IA ajudou:** Sugeriu os nomes das pastas, moveu os arquivos com `git mv` (preservando o histórico) e corrigiu os caminhos das imagens e as referências em `eap.md`, `escopo.md` e `CHANGELOG.md`.
+  * **Dificuldades e ajustes manuais:** As referências antigas em `escopo.md` e `CHANGELOG.md` já estavam desatualizadas (nomes que não batiam com os arquivos reais), e foram corrigidas na mesma ocasião. Os nomes das subpastas foram revisados antes de seguir.
 
-### 1. Seleção Incorreta do Campo de Story Points
-* **O problema:** A IA sugeriu utilizar o campo `customfield_10026` para estimativas, baseando-se em uma busca por aproximação. A API do Jira rejeitou as requisições com erro `HTTP 400`, pois esse campo correspondia a outro tipo de dado da instância.
-* **A solução:** Foi feita uma consulta aos metadados de campos da API (`/rest/api/3/field`), identificando que o campo real de estimativa era o `customfield_10016` (*Story point estimate*). O script foi corrigido para apontar para o identificador correto.
+* **Telas de login do psicólogo e do responsável (03/11):**
+  * **O que foi feito:** Criação das telas `PsychologistAuthView` e `ParentsAuthView`, de seus controllers com validação de formulário e do widget reutilizável `ProfileAuthScaffold` (cabeçalho com logo, ilustração, campos e botão de entrada).
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um desenvolvedor Flutter sênior.
+    >
+    > **Tarefa:** criar as telas de login dos perfis psicólogo e responsável, seguindo o padrão visual da tela de login do aluno.
+    >
+    > **Requisitos:**
+    > 1. Psicólogo: campos de e-mail institucional e senha, com validação de e-mail por expressão regular.
+    > 2. Responsável: campos de número de identificação (teclado numérico) e senha fornecida pela escola.
+    > 3. Mensagens de erro para campo vazio e e-mail inválido.
+    > 4. Um controller por tela (`formKey` e métodos de validação), sem integrar a autenticação ainda.
+    > 5. Extrair o layout em comum para um widget reutilizável, evitando código duplicado entre as telas.
+    > 6. Usar as cores do tema e o campo de texto compartilhado do projeto.
+  * **Como a IA ajudou:** Estruturou o `ProfileAuthScaffold` com `SingleChildScrollView`, o que evita *overflow* quando o teclado sobe, e reaproveitou o mesmo widget nas duas telas, deixando cada uma só com os campos e o texto de apoio.
+  * **Dificuldades e ajustes manuais:** A integração com a autenticação ficou como pendência (comentário no `onSubmit`), pois depende do backend. Foi necessário revisar manualmente as cores usadas no cabeçalho para manter o padrão do tema.
 
-### 2. Limite de Caracteres no Nome das Sprints
-* **O problema:** Ao tentar criar sprints com títulos longos descritivos sugeridos pela IA, a API do Jira retornou erro informando que o nome da sprint deve ter menos de 30 caracteres.
-* **A solução:** Os nomes das sprints foram simplificados para um padrão conciso (ex.: `Sprint 1 (01/11 - 08/11)`), e as informações descritivas foram transferidas para o campo de metas (*goal*).
+* **Criação do arquivo de cores Tailwind (03/11):**
+  * **O que foi feito:** Criação de `lib/shared/themes/tailwind_colors.dart`, com a paleta do Tailwind CSS (v3.4) como constantes Dart, para uso como `TailwindColors.sky500`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um desenvolvedor Flutter com experiência em design systems.
+    >
+    > **Tarefa:** criar uma classe `TailwindColors` com a paleta de cores do Tailwind CSS v3.4.
+    >
+    > **Requisitos:**
+    > 1. Uma constante `Color` para cada tom (50 a 950) de cada família de cores, além de `black` e `white`.
+    > 2. Nomes no padrão `familiaTom` (ex.: `blue500`, `slate900`).
+    > 3. Construtor privado e constantes `static const`, sem instanciar a classe.
+    > 4. Valores em hexadecimal idênticos aos da documentação oficial do Tailwind.
+  * **Como a IA ajudou:** Gerou as constantes de todas as famílias da paleta, organizadas por comentários de seção, o que evitou digitar os valores à mão.
+  * **Dificuldades e ajustes manuais:** Os valores hexadecimais gerados precisaram ser conferidos com a documentação oficial do Tailwind, já que a IA pode errar algum tom. Também foi preciso confirmar que as cores usadas nas telas (como `sky500` e `zinc50`) existem na classe.
 
-### 3. Falha de Encoding de Caracteres Acentuados no Windows
-* **O problema:** Em rotinas de leitura e manipulação de textos gerados pela API, o uso padrão de `json.dumps()` transformou caracteres acentuados da língua portuguesa (como `Responsável` e `Épico`) em sequências de escape Unicode (`\u00e1`), fazendo com que verificações condicionais falhassem silenciosamente.
-* **A solução:** Foi adicionado o parâmetro `ensure_ascii=False` na serialização e ajustado o encoding do ambiente para UTF-8.
+### Mateus Henrique de Araújo Santos
 
-### 4. Conflito entre Campos de Vínculo Hierárquico
-* **O problema:** A IA tentou enviar simultaneamente o campo moderno `parent` e o campo legado `customfield_10014` (*Epic Link*), gerando redundância e avisos de campo inválido na API.
-* **A solução:** A estrutura do payload foi ajustada para utilizar exclusivamente o campo `parent`, que é o padrão suportado para projetos no Jira Cloud.
+*(A preencher pelo integrante)*
 
----
+### Rayelen de Jesus Oliveira
+
+*(A preencher pelo integrante)*

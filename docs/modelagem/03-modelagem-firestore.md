@@ -2,7 +2,7 @@
 
 O app usa dois armazenamentos. O Firestore guarda conteúdo da escola e denúncias. O aparelho guarda o diário do aluno, e esses dados nunca vão para a nuvem.
 
-![Modelo do Firestore](diagramas/modelagem-firestore.png)
+![Modelo do Firestore](../diagramas/modelagem-firestore.png)
 
 Código-fonte do diagrama:
 

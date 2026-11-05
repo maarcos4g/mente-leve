@@ -35,7 +35,7 @@
 
 ### Adicionado
 
-- Declaração formal de Escopo do Projeto e Calendário de Sprints (`docs/escopo.md`).
+- Declaração formal de Escopo do Projeto e Calendário de Sprints (`docs/levantamento/escopo.md`).
 - Registro de uso e governança de Inteligência Artificial (`docs/uso-de-ia.md`).
 - Arquivo `.gitignore` para proteção de credenciais de ambiente e arquivos de apoio.
 - Diagramas de Caso de uso
@@ -56,6 +56,15 @@
 - Estados de erro e vazio mapeados: credencial inválida, sem conexão, falha ao salvar, diário vazio, sem discador, FAQ e guias sem cache, triagem sem denúncias, denúncia aguardando envio e sem resposta.
 
 ## [05/11/2026]
+
+### Modificado
+
+- Reorganização da pasta `docs/` com criação de subdiretórios dedicados para apresentações (`docs/apresentacoes/`) e protótipos (`docs/prototipos/`).
+- Padronização dos nomes dos fluxogramas (`docs/fluxogramas/`) em formato limpo (*kebab-case*), sem espaços ou caracteres especiais.
+- Atualização e simplificação do registro de uso de IA (`docs/uso-de-ia.md`), estruturado por integrante com template rápido e registros das atividades de revisão técnica e governança.
+- Registro de uso de IA (`docs/uso-de-ia.md`) reorganizado por sprint e colaborador, com prompts utilizados e problemas e ajustes manuais de cada atividade.
+- Criação das subpastas `docs/modelagem/` (casos de uso, diagrama de classes, modelagem Firestore e mapeamento Dart) e `docs/levantamento/` (benchmark, escopo, estudo de caso, funcionalidades, justificativas, pesquisa e requisitos).
+- Links internos e referências a documentos atualizados para os novos caminhos (`docs/eap.md`, `docs/levantamento/escopo.md` e imagens dos documentos de modelagem).
 
 ### Adicionado
 
