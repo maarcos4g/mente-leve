@@ -57,7 +57,9 @@ class OnboardingView extends StatelessWidget {
                   ),
                   icon: LucideIcons.graduationCap,
                   backgroundColor: TailwindColors.zinc50,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/auth/student');
+                  },
                 ),
                 SizedBox(height: 48),
                 InkWell(
