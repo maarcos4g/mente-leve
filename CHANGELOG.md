@@ -61,4 +61,4 @@
 
 - Estrutura-base do projeto flutter.
 - Implementação do Design System (Cores, tipografias, assets).
-- Construção das telas de login nos módulos de aluno, psicólogos e responsáveis familiares.
+- Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
