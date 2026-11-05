@@ -54,3 +54,11 @@
   - Fluxo 4: psicóloga (triagem, resposta, gestão de FAQ e guias) e responsável (consulta de guias).
 - Legenda de cores (tela, entrada/destino, concluído, erro, vazio/pendente, CVV ou sem protótipo, só no protótipo).
 - Estados de erro e vazio mapeados: credencial inválida, sem conexão, falha ao salvar, diário vazio, sem discador, FAQ e guias sem cache, triagem sem denúncias, denúncia aguardando envio e sem resposta.
+
+## [05/11/2026]
+
+### Adicionado
+
+- Estrutura-base do projeto flutter.
+- Implementação do Design System (Cores, tipografias, assets).
+- Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
