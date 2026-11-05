@@ -16,6 +16,5 @@ class StudentAuthController {
     nickname = name ?? nickname;
   }
 
-  /// Valida o formulário. Retorna `true` se os dados estão corretos.
   bool submit() => formKey.currentState?.validate() ?? false;
 }

@@ -31,7 +31,7 @@ class _PsychologistAuthViewState extends State<PsychologistAuthView> {
       illustration: 'assets/images/psychologist.png',
       onSubmit: () {
         if (controller.login()) {
-          // TODO: integrar autenticação.
+          // integrar autenticação.
         }
       },
       fields: [

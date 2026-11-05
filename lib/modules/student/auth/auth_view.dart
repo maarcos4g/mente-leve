@@ -77,7 +77,7 @@ class _StudentAuthViewState extends State<StudentAuthView> {
                         right: -4,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: TailwindColors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: TailwindColors.sky500,
@@ -93,9 +93,8 @@ class _StudentAuthViewState extends State<StudentAuthView> {
                               LucideIcons
                                   .squarePen, // Pode substituir pelo LucideIcons.edit
                               size: 16,
-                              color: Color(
-                                0xFF71717A,
-                              ), // TailwindColors.zinc500
+                              color: TailwindColors
+                                  .zinc950, // TailwindColors.zinc500
                             ),
                           ),
                         ),

@@ -31,7 +31,7 @@ class _ParentsAuthViewState extends State<ParentsAuthView> {
       illustration: 'assets/images/parents.png',
       onSubmit: () {
         if (controller.login()) {
-          // TODO: integrar autenticação.
+          // integrar autenticação.
         }
       },
       fields: [
