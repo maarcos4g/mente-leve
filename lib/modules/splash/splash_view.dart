@@ -8,8 +8,8 @@ class SplashView extends StatefulWidget {
   State<SplashView> createState() => _SplashViewState();
 }
 
-class _SplashViewState extends State<SplashView> with SingleTickerProviderStateMixin {
-  
+class _SplashViewState extends State<SplashView>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -22,12 +22,10 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
       duration: const Duration(milliseconds: 1000),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.15,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.repeat(reverse: true);
 
@@ -49,10 +47,7 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
-          child: Image.asset(
-            'assets/images/breno.png', 
-            width: 150,
-          ),
+          child: Image.asset('assets/images/breno.png', width: 150),
         ),
       ),
     );

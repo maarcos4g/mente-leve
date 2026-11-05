@@ -7,7 +7,14 @@ class ButtonWidget extends StatelessWidget {
   final IconData? icon;
   final Color backgroundColor;
 
-  const ButtonWidget({super.key, this.onPressed, required this.label, required this.textStyle, this.icon, required this.backgroundColor});
+  const ButtonWidget({
+    super.key,
+    this.onPressed,
+    required this.label,
+    required this.textStyle,
+    this.icon,
+    required this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +28,13 @@ class ButtonWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
-          spacing: 24,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) Icon(icon, color: textStyle.color, size: 24),
-            Text(
-              label,
-              style: textStyle,
-            ),
+            if (icon != null) ...[
+              Icon(icon, color: textStyle.color, size: 24),
+              const SizedBox(width: 24),
+            ],
+            Text(label, style: textStyle),
           ],
         ),
       ),

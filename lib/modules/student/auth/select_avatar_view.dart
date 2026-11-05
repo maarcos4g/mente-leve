@@ -61,10 +61,7 @@ class SelectAvatarView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: Text(
-          'Escolha seu avatar',
-          style: AppTextStyles.captionMedium,
-        ),
+        title: Text('Escolha seu avatar', style: AppTextStyles.captionMedium),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back),

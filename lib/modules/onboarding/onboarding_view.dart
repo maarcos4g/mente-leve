@@ -23,7 +23,7 @@ class OnboardingView extends StatelessWidget {
               Container(
                 width: double.infinity,
                 height: MediaQuery.of(context).size.height * 0.5,
-                decoration: BoxDecoration(color: Colors.blue),
+                decoration: BoxDecoration(color: TailwindColors.sky500),
               ),
             ],
           ),
@@ -83,7 +83,6 @@ class OnboardingView extends StatelessWidget {
                           padding: EdgeInsets.all(24.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 16,
                             children: [
                               Container(
                                 width: 50,
@@ -93,13 +92,14 @@ class OnboardingView extends StatelessWidget {
                                   color: TailwindColors.zinc500,
                                 ),
                               ),
+                              SizedBox(height: 16),
                               Text(
                                 'Com qual perfil gostaria de acessar?',
                                 style: AppTextStyles.captionMedium.copyWith(
                                   color: TailwindColors.zinc950,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              SizedBox(height: 24),
                               ButtonWidget(
                                 label: "Gestão educacional",
                                 textStyle: AppTextStyles.buttonHeading.copyWith(
@@ -107,8 +107,15 @@ class OnboardingView extends StatelessWidget {
                                 ),
                                 icon: LucideIcons.graduationCap,
                                 backgroundColor: TailwindColors.sky600,
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/auth/psychologist',
+                                  );
+                                },
                               ),
+                              SizedBox(height: 16),
                               ButtonWidget(
                                 label: "Responsável",
                                 textStyle: AppTextStyles.buttonHeading.copyWith(
@@ -116,7 +123,10 @@ class OnboardingView extends StatelessWidget {
                                 ),
                                 icon: LucideIcons.userLock,
                                 backgroundColor: TailwindColors.sky600,
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.pushNamed(context, '/auth/parents');
+                                },
                               ),
                             ],
                           ),
