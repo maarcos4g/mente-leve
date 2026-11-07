@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mente_leve/shared/models/local_user_model.dart';
 
 class StudentAuthController {
   final formKey = GlobalKey<FormState>();
@@ -17,4 +18,7 @@ class StudentAuthController {
   }
 
   bool submit() => formKey.currentState?.validate() ?? false;
+
+  LocalUserModel get profile =>
+      LocalUserModel(nickname: nickname.trim(), avatar: avatarPath);
 }
