@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mente_leve/modules/psychologist/auth/auth_controller.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:mente_leve/shared/auth/auth_notifier.dart';
+import 'package:mente_leve/shared/models/enums/user_role.dart';
 import 'package:mente_leve/shared/widgets/input_text_field/input_text_field.dart';
 import 'package:mente_leve/shared/widgets/auth/profile_auth_scaffold.dart';
+import 'package:provider/provider.dart';
 
 class PsychologistAuthView extends StatefulWidget {
   const PsychologistAuthView({super.key});
@@ -23,17 +26,30 @@ class _PsychologistAuthViewState extends State<PsychologistAuthView> {
     super.dispose();
   }
 
+  Future<void> _submit() async {
+    if (!controller.validate()) return;
+    final error = await context.read<AuthNotifier>().signInAsInstitutional(
+      email: emailController.text.trim(),
+      password: passwordController.text,
+      role: Role.psychologist,
+    );
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
+    Navigator.pushNamedAndRemoveUntil(context, '/psychologist/home', (_) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProfileAuthScaffold(
       formKey: controller.formKey,
       subtitle: 'Acesso exclusivo para equipe\npedagógica e psicólogos.',
       illustration: 'assets/images/psychologist.png',
-      onSubmit: () {
-        if (controller.login()) {
-          // integrar autenticação.
-        }
-      },
+      onSubmit: _submit,
       fields: [
         InputTextField(
           controller: emailController,

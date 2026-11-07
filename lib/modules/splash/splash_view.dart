@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mente_leve/shared/auth/auth_notifier.dart';
+import 'package:mente_leve/shared/models/enums/user_role.dart';
+import 'package:provider/provider.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -29,15 +32,33 @@ class _SplashViewState extends State<SplashView>
 
     _controller.repeat(reverse: true);
 
-    Timer(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacementNamed('/onboarding');
-    });
+    _bootstrap();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  static String homeFor(Role role) => switch (role) {
+    Role.student => '/student/home',
+    Role.parent => '/parents/home',
+    Role.psychologist => '/psychologist/home',
+  };
+  
+  Future<void> _bootstrap() async {
+    final auth = context.read<AuthNotifier>();
+
+    await Future.wait([
+      auth.restore(),
+      Future<void>.delayed(Duration(seconds: 3))
+    ]);
+    if (!mounted) return;
+    final session = auth.session;
+    Navigator.of(context).pushReplacementNamed(
+      session == null ? '/onboarding' : homeFor(session.role)
+    );
   }
 
   @override
