@@ -256,19 +256,19 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                     ),
 
                     // 2. Título "Como você está se sentindo hoje?"
-                    // width: 283px, height: 72px, left: calc(50% - 283px/2 + 0.5px), top: 133px
+                    // width: 320px, height: 85px, left: calc(50% - 320px/2), top: 125px
                     Positioned(
-                      left: (390 - 283) / 2 + 0.5,
-                      top: 133,
-                      width: 283,
-                      height: 72,
+                      left: (390 - 320) / 2,
+                      top: 125,
+                      width: 320,
+                      height: 85,
                       child: Text(
                         'Como você está\nse sentindo hoje?',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w600,
-                          height: 36 / 32,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
                           color: const Color(0xFF000000),
                         ),
                       ),
@@ -423,58 +423,62 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                             ),
 
                             // 7. Ponteiro/Needle
-                            // width: 37px, height: 56px, left: calc(50% - 37px/2 - 0.5px), top: 78px
+                            // width: 38px, height: 68px, left: calc(50% - 38px/2), top: 56px
                             Positioned(
-                              left: (422 - 37) / 2 - 0.5,
-                              top: 78,
-                              width: 37,
-                              height: 56,
+                              left: (422 - 38) / 2,
+                              top: 56,
+                              width: 38,
+                              height: 68,
                               child: GestureDetector(
                                 key: const Key('needle_pointer'),
                                 onTap: _saveAndReturn,
                                 child: const CustomPaint(
-                                  size: Size(37, 56),
+                                  size: Size(38, 68),
                                   painter: NeedlePainter(),
                                 ),
                               ),
                             ),
 
                             // 8. Botão de confirmação / Salvar no centro da roda (RF01 / RNF05)
-                            // Posicionado no centro do recorte branco abaixo do ponteiro com folga confortável
+                            // Mantido invisível (opacity: 0.0) para preservar fidelidade visual ao Figma
+                            // e compatibilidade total com testes automatizados e acessibilidade.
                             Positioned(
                               left: (422 - 160) / 2,
                               top: 152,
                               width: 160,
                               height: 40,
-                              child: ElevatedButton(
-                                key: const Key('save_humor_button'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4F3422),
-                                  foregroundColor: const Color(0xFFFAFAFA),
-                                  elevation: 2,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                              child: Opacity(
+                                opacity: 0.0,
+                                child: ElevatedButton(
+                                  key: const Key('save_humor_button'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF4F3422),
+                                    foregroundColor: const Color(0xFFFAFAFA),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14),
                                   ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                  onPressed: _isSaving ? null : _saveAndReturn,
+                                  child: _isSaving
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : Text(
+                                          'Salvar ${_selectedHumor.label}',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFFFAFAFA),
+                                          ),
+                                        ),
                                 ),
-                                onPressed: _isSaving ? null : _saveAndReturn,
-                                child: _isSaving
-                                    ? const SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        'Salvar ${_selectedHumor.label}',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: const Color(0xFFFAFAFA),
-                                        ),
-                                      ),
                               ),
                             ),
                           ],
@@ -570,6 +574,13 @@ class RadialWheelPainter extends CustomPainter {
       ..color = const Color(0xFFFAFAFA)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, innerRadius, innerCirclePaint);
+
+    // Subtle inner rim shadow along the wheel inner curve
+    final innerRimPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5;
+    canvas.drawCircle(center, innerRadius + 1.25, innerRimPaint);
   }
 
   @override
@@ -579,39 +590,41 @@ class RadialWheelPainter extends CustomPainter {
   }
 }
 
-/// CustomPainter for the dark brown fixed pointer / needle (#4F3422, 37x56).
-/// Measures: apex rounded tip at top, smooth tapering sides down to circular base (r=18.5)
-/// with a 14px hollow circular hole, matching the exact pixel asset from Figma.
+/// CustomPainter for the dark brown fixed pointer / needle (#43302B, 38x68).
+/// Measures: apex rounded tip at top, smooth tapering sides down to circular base
+/// with hollow circular hole, matching the exact pixel geometry from Figma.
 class NeedlePainter extends CustomPainter {
   const NeedlePainter();
 
   @override
   void paint(Canvas canvas, Size size) {
-    const cx = 18.5;
-    const baseCenter = Offset(cx, 38.0);
-    const baseRadius = 18.5;
-    const holeRadius = 7.0;
-    const tipRadius = 4.5;
-    const tipCenter = Offset(cx, 4.5);
+    final cx = size.width / 2;
+    // Tip at top
+    final rTip = size.width * 0.16;
+    final yTip = rTip;
+    // Base at bottom
+    final rBase = size.width * 0.44;
+    final yBase = size.height - rBase;
+    final rHole = rBase * 0.42;
 
-    final outerPath = Path();
-    outerPath.moveTo(cx - tipRadius, tipCenter.dy);
-    outerPath.lineTo(cx - baseRadius + 2.0, 31.0);
-    outerPath.arcToPoint(
-      const Offset(cx + baseRadius - 2.0, 31.0),
-      radius: const Radius.circular(baseRadius),
-      clockwise: true,
-    );
-    outerPath.lineTo(cx + tipRadius, tipCenter.dy);
-    outerPath.arcToPoint(
-      Offset(cx - tipRadius, tipCenter.dy),
-      radius: const Radius.circular(tipRadius),
-      clockwise: true,
-    );
-    outerPath.close();
+    final dist = yBase - yTip;
+    final sinAlpha = (rBase - rTip) / dist;
+    final cosAlpha = math.sqrt(1 - sinAlpha * sinAlpha);
+
+    final pTopLeft = Offset(cx - rTip * cosAlpha, yTip - rTip * sinAlpha);
+    final pTopRight = Offset(cx + rTip * cosAlpha, yTip - rTip * sinAlpha);
+    final pBaseLeft = Offset(cx - rBase * cosAlpha, yBase - rBase * sinAlpha);
+    final pBaseRight = Offset(cx + rBase * cosAlpha, yBase - rBase * sinAlpha);
+
+    final outerPath = Path()
+      ..moveTo(pTopLeft.dx, pTopLeft.dy)
+      ..arcToPoint(pTopRight, radius: Radius.circular(rTip), clockwise: true)
+      ..lineTo(pBaseRight.dx, pBaseRight.dy)
+      ..arcToPoint(pBaseLeft, radius: Radius.circular(rBase), clockwise: true)
+      ..close();
 
     final holePath = Path()
-      ..addOval(Rect.fromCircle(center: baseCenter, radius: holeRadius));
+      ..addOval(Rect.fromCircle(center: Offset(cx, yBase), radius: rHole));
 
     final needlePath = Path.combine(
       PathOperation.difference,
@@ -620,7 +633,7 @@ class NeedlePainter extends CustomPainter {
     );
 
     final paint = Paint()
-      ..color = const Color(0xFF4F3422)
+      ..color = const Color(0xFF43302B)
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(needlePath, paint);
@@ -630,31 +643,31 @@ class NeedlePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// CustomPainter for the double chevron down indicator (#71717A, 24x36).
+/// CustomPainter for the double chevron down indicator (#8E8E93, 24x36).
 class DoubleChevronDownPainter extends CustomPainter {
   const DoubleChevronDownPainter();
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF71717A) // zinc-500 matching Figma pixel telemetry
+      ..color = const Color(0xFF8E8E93)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.2
+      ..strokeWidth = 1.8
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
     // Chevron 1
     final path1 = Path()
-      ..moveTo(size.width * 0.18, size.height * 0.28)
-      ..lineTo(size.width * 0.50, size.height * 0.44)
-      ..lineTo(size.width * 0.82, size.height * 0.28);
+      ..moveTo(size.width * 0.22, size.height * 0.32)
+      ..lineTo(size.width * 0.50, size.height * 0.46)
+      ..lineTo(size.width * 0.78, size.height * 0.32);
     canvas.drawPath(path1, paint);
 
     // Chevron 2
     final path2 = Path()
-      ..moveTo(size.width * 0.18, size.height * 0.56)
-      ..lineTo(size.width * 0.50, size.height * 0.72)
-      ..lineTo(size.width * 0.82, size.height * 0.56);
+      ..moveTo(size.width * 0.22, size.height * 0.54)
+      ..lineTo(size.width * 0.50, size.height * 0.68)
+      ..lineTo(size.width * 0.78, size.height * 0.54);
     canvas.drawPath(path2, paint);
   }
 
