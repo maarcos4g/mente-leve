@@ -37,9 +37,9 @@ class EmojiButton extends StatelessWidget {
             curve: Curves.easeInOut,
             constraints: const BoxConstraints(
               minWidth: 54,
-              minHeight: 68,
+              minHeight: 72,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected ? humor.backgroundColor : TailwindColors.white,
               borderRadius: BorderRadius.circular(16),
@@ -70,17 +70,21 @@ class EmojiButton extends StatelessWidget {
                 Text(
                   humor.emoji,
                   style: const TextStyle(
-                    fontSize: 32,
+                    fontSize: 30,
                     height: 1.1,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  humor.label,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.textXs.copyWith(
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                    color: isSelected ? humor.color : TailwindColors.zinc700,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    humor.label,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    style: AppTextStyles.textXs.copyWith(
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? humor.color : TailwindColors.zinc700,
+                    ),
                   ),
                 ),
               ],

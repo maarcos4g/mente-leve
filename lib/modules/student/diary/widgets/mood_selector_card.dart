@@ -85,28 +85,65 @@ class MoodSelectorCard extends StatelessWidget {
               ),
               const SizedBox(height: 18),
 
-              // Grade de 6 emojis de humor
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 10,
-                    alignment: WrapAlignment.spaceBetween,
-                    children: Humor.values.map((humor) {
-                      final isSelected = controller.selectedHumor == humor;
-                      // Calcula largura para acomodar 3 colunas uniformes
-                      final itemWidth = (constraints.maxWidth - 16) / 3;
-                      return SizedBox(
-                        width: itemWidth,
+              // Grade de 6 emojis de humor em 2 linhas equilibradas de 3 colunas
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
                         child: EmojiButton(
-                          humor: humor,
-                          isSelected: isSelected,
-                          onTap: () => controller.selectHumor(humor),
+                          humor: Humor.feliz,
+                          isSelected: controller.selectedHumor == Humor.feliz,
+                          onTap: () => controller.selectHumor(Humor.feliz),
                         ),
-                      );
-                    }).toList(),
-                  );
-                },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: EmojiButton(
+                          humor: Humor.neutro,
+                          isSelected: controller.selectedHumor == Humor.neutro,
+                          onTap: () => controller.selectHumor(Humor.neutro),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: EmojiButton(
+                          humor: Humor.triste,
+                          isSelected: controller.selectedHumor == Humor.triste,
+                          onTap: () => controller.selectHumor(Humor.triste),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: EmojiButton(
+                          humor: Humor.ansioso,
+                          isSelected: controller.selectedHumor == Humor.ansioso,
+                          onTap: () => controller.selectHumor(Humor.ansioso),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: EmojiButton(
+                          humor: Humor.comRaiva,
+                          isSelected: controller.selectedHumor == Humor.comRaiva,
+                          onTap: () => controller.selectHumor(Humor.comRaiva),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: EmojiButton(
+                          humor: Humor.cansado,
+                          isSelected: controller.selectedHumor == Humor.cansado,
+                          onTap: () => controller.selectHumor(Humor.cansado),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
 
               const SizedBox(height: 18),
@@ -144,18 +181,23 @@ class MoodSelectorCard extends StatelessWidget {
                         )
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(LucideIcons.penLine, size: 18),
                             const SizedBox(width: 8),
-                            Text(
-                              controller.selectedHumor == null
-                                  ? 'Selecione um emoji acima'
-                                  : 'Salvar ${controller.selectedHumor!.label}',
-                              style: AppTextStyles.buttonHeading.copyWith(
-                                color: controller.isReadyToSave
-                                    ? TailwindColors.white
-                                    : TailwindColors.zinc400,
-                                fontSize: 15,
+                            Flexible(
+                              child: Text(
+                                controller.selectedHumor == null
+                                    ? 'Selecione um emoji acima'
+                                    : 'Salvar ${controller.selectedHumor!.label}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.buttonHeading.copyWith(
+                                  color: controller.isReadyToSave
+                                      ? TailwindColors.white
+                                      : TailwindColors.zinc400,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ],

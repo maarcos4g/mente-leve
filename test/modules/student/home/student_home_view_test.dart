@@ -49,5 +49,27 @@ void main() {
       expect(find.text('CVV 188 — Centro de Valorização da Vida'), findsOneWidget);
       expect(find.text('Ligar 188 agora'), findsOneWidget);
     });
+
+    testWidgets('mascot advice reacts dynamically when student registers mood', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Baseline mascot tip
+      expect(
+        find.text('Registrar o que você sente ajuda a clarear os pensamentos. Pegue leve com você hoje!'),
+        findsOneWidget,
+      );
+
+      // Select and save Feliz
+      await tester.tap(find.text('Feliz'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Salvar Feliz'));
+      await tester.pumpAndSettle();
+
+      // Mascot advice dynamically updates to comforting message
+      expect(
+        find.text('Que bom te ver bem! Aproveite cada momento leve do seu dia.'),
+        findsWidgets, // present in feedback banner and mascot tip
+      );
+    });
   });
 }

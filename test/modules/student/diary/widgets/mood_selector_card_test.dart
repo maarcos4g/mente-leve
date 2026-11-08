@@ -70,5 +70,23 @@ void main() {
       await tester.tap(find.text('Ligar 188'));
       expect(cvvTapped, isTrue);
     });
+
+    testWidgets('renders cleanly without overflow on very narrow screen (320px)', (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // All 6 emotions render
+      for (final humor in Humor.values) {
+        expect(find.text(humor.label), findsOneWidget);
+      }
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }

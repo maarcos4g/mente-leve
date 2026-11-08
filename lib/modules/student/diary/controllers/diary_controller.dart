@@ -50,10 +50,10 @@ class DiaryController extends ChangeNotifier {
   bool get hasRecordedToday {
     if (_entries.isEmpty) return false;
     final now = DateTime.now();
-    final latest = _entries.first.dataHora;
-    return latest.year == now.year &&
-        latest.month == now.month &&
-        latest.day == now.day;
+    return _entries.any((entry) =>
+        entry.dataHora.year == now.year &&
+        entry.dataHora.month == now.month &&
+        entry.dataHora.day == now.day);
   }
 
   /// Inicializa o controlador carregando os registros do diário local.
@@ -85,8 +85,10 @@ class DiaryController extends ChangeNotifier {
   }
 
   /// Interação 3: Aluno salva o humor selecionado no diário.
+  ///
+  /// Protegido contra reentrância / cliques repetidos rápidos durante escrita assíncrona.
   Future<bool> saveHumor() async {
-    if (_selectedHumor == null) return false;
+    if (_selectedHumor == null || _isLoading) return false;
 
     _isLoading = true;
     notifyListeners();
@@ -128,8 +130,11 @@ class DiaryController extends ChangeNotifier {
 
   /// Exclui um registro local específico (UC05).
   Future<void> deleteEntry(String id) async {
-    await repository.delete(id);
-    _entries = await repository.getAll();
-    notifyListeners();
+    try {
+      await repository.delete(id);
+      _entries = await repository.getAll();
+    } finally {
+      notifyListeners();
+    }
   }
 }

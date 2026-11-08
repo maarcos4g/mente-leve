@@ -27,9 +27,14 @@ abstract class DiaryRepository {
 /// Projetada para operação local imediata, totalmente offline e compatível
 /// com a camada de persistência definitiva (Hive/SQLite) de RNF03.
 class LocalDiaryRepository implements DiaryRepository {
-  LocalDiaryRepository._();
+  /// Construtor público permitindo instâncias isoladas (útil para testes unitários).
+  LocalDiaryRepository([Map<String, RegistroDiario>? initialStorage]) {
+    if (initialStorage != null) {
+      _storage.addAll(initialStorage);
+    }
+  }
 
-  static final LocalDiaryRepository _instance = LocalDiaryRepository._();
+  static final LocalDiaryRepository _instance = LocalDiaryRepository();
 
   /// Instância singleton compartilhada na aplicação.
   static LocalDiaryRepository get instance => _instance;

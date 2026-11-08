@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
 
 /// Entidade do modelo de domínio que representa uma entrada no Diário
@@ -29,12 +30,13 @@ class RegistroDiario {
   RegistroDiario editar({
     Humor? humor,
     String? texto,
+    bool clearTexto = false,
     List<String>? pontosPositivos,
   }) {
     return RegistroDiario(
       id: id,
       humor: humor ?? this.humor,
-      texto: texto ?? this.texto,
+      texto: clearTexto ? null : (texto ?? this.texto),
       pontosPositivos: pontosPositivos ?? this.pontosPositivos,
       dataHora: dataHora,
     );
@@ -45,13 +47,14 @@ class RegistroDiario {
     String? id,
     Humor? humor,
     String? texto,
+    bool clearTexto = false,
     List<String>? pontosPositivos,
     DateTime? dataHora,
   }) {
     return RegistroDiario(
       id: id ?? this.id,
       humor: humor ?? this.humor,
-      texto: texto ?? this.texto,
+      texto: clearTexto ? null : (texto ?? this.texto),
       pontosPositivos: pontosPositivos ?? this.pontosPositivos,
       dataHora: dataHora ?? this.dataHora,
     );
@@ -68,14 +71,22 @@ class RegistroDiario {
 
   /// Desserialização a partir do mapa persistido.
   factory RegistroDiario.fromMap(Map<dynamic, dynamic> map) {
+    final rawDate = map['dataHora'];
+    final DateTime parsedDate = rawDate is DateTime
+        ? rawDate
+        : DateTime.parse(rawDate as String);
+
+    final rawPontos = map['pontosPositivos'];
+    final List<String> pontos = rawPontos != null
+        ? List<String>.from(rawPontos as Iterable)
+        : const [];
+
     return RegistroDiario(
-      id: map['id'] as String,
+      id: map['id']?.toString() ?? '',
       humor: Humor.values.byName(map['humor'] as String),
       texto: map['texto'] as String?,
-      pontosPositivos: map['pontosPositivos'] != null
-          ? List<String>.from(map['pontosPositivos'] as List)
-          : const [],
-      dataHora: DateTime.parse(map['dataHora'] as String),
+      pontosPositivos: pontos,
+      dataHora: parsedDate,
     );
   }
 
@@ -87,13 +98,19 @@ class RegistroDiario {
           id == other.id &&
           humor == other.humor &&
           texto == other.texto &&
+          listEquals(pontosPositivos, other.pontosPositivos) &&
           dataHora == other.dataHora;
 
   @override
-  int get hashCode =>
-      id.hashCode ^ humor.hashCode ^ (texto?.hashCode ?? 0) ^ dataHora.hashCode;
+  int get hashCode => Object.hash(
+        id,
+        humor,
+        texto,
+        Object.hashAll(pontosPositivos),
+        dataHora,
+      );
 
   @override
   String toString() =>
-      'RegistroDiario(id: $id, humor: ${humor.name}, dataHora: $dataHora, temTexto: $temTexto)';
+      'RegistroDiario(id: $id, humor: ${humor.name}, dataHora: $dataHora, temTexto: $temTexto, pontosPositivos: ${pontosPositivos.length})';
 }

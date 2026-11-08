@@ -15,19 +15,21 @@ class RecentMoodsSummary extends StatelessWidget {
     required this.controller,
   });
 
-  String _formatDateTime(DateTime dt) {
-    final now = DateTime.now();
-    final isToday = dt.year == now.year && dt.month == now.month && dt.day == now.day;
-    final isYesterday = dt.year == now.year &&
-        dt.month == now.month &&
-        dt.day == now.subtract(const Duration(days: 1)).day;
+  /// Formata data/hora para exibição acolhedora e relativa.
+  ///
+  /// Trata corretamente transições de dia, limites de mês e viradas de ano.
+  static String formatDateTime(DateTime dt, {DateTime? now}) {
+    final current = now ?? DateTime.now();
+    final today = DateTime(current.year, current.month, current.day);
+    final recordDate = DateTime(dt.year, dt.month, dt.day);
+    final differenceInDays = today.difference(recordDate).inDays;
 
     final hour = dt.hour.toString().padLeft(2, '0');
     final minute = dt.minute.toString().padLeft(2, '0');
 
-    if (isToday) {
+    if (differenceInDays == 0) {
       return 'Hoje às $hour:$minute';
-    } else if (isYesterday) {
+    } else if (differenceInDays == 1) {
       return 'Ontem às $hour:$minute';
     } else {
       final day = dt.day.toString().padLeft(2, '0');
@@ -73,7 +75,7 @@ class RecentMoodsSummary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
-                          LucideIcons.home,
+                          LucideIcons.calendar,
                           size: 16,
                           color: TailwindColors.zinc700,
                         ),
@@ -157,7 +159,7 @@ class RecentMoodsSummary extends StatelessWidget {
                     final item = entries[index];
                     return _HistoryItemRow(
                       registro: item,
-                      formattedDate: _formatDateTime(item.dataHora),
+                      formattedDate: formatDateTime(item.dataHora),
                       onDelete: () => controller.deleteEntry(item.id),
                     );
                   },

@@ -82,9 +82,40 @@ void main() {
       expect(edited.texto, 'Descansei bem.');
       expect(edited.pontosPositivos, ['Dormi cedo']);
       expect(edited.dataHora, now);
+
+      final cleared = edited.editar(clearTexto: true);
+      expect(cleared.texto, isNull);
+      expect(cleared.temTexto, isFalse);
     });
 
-    test('equality and hashCode work as expected', () {
+    test('copyWith supports clearTexto', () {
+      final reg = RegistroDiario(
+        id: '1',
+        humor: Humor.neutro,
+        texto: 'Nota',
+        dataHora: now,
+      );
+      final updated = reg.copyWith(clearTexto: true);
+      expect(updated.texto, isNull);
+      expect(updated.temTexto, isFalse);
+    });
+
+    test('fromMap handles raw DateTime and int id robustly', () {
+      final map = {
+        'id': 12345,
+        'humor': 'feliz',
+        'dataHora': now, // DateTime directly instead of string
+        'pontosPositivos': ['ponto1'],
+      };
+
+      final reg = RegistroDiario.fromMap(map);
+      expect(reg.id, '12345');
+      expect(reg.humor, Humor.feliz);
+      expect(reg.dataHora, now);
+      expect(reg.pontosPositivos, ['ponto1']);
+    });
+
+    test('equality and hashCode include pontosPositivos', () {
       final reg1 = RegistroDiario(
         id: '1',
         humor: Humor.feliz,
@@ -103,9 +134,28 @@ void main() {
         dataHora: now,
       );
 
+      final regWithPontosA = RegistroDiario(
+        id: '1',
+        humor: Humor.feliz,
+        pontosPositivos: const ['dormi bem'],
+        dataHora: now,
+      );
+
+      final regWithPontosB = RegistroDiario(
+        id: '1',
+        humor: Humor.feliz,
+        pontosPositivos: const ['conversei'],
+        dataHora: now,
+      );
+
       expect(reg1, equals(reg2));
       expect(reg1.hashCode, equals(reg2.hashCode));
       expect(reg1, isNot(equals(reg3)));
+
+      // Verifies that different pontosPositivos produce inequality and distinct hash codes
+      expect(regWithPontosA, isNot(equals(regWithPontosB)));
+      expect(regWithPontosA.hashCode, isNot(equals(regWithPontosB.hashCode)));
+      expect(reg1, isNot(equals(regWithPontosA)));
     });
   });
 }

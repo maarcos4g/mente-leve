@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
+import 'package:mente_leve/modules/student/diary/models/registro_diario.dart';
 import 'package:mente_leve/modules/student/diary/repositories/diary_repository.dart';
 
 void main() {
@@ -78,6 +79,37 @@ void main() {
 
       expect(controller.entries, isEmpty);
       expect(controller.latestEntry, isNull);
+    });
+
+    test('concurrent saveHumor calls are guarded against reentrancy', () async {
+      controller.selectHumor(Humor.cansado);
+
+      // Launch two saves concurrently
+      final f1 = controller.saveHumor();
+      final f2 = controller.saveHumor();
+
+      final results = await Future.wait([f1, f2]);
+
+      // Exactly one save must succeed and exactly one entry must be stored
+      expect(results, contains(true));
+      expect(results, contains(false));
+      expect(controller.entries.length, 1);
+    });
+
+    test('hasRecordedToday accurately identifies today entry even if older entries exist', () async {
+      final olderDate = DateTime.now().subtract(const Duration(days: 3));
+      await repository.save(RegistroDiario(
+        id: 'old_1',
+        humor: Humor.triste,
+        dataHora: olderDate,
+      ));
+
+      await controller.loadEntries();
+      expect(controller.hasRecordedToday, isFalse);
+
+      controller.selectHumor(Humor.feliz);
+      await controller.saveHumor();
+      expect(controller.hasRecordedToday, isTrue);
     });
   });
 }

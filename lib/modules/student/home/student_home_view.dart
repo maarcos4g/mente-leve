@@ -156,6 +156,10 @@ class _StudentHomeViewState extends State<StudentHomeView> {
       }
     }
 
+    final cleanAvatar = avatarPath.startsWith('assets/')
+        ? avatarPath
+        : 'assets/avatars/$avatarPath';
+
     return Scaffold(
       backgroundColor: TailwindColors.zinc50,
       body: SafeArea(
@@ -184,7 +188,7 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                       ],
                     ),
                     child: SvgPicture.asset(
-                      'assets/avatars/$avatarPath',
+                      cleanAvatar,
                       width: 36,
                       height: 36,
                     ),
@@ -230,51 +234,61 @@ class _StudentHomeViewState extends State<StudentHomeView> {
 
               const SizedBox(height: 20),
 
-              // Card do mascote de acolhimento
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: TailwindColors.sky50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: TailwindColors.sky200),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: TailwindColors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Text('🐼', style: TextStyle(fontSize: 20)),
+              // Card do mascote de acolhimento (animado e responsivo ao humor)
+              AnimatedBuilder(
+                animation: _diaryController,
+                builder: (context, _) {
+                  final latest = _diaryController.latestEntry;
+                  final tipText = latest != null
+                      ? latest.humor.comfortingMessage
+                      : 'Registrar o que você sente ajuda a clarear os pensamentos. Pegue leve com você hoje!';
+
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: TailwindColors.sky50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: TailwindColors.sky200),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Dica do Mascote',
-                            style: AppTextStyles.captionMedium.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: TailwindColors.sky900,
-                            ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: TailwindColors.white,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Registrar o que você sente ajuda a clarear os pensamentos. Pegue leve com você hoje!',
-                            style: AppTextStyles.textXs.copyWith(
-                              color: TailwindColors.sky800,
-                              height: 1.4,
-                            ),
+                          child: const Text('🐼', style: TextStyle(fontSize: 20)),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Dica do Mascote',
+                                style: AppTextStyles.captionMedium.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: TailwindColors.sky900,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                tipText,
+                                style: AppTextStyles.textXs.copyWith(
+                                  color: TailwindColors.sky800,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
 
               // Espaço final para não sobrepor o pill button
