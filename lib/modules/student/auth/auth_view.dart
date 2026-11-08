@@ -131,7 +131,21 @@ class _StudentAuthViewState extends State<StudentAuthView> {
                     color: TailwindColors.zinc50,
                   ),
                   backgroundColor: TailwindColors.sky600,
-                  onPressed: controller.submit,
+                  onPressed: () {
+                    if (controller.submit()) {
+                      final nickname = controller.nickname.trim().isEmpty
+                          ? 'Panda'
+                          : controller.nickname.trim();
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/student/home',
+                        arguments: {
+                          'nickname': nickname,
+                          'avatarPath': controller.avatarPath,
+                        },
+                      );
+                    }
+                  },
                 ),
               ],
             ),

@@ -5,6 +5,7 @@ import 'package:mente_leve/modules/psychologist/auth/auth_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
+import 'package:mente_leve/modules/student/home/student_home_view.dart';
 
 class AppWidget extends StatelessWidget {
   const AppWidget({super.key});
@@ -24,8 +25,9 @@ class AppWidget extends StatelessWidget {
         '/onboarding': (context) => const OnboardingView(),
         '/auth/student': (context) => const StudentAuthView(),
         '/auth/avatar': (context) => const SelectAvatarView(),
+        '/student/home': (context) => const StudentHomeView(),
         '/auth/psychologist': (context) => const PsychologistAuthView(),
-        '/auth/parents':(context) => const ParentsAuthView(),
+        '/auth/parents': (context) => const ParentsAuthView(),
       },
     );
   }
