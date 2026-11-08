@@ -27,9 +27,10 @@ class _ParentsAuthViewState extends State<ParentsAuthView> {
   }
 
   Future<void> _submit() async {
-    if (!controller.validate()) return;
-    final error = await context.read<AuthNotifier>().signInAsInstitutional(
-      email: controller.emailFormIdentification(idController.text),
+    final auth = context.read<AuthNotifier>();
+    if (auth.isLoading || !controller.validate()) return;
+    final error = await auth.signInAsInstitutional(
+      email: controller.emailFromIdentification(idController.text),
       password: passwordController.text,
       role: Role.parent,
     );
@@ -47,6 +48,7 @@ class _ParentsAuthViewState extends State<ParentsAuthView> {
   Widget build(BuildContext context) {
     return ProfileAuthScaffold(
       formKey: controller.formKey,
+      isLoading: context.watch<AuthNotifier>().isLoading,
       subtitle: 'Para acessar, por favor insira seus dados.',
       illustration: 'assets/images/parents.png',
       onSubmit: _submit,

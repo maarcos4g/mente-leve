@@ -7,7 +7,7 @@ class ParentsAuthController {
 
   String _digits(String value) => value.replaceAll(RegExp(r'\D'), '');
 
-  String emailFormIdentification(String value) =>
+  String emailFromIdentification(String value) =>
       '${_digits(value)}@$_emailDomain';
 
   String? validateIdentification(String? value) {

@@ -34,11 +34,16 @@ class AuthRepository {
       final institutional = await _fetchUser(user.uid);
       if (institutional == null) throw const AccessDenied();
       return InstitutionalSession(institutional);
-    } catch (_) {
+    } catch (error) {
+      if (_isConnectivityError(error)) rethrow;
       await _auth.signOut();
       rethrow;
     }
   }
+
+  bool _isConnectivityError(Object error) =>
+      error is FirebaseException &&
+      (error.code == 'unavailable' || error.code == 'deadline-exceeded');
 
   Future<StudentSessionModel> signInAsStudent(LocalUserModel profile) async {
     var user = _auth.currentUser;

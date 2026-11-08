@@ -27,8 +27,9 @@ class _PsychologistAuthViewState extends State<PsychologistAuthView> {
   }
 
   Future<void> _submit() async {
-    if (!controller.validate()) return;
-    final error = await context.read<AuthNotifier>().signInAsInstitutional(
+    final auth = context.read<AuthNotifier>();
+    if (auth.isLoading || !controller.validate()) return;
+    final error = await auth.signInAsInstitutional(
       email: emailController.text.trim(),
       password: passwordController.text,
       role: Role.psychologist,
@@ -47,6 +48,7 @@ class _PsychologistAuthViewState extends State<PsychologistAuthView> {
   Widget build(BuildContext context) {
     return ProfileAuthScaffold(
       formKey: controller.formKey,
+      isLoading: context.watch<AuthNotifier>().isLoading,
       subtitle: 'Acesso exclusivo para equipe\npedagógica e psicólogos.',
       illustration: 'assets/images/psychologist.png',
       onSubmit: _submit,

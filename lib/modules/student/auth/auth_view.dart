@@ -28,10 +28,9 @@ class _StudentAuthViewState extends State<StudentAuthView> {
   }
 
   Future<void> _submit() async {
-    if (!controller.submit()) return;
-    final error = await context.read<AuthNotifier>().signInAsStudent(
-      controller.profile,
-    );
+    final auth = context.read<AuthNotifier>();
+    if (auth.isLoading || !controller.submit()) return;
+    final error = await auth.signInAsStudent(controller.profile);
     if (!mounted) return;
     if (error != null) {
       ScaffoldMessenger.of(
