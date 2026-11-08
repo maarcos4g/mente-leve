@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mente_leve/modules/student/auth/auth_controller.dart';
+import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/shared/themes/app_text_styles.dart';
@@ -131,7 +132,17 @@ class _StudentAuthViewState extends State<StudentAuthView> {
                     color: TailwindColors.zinc50,
                   ),
                   backgroundColor: TailwindColors.sky600,
-                  onPressed: controller.submit,
+                  onPressed: () {
+                    if (!controller.submit()) return;
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/home',
+                      arguments: HomeArguments(
+                        nickname: controller.nickname,
+                        avatar: controller.avatarPath,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
