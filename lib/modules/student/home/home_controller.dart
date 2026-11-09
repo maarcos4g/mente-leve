@@ -1,16 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mente_leve/shared/widgets/home/mood_bubble.dart';
 
-/// Argumentos da rota `/home`.
-class HomeArguments {
-  const HomeArguments({this.nickname, this.avatar});
-
-  final String? nickname;
-
-  /// Nome do arquivo em `assets/avatars/`.
-  final String? avatar;
-}
-
 class HomeController {
   HomeController({String? nickname, String? avatar})
     : nickname = (nickname == null || nickname.trim().isEmpty)

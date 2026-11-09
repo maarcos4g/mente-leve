@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mente_leve/modules/student/auth/auth_controller.dart';
-import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/themes/app_text_styles.dart';
 import 'package:mente_leve/shared/themes/tailwind_colors.dart';
 import 'package:mente_leve/shared/widgets/button/button_widget.dart';
 import 'package:mente_leve/shared/widgets/input_text_field/input_text_field.dart';
+import 'package:provider/provider.dart';
 
 class StudentAuthView extends StatefulWidget {
   const StudentAuthView({super.key});
@@ -21,7 +22,29 @@ class _StudentAuthViewState extends State<StudentAuthView> {
   final nameController = TextEditingController();
 
   @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final auth = context.read<AuthNotifier>();
+    if (auth.isLoading || !controller.submit()) return;
+    final error = await auth.signInAsStudent(controller.profile);
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
+    Navigator.pushNamedAndRemoveUntil(context, '/student/home', (_) => false);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final loading = context.watch<AuthNotifier>().isLoading;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -127,22 +150,12 @@ class _StudentAuthViewState extends State<StudentAuthView> {
                 ),
                 SizedBox(height: 104),
                 ButtonWidget(
-                  label: "Continuar",
+                  label: loading ? 'Entrando...' : "Continuar",
                   textStyle: AppTextStyles.buttonHeading.copyWith(
                     color: TailwindColors.zinc50,
                   ),
                   backgroundColor: TailwindColors.sky600,
-                  onPressed: () {
-                    if (!controller.submit()) return;
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/home',
-                      arguments: HomeArguments(
-                        nickname: controller.nickname,
-                        avatar: controller.avatarPath,
-                      ),
-                    );
-                  },
+                  onPressed: loading ? null : _submit,
                 ),
               ],
             ),

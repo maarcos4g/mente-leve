@@ -9,8 +9,8 @@ import 'package:mente_leve/shared/widgets/home/home_header.dart';
 import 'package:mente_leve/shared/widgets/home/mood_prompt_card.dart';
 import 'package:mente_leve/shared/widgets/home/week_summary.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({
+class StudentHomeView extends StatefulWidget {
+  const StudentHomeView({
     super.key,
     this.nickname,
     this.avatar,
@@ -28,10 +28,10 @@ class HomeView extends StatefulWidget {
   final VoidCallback? onCvvPressed;
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<StudentHomeView> createState() => _StudentHomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _StudentHomeViewState extends State<StudentHomeView> {
   late final HomeController controller = HomeController(
     nickname: widget.nickname,
     avatar: widget.avatar,

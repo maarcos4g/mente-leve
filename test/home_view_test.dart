@@ -13,7 +13,7 @@ Future<void> _pumpHome(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
-      home: HomeView(
+      home: StudentHomeView(
         availableRoutes: availableRoutes,
         onCvvPressed: onCvvPressed,
       ),
