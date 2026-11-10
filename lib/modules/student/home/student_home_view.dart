@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
+import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
 import 'package:mente_leve/shared/themes/app_text_styles.dart';
 import 'package:mente_leve/shared/themes/tailwind_colors.dart';
@@ -66,6 +67,18 @@ class _StudentHomeViewState extends State<StudentHomeView> {
     if (result != null && mounted) {
       setState(() {});
     }
+  }
+
+  Future<void> _openReflectionScreen(BuildContext context) async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            DiaryReflectionView(repository: _diaryController.repository),
+      ),
+    );
+    // Recarrega para o resumo da semana mostrar o registro novo.
+    if (saved == true && mounted) await _diaryController.loadEntries();
   }
 
   void _showCvvDialog() {
@@ -567,7 +580,7 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                       child: InkWell(
                         key: const Key('card_diario_pessoal'),
                         borderRadius: BorderRadius.circular(16),
-                        onTap: () => _openFeelingsScreen(context),
+                        onTap: () => _openReflectionScreen(context),
                         child: Container(
                           width: 163,
                           height: 171,

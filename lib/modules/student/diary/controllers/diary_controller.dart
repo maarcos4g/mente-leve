@@ -10,10 +10,14 @@ import 'package:mente_leve/modules/student/diary/repositories/diary_repository.d
 /// - RNF02: Operação 100% offline.
 /// - RNF03: Persistência local no dispositivo do aluno.
 class DiaryController extends ChangeNotifier {
+  /// Repositório usado quando nenhum é injetado. O `main.dart` troca pelo
+  /// `HiveDiaryRepository` na inicialização; nos testes fica o de memória.
+  static DiaryRepository defaultRepository = LocalDiaryRepository.instance;
+
   final DiaryRepository repository;
 
   DiaryController({DiaryRepository? repository})
-      : repository = repository ?? LocalDiaryRepository.instance;
+      : repository = repository ?? defaultRepository;
 
   Humor? _selectedHumor;
   bool _isLoading = false;

@@ -71,3 +71,10 @@
 - Estrutura-base do projeto flutter.
 - Implementação do Design System (Cores, tipografias, assets).
 - Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
+
+## [09/11/2026]
+
+### Adicionado
+
+- Diário Reflexivo Livre e Checklist de Pontos Positivos (RF02): tela com área de texto livre, checklist de pontos positivos do dia (com sugestões e itens personalizados) e salvamento local. A reflexão completa o registro de humor do dia (RF01) em vez de criar outro.
+- Persistência do diário no aparelho com Hive CE em caixa criptografada (AES-256), com a chave guardada no armazenamento seguro do sistema (RNF03 / RN02).

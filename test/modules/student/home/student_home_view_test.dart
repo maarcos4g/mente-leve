@@ -164,7 +164,7 @@ void main() {
       expect(find.text('1 registro(s)'), findsOneWidget);
     });
 
-    testWidgets('tapping Diário Pessoal card opens DiaryFeelingsView', (tester) async {
+    testWidgets('tapping Diário Pessoal card opens DiaryReflectionView', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -178,7 +178,8 @@ void main() {
       await tester.tap(find.byKey(const Key('card_diario_pessoal')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Como você está\nse sentindo hoje?'), findsOneWidget);
+      expect(find.text('Diário Pessoal'), findsWidgets);
+      expect(find.text('Anotar no Diário'), findsOneWidget);
     });
 
     testWidgets('renders cleanly without overflow on narrow device (320x640)', (tester) async {
