@@ -19,6 +19,7 @@ jobs:
     name: Build APK e enviar ao Firebase App Distribution
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: default
 
     steps:
       - name: Checkout do código
@@ -57,7 +58,7 @@ jobs:
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          groups: ${{ vars.FIREBASE_TESTER_GROUPS || 'testers' }}
+          groups: ${{ secrets.FIREBASE_TESTER_GROUPS }}
           file: build/app/outputs/flutter-apk/app-release.apk
           releaseNotes: |
             Commit: ${{ github.sha }}
