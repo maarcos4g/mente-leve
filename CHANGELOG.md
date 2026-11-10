@@ -78,3 +78,16 @@
 
 - Integração com SDK do Firebase (Authentication e Firestore).
 - Implementação dos módulos de autenticação para pais, psicólogos e alunos.
+
+## [08/11/2026]
+
+### Adicionado
+
+- Tela inicial (Home) do aluno fiel ao protótipo do Figma: cabeçalho com saudação e avatar, card "Como está sua mente hoje?", resumo da semana, atalhos de Diário Pessoal, Chat Anônimo e Canais de Apoio & FAQ.
+- Botão "Ajuda (CVV)" compartilhado, que disca 188 pelo discador nativo (`url_launcher`).
+- Cores do Figma em `lib/shared/themes/app_colors.dart` e ilustrações em `assets/home/`.
+- Teste de widget da Home (`test/home_view_test.dart`).
+
+### Modificado
+
+- Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.

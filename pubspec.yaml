@@ -37,6 +37,7 @@ dependencies:
   google_fonts: ^8.2.1
   lucide_icons_flutter: ^4.0.2
   flutter_svg: ^2.3.2
+  url_launcher: ^6.3.2
   firebase_core: ^5.1.0
   cloud_firestore: ^7.1.0
   firebase_auth: ^7.0.1
@@ -69,6 +70,7 @@ flutter:
   assets:
     - assets/images/
     - assets/avatars/
+    - assets/home/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

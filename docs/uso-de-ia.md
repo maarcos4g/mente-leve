@@ -100,7 +100,13 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Mateus Henrique de Araújo Santos
 
-*(A preencher pelo integrante)*
+* **Tela inicial (Home) fiel ao protótipo (08/11):**
+  * **O que foi feito:** Criação da `HomeView` e do `HomeController` (`lib/modules/student/home/`), dos widgets `HomeHeader`, `MoodPromptCard`, `WeekSummary`, `MoodBubble` e `HomeFeatureCard`, do botão compartilhado `CvvButton` e da rota `/home`. O "Continuar" do codinome passou a abrir a Home. Foram adicionados o `url_launcher` (discar 188 pelo discador nativo, sem internet) e o teste de widget `test/home_view_test.dart`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5), com o MCP do Figma para ler o nó `home` do design system.
+  * **Prompt utilizado:**
+    > Nova task: ler a documentação em `claude-md` e, de acordo com as diretrizes do projeto, construir a tela inicial (Home) fiel ao protótipo do Figma (EPIC-07, 5 story points). A Home precisa ter card de humor, mascote, acesso ao diário, FAQ e botão CVV visível. Compilação sem warnings críticos no `flutter analyze`, teste no emulador Android API 24+ e commits em Conventional Commits. A fidelidade ao protótipo deve ser de 100%.
+  * **Como a IA ajudou:** Leu o frame do Figma (medidas, cores, tipografia e ilustrações), exportou as ilustrações em SVG e montou o layout em Flutter com `Row`, `Column` e `Stack`. O `flutter_svg` ignora filtros de SVG, então a IA refez em Dart o brilho dos humores (silhueta desfocada na cor de cada humor). Também apontou que as cores do Figma diferem da paleta Tailwind v3 do projeto (por exemplo `sky500` é `#00A6F4` no Figma e `#0EA5E9` em `TailwindColors`) e criou `app_colors.dart` com os valores do protótipo.
+  * **Dificuldades e ajustes manuais:** O Figma exporta o SVG com o fundo do frame, que foi removido à mão dos arquivos em `assets/home/`. O botão CVV ficou fora da posição até o `SingleChildScrollView` ser envolvido em `Positioned.fill`. Não havia emulador Android configurado nesta máquina: a conferência visual foi feita por captura de teste e a execução em API 24+ continua pendente. O card "Chat Anônimo" aponta para a denúncia anônima (decisão do usuário) e os destinos de diário, FAQ e denúncia mostram "Disponível em breve" até as etapas 2, 4 e 5.
 
 ### Rayelen de Jesus Oliveira
 

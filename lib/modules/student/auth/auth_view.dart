@@ -41,11 +41,9 @@ class _StudentAuthViewState extends State<StudentAuthView> {
     Navigator.pushNamedAndRemoveUntil(context, '/student/home', (_) => false);
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-  final loading = context.watch<AuthNotifier>().isLoading;
+    final loading = context.watch<AuthNotifier>().isLoading;
 
     return Scaffold(
       appBar: AppBar(
