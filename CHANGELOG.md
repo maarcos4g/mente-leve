@@ -71,3 +71,10 @@
 - Estrutura-base do projeto flutter.
 - Implementação do Design System (Cores, tipografias, assets).
 - Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
+
+## [06/11/2026]
+
+### Adicionado
+
+- Integração com SDK do Firebase (Authentication e Firestore).
+- Implementação dos módulos de autenticação para pais, psicólogos e alunos.

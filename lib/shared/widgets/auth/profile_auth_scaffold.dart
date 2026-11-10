@@ -12,6 +12,7 @@ class ProfileAuthScaffold extends StatelessWidget {
     required this.illustration,
     required this.fields,
     required this.onSubmit,
+    this.isLoading = false
   });
 
   final GlobalKey<FormState> formKey;
@@ -20,6 +21,7 @@ class ProfileAuthScaffold extends StatelessWidget {
   final String illustration;
   final List<Widget> fields;
   final VoidCallback onSubmit;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -84,12 +86,12 @@ class ProfileAuthScaffold extends StatelessWidget {
                     ],
                     const SizedBox(height: 24),
                     ButtonWidget(
-                      label: 'Entrar',
+                      label: isLoading ? 'Entrando...' : 'Entrar',
                       textStyle: AppTextStyles.buttonHeading.copyWith(
                         color: TailwindColors.zinc50,
                       ),
                       backgroundColor: TailwindColors.sky600,
-                      onPressed: onSubmit,
+                      onPressed: isLoading ? null : onSubmit,
                     ),
                     const SizedBox(height: 16),
                     Center(

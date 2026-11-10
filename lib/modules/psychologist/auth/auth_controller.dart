@@ -15,5 +15,5 @@ class PsychologistAuthController {
   String? validatePassword(String? value) =>
       value == null || value.isEmpty ? 'A senha não pode ser vazia' : null;
 
-  bool login() => formKey.currentState?.validate() ?? false;
+  bool validate() => formKey.currentState?.validate() ?? false;
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mente_leve/modules/onboarding/onboarding_view.dart';
 import 'package:mente_leve/modules/parents/auth/auth_view.dart';
+import 'package:mente_leve/modules/parents/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/auth/auth_view.dart';
+import 'package:mente_leve/modules/psychologist/home/home_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
@@ -26,10 +28,12 @@ class AppWidget extends StatelessWidget {
         '/onboarding': (context) => const OnboardingView(),
         '/auth/student': (context) => const StudentAuthView(),
         '/auth/avatar': (context) => const SelectAvatarView(),
-        '/student/home': (context) => const StudentHomeView(),
-        '/student/diary-feelings': (context) => const DiaryFeelingsView(),
         '/auth/psychologist': (context) => const PsychologistAuthView(),
         '/auth/parents': (context) => const ParentsAuthView(),
+        '/student/home': (context) => const StudentHomeView(),
+        '/student/diary-feelings': (context) => const DiaryFeelingsView(),
+        '/parents/home': (context) => const ParentsHomeView(),
+        '/psychologist/home': (context) => const PsychologistHomeView(),
       },
     );
   }
