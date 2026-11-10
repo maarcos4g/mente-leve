@@ -91,3 +91,9 @@
 ### Modificado
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+
+## [10/11/2026]
+
+## Adicionado
+
+- Pipeline CI/CD com Github Actions e Firebase App Distribution
