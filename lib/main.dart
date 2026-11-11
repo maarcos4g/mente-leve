@@ -1,30 +1,68 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
-import 'package:mente_leve/modules/student/diary/repositories/hive_diary_repository.dart';
+import 'package:mente_leve/modules/student/diary/repositories/prefs_diary_repository.dart';
+import 'package:mente_leve/shared/auth/auth_notifier.dart';
+import 'package:mente_leve/shared/auth/auth_repository.dart';
+import 'package:mente_leve/shared/auth/profile_store.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await _openDiaryStorage();
   runApp(const MyApp());
 }
 
-/// Abre o diário criptografado no aparelho. Se falhar, o app continua
-/// funcionando com o diário em memória: o botão do CVV e o restante das
-/// telas não podem ficar indisponíveis por causa do armazenamento.
-Future<void> _openDiaryStorage() async {
-  try {
-    DiaryController.defaultRepository = await HiveDiaryRepository.open();
-  } catch (error) {
-    debugPrint('Não foi possível abrir o diário local: $error');
-  }
-}
-
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final Future<AuthNotifier> _initialization = _bootstrap();
+
+  Future<AuthNotifier> _bootstrap() async {
+    await Firebase.initializeApp();
+    final storage = await SharedPreferences.getInstance();
+    DiaryController.defaultRepository = PrefsDiaryRepository(storage);
+    return AuthNotifier(
+      AuthRepository(
+        FirebaseAuth.instance,
+        FirebaseFirestore.instance,
+        ProfileStore(storage),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AppWidget();
+    return FutureBuilder(
+      future: _initialization,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Material(
+            child: Center(
+              child: Text(
+                'Não foi possível inicializar o Firebase',
+                textDirection: TextDirection.ltr,
+              ),
+            ),
+          );
+        }
+        if (!snapshot.hasData) {
+          return ColoredBox(color: Colors.white);
+        }
+        
+        return ChangeNotifierProvider.value(
+          value: snapshot.data!,
+          child: AppWidget(),
+        );
+      },
+    );
   }
 }

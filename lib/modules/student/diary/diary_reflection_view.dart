@@ -34,7 +34,7 @@ TextStyle _poppins(double size, FontWeight weight, Color color,
 class DiaryReflectionView extends StatefulWidget {
   const DiaryReflectionView({super.key, this.repository});
 
-  /// Repositório do diário. Nulo usa o padrão do app (Hive criptografado).
+  /// Repositório do diário. Nulo usa o padrão do app (shared_preferences).
   final DiaryRepository? repository;
 
   @override

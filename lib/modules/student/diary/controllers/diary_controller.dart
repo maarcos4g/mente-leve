@@ -11,7 +11,7 @@ import 'package:mente_leve/modules/student/diary/repositories/diary_repository.d
 /// - RNF03: Persistência local no dispositivo do aluno.
 class DiaryController extends ChangeNotifier {
   /// Repositório usado quando nenhum é injetado. O `main.dart` troca pelo
-  /// `HiveDiaryRepository` na inicialização; nos testes fica o de memória.
+  /// `PrefsDiaryRepository` na inicialização; nos testes fica o de memória.
   static DiaryRepository defaultRepository = LocalDiaryRepository.instance;
 
   final DiaryRepository repository;

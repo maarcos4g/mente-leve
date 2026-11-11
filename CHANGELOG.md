@@ -72,9 +72,29 @@
 - Implementação do Design System (Cores, tipografias, assets).
 - Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
 
+## [06/11/2026]
+
+### Adicionado
+
+- Integração com SDK do Firebase (Authentication e Firestore).
+- Implementação dos módulos de autenticação para pais, psicólogos e alunos.
+
+## [08/11/2026]
+
+### Adicionado
+
+- Tela inicial (Home) do aluno fiel ao protótipo do Figma: cabeçalho com saudação e avatar, card "Como está sua mente hoje?", resumo da semana, atalhos de Diário Pessoal, Chat Anônimo e Canais de Apoio & FAQ.
+- Botão "Ajuda (CVV)" compartilhado, que disca 188 pelo discador nativo (`url_launcher`).
+- Cores do Figma em `lib/shared/themes/app_colors.dart` e ilustrações em `assets/home/`.
+- Teste de widget da Home (`test/home_view_test.dart`).
+
+### Modificado
+
+- Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+
 ## [09/11/2026]
 
 ### Adicionado
 
 - Diário Reflexivo Livre e Checklist de Pontos Positivos (RF02): tela com área de texto livre, checklist de pontos positivos do dia (com sugestões e itens personalizados) e salvamento local. A reflexão completa o registro de humor do dia (RF01) em vez de criar outro.
-- Persistência do diário no aparelho com Hive CE em caixa criptografada (AES-256), com a chave guardada no armazenamento seguro do sistema (RNF03 / RN02).
+- Persistência do diário no aparelho com `shared_preferences`, reaproveitando o pacote já usado pelo perfil do aluno (RNF02 / RNF03).

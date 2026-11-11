@@ -100,7 +100,13 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Mateus Henrique de Araújo Santos
 
-*(A preencher pelo integrante)*
+* **Tela inicial (Home) fiel ao protótipo (08/11):**
+  * **O que foi feito:** Criação da `HomeView` e do `HomeController` (`lib/modules/student/home/`), dos widgets `HomeHeader`, `MoodPromptCard`, `WeekSummary`, `MoodBubble` e `HomeFeatureCard`, do botão compartilhado `CvvButton` e da rota `/home`. O "Continuar" do codinome passou a abrir a Home. Foram adicionados o `url_launcher` (discar 188 pelo discador nativo, sem internet) e o teste de widget `test/home_view_test.dart`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5), com o MCP do Figma para ler o nó `home` do design system.
+  * **Prompt utilizado:**
+    > Nova task: ler a documentação em `claude-md` e, de acordo com as diretrizes do projeto, construir a tela inicial (Home) fiel ao protótipo do Figma (EPIC-07, 5 story points). A Home precisa ter card de humor, mascote, acesso ao diário, FAQ e botão CVV visível. Compilação sem warnings críticos no `flutter analyze`, teste no emulador Android API 24+ e commits em Conventional Commits. A fidelidade ao protótipo deve ser de 100%.
+  * **Como a IA ajudou:** Leu o frame do Figma (medidas, cores, tipografia e ilustrações), exportou as ilustrações em SVG e montou o layout em Flutter com `Row`, `Column` e `Stack`. O `flutter_svg` ignora filtros de SVG, então a IA refez em Dart o brilho dos humores (silhueta desfocada na cor de cada humor). Também apontou que as cores do Figma diferem da paleta Tailwind v3 do projeto (por exemplo `sky500` é `#00A6F4` no Figma e `#0EA5E9` em `TailwindColors`) e criou `app_colors.dart` com os valores do protótipo.
+  * **Dificuldades e ajustes manuais:** O Figma exporta o SVG com o fundo do frame, que foi removido à mão dos arquivos em `assets/home/`. O botão CVV ficou fora da posição até o `SingleChildScrollView` ser envolvido em `Positioned.fill`. Não havia emulador Android configurado nesta máquina: a conferência visual foi feita por captura de teste e a execução em API 24+ continua pendente. O card "Chat Anônimo" aponta para a denúncia anônima (decisão do usuário) e os destinos de diário, FAQ e denúncia mostram "Disponível em breve" até as etapas 2, 4 e 5.
 
 ### Rayelen de Jesus Oliveira
 
@@ -117,7 +123,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 ### Abraão Luiz Ribeiro da Cruz Dantas
 
 * **Diário Reflexivo e Checklist de Pontos Positivos — RF02 (09/11):**
-  * **O que foi feito:** Criação da tela `DiaryReflectionView` (escolha de humor, escrita livre e checklist de pontos positivos com sugestões e itens personalizados), do `DiaryReflectionController` e do `HiveDiaryRepository`, que salva o diário no aparelho com Hive CE em caixa criptografada (AES-256). O card "Diário Pessoal" da Home passou a abrir a nova tela. Também foram criados os testes do controller, da tela e do repositório. Depois, a tela foi refeita seguindo as telas "personal diary" e "personal diary / add" do Figma (semana atual, botão "Anotar no Diário", lista de registros recentes com exclusão ao arrastar e folha de escrita com "Registrar"), com o checklist em chips vindo do protótipo de baixa fidelidade "diario-reflexivo".
+  * **O que foi feito:** Criação da tela `DiaryReflectionView` (escolha de humor, escrita livre e checklist de pontos positivos com sugestões e itens personalizados), do `DiaryReflectionController` e do `PrefsDiaryRepository`, que salva o diário no aparelho com `shared_preferences`. O card "Diário Pessoal" da Home passou a abrir a nova tela. Também foram criados os testes do controller, da tela e do repositório. Depois, a tela foi refeita seguindo as telas "personal diary" e "personal diary / add" do Figma (semana atual, botão "Anotar no Diário", lista de registros recentes com exclusão ao arrastar e folha de escrita com "Registrar"), com o checklist em chips vindo do protótipo de baixa fidelidade "diario-reflexivo".
   * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
   * **Prompt utilizado:**
     > **Atue como** um desenvolvedor Flutter sênior.
@@ -131,14 +137,15 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     > 4. Seguir o padrão de pastas e de controllers do projeto e criar testes para a nova funcionalidade.
     >
     > **Ajuste de layout:** olhe no Figma do projeto (conector do Figma no Claude Code) e deixe a tela o mais parecida possível com o design.
-  * **Como a IA ajudou:** Estruturou a regra de completar o registro de humor do dia em vez de duplicá-lo, configurou o Hive CE com criptografia AES-256 guardando a chave no armazenamento seguro do Android (`flutter_secure_storage`) e escreveu os testes, incluindo um que confere se o arquivo salvo fica de fato criptografado. Também leu as medidas, cores e fontes direto do Figma e reaproveitou componentes já existentes no projeto (ícones Lucide e o rostinho de emoção do RF01).
+  * **Como a IA ajudou:** Estruturou a regra de completar o registro de humor do dia em vez de duplicá-lo, criou o repositório local do diário e escreveu os testes. Também leu as medidas, cores e fontes direto do Figma e reaproveitou componentes já existentes no projeto (ícones Lucide e o rostinho de emoção do RF01).
   * **Dificuldades e ajustes manuais:**
-    1. **Falha ao abrir o armazenamento:** Para o app não travar se o Hive não abrir, o `main.dart` passou a usar o diário em memória nesse caso, garantindo que o botão do CVV continue disponível.
-    2. **Repositório nos testes:** Foi criado o `DiaryController.defaultRepository`, para que o app use o Hive e os testes continuem usando o repositório em memória.
+    1. **Troca do Hive pelo shared_preferences:** A primeira versão usava Hive CE criptografado com a chave no `flutter_secure_storage`. Na revisão do PR, o grupo pediu para usar o `shared_preferences`, que já estava configurado no projeto para dados offline. O repositório foi refeito em cima dele, reaproveitando a instância criada no bootstrap do `main.dart`; com isso os dados deixam de ser criptografados, mas continuam só no aparelho.
+    2. **Repositório nos testes:** Foi criado o `DiaryController.defaultRepository`, para que o app use o `shared_preferences` e os testes continuem usando o repositório em memória.
     3. **Arquivo do Firebase:** O `android/app/google-services.json` não estava no `.gitignore` e precisou ser deixado de fora do commit manualmente.
     4. **Checklist fora do protótipo final:** O Figma final não tinha o checklist de pontos positivos exigido pela task; ele foi encaixado na folha de escrita usando os chips do protótipo de baixa fidelidade.
     5. **Bug encontrado pelos testes:** O diálogo de "Novo ponto positivo" descartava o campo de texto antes de terminar a animação de fechamento, o que quebrava o app. O diálogo virou um widget com estado próprio.
-    6. **Ambiente:** O `flutter analyze` e o build Android falhavam com o "ç/ã" no nome da pasta (`Programação`), que foi renomeada para `Programacao`. O emulador Android 37 reiniciava sozinho por um bug gráfico com a GPU Intel, então o teste manual foi feito na versão web.
+    6. **Conflitos com a `main`:** A `main` recebeu em paralelo a integração com o Firebase e uma nova Home do aluno. No merge, ficou a Home da `main`: o card "Como está sua mente hoje?" abre o diário de sentimentos (`/diary`) e o card "Diário Pessoal" abre a reflexão (`/diary/reflection`).
+    7. **Ambiente:** O `flutter analyze` e o build Android falhavam com o "ç/ã" no nome da pasta (`Programação`), que foi renomeada para `Programacao`. O emulador Android 37 reiniciava sozinho por um bug gráfico com a GPU Intel, então o teste manual foi feito na versão web.
 
 ### Marcos Paulo
 
