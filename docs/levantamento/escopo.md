@@ -53,7 +53,7 @@ Em estrita observância à folha de avaliação da II Avaliação da disciplina,
    - **Firebase Authentication** para perfis institucionais.
    - **Cloud Firestore** para conteúdos dinâmicos do FAQ, relatórios de triagem e murais.
    - **Regras de Segurança (`firestore.rules`):** Controle rigoroso de RBAC, permitindo gravação cega anônima em denúncias e proibindo a leitura indiscriminada por clientes não autenticados.
-   - **Persistência Offline-First:** Armazenamento local de sentimentos e cache local (Hive / SharedPreferences / Firestore offline persistence).
+   - **Persistência Offline-First:** Armazenamento local de sentimentos e cache local (SharedPreferences / Firestore offline persistence).
 
 ### 3.2. Artefatos de Modelagem e Documentação Técnica (`docs/`)
 1. **Diagrama de Casos de Uso:** Atualizado cobrindo perfis (Adolescente, Psicóloga, Pais).
@@ -119,7 +119,7 @@ O cronograma de desenvolvimento foi estruturado em **4 Sprints semanais**, total
 > * **Entregáveis Técnicos:**
 >   - [ ] Configuração do Firebase Core e inicialização segura no Android
 >   - [ ] Autenticação Firebase Auth (e-mail institucional para psicóloga e pais)
->   - [ ] Camada de persistência local offline (Hive / SharedPreferences)
+>   - [ ] Camada de persistência local offline (SharedPreferences)
 >   - [ ] Interface do Diário de Sentimentos por Emojis grandes (registro em até 3 toques)
 >   - [ ] Diário reflexivo livre e checklist de pontos positivos
 >   - [ ] Mascote de acolhimento interativo com devolutivas empáticas ao humor
@@ -155,7 +155,7 @@ O cronograma de desenvolvimento foi estruturado em **4 Sprints semanais**, total
 | Sprint | Período | Meta da Sprint (*Sprint Goal*) | Carga (SP) | Entregáveis Principais |
 | :--- | :--- | :--- | :---: | :--- |
 | **Sprint 1** | **01/11 a 08/11** | Estruturação de Governança, EAP, Modelagem de Dados, Setup do Projeto Flutter e Telas Base. | **39 SP** | `docs/eap.md`, `docs/levantamento/escopo.md`, Diagramas UML (Casos de Uso e Classes), Esquema Firestore, Setup Flutter, Design System (`ThemeData`), Home e Login. |
-| **Sprint 2** | **08/11 a 15/11** | Implementação do Firebase Core, Autenticação Institucional, Diário de Sentimentos e Mascote. | **38 SP** | `firebase_core`, `firebase_auth`, Cache local do Diário (Hive), Seletor de Emojis em 3 toques, Diário Reflexivo e Mascote com mensagens empáticas. |
+| **Sprint 2** | **08/11 a 15/11** | Implementação do Firebase Core, Autenticação Institucional, Diário de Sentimentos e Mascote. | **38 SP** | `firebase_core`, `firebase_auth`, Cache local do Diário (SharedPreferences), Seletor de Emojis em 3 toques, Diário Reflexivo e Mascote com mensagens empáticas. |
 | **Sprint 3** | **15/11 a 22/11** | Funcionalidades de Suporte, Botão CVV 188, FAQ Sincronizado e Painel da Psicóloga. | **24 SP** | Integração `url_launcher` para discagem offline 188, CRUD do FAQ no Firestore, Painel de Triagem com filtros de queixas e Regras de Segurança RBAC. |
 | **Sprint 4** | **22/11 a 01/12** | QA Rigoroso, Homologação no Emulador Android, Governança de IA e Preparação para a Defesa Oral. | **20 SP** | `docs/uso-de-ia.md`, APK validado sem erros no emulador, testes de falha de conexão (offline), slides da apresentação e consolidação final do README/CHANGELOG. |
 | **Total** | **4 Semanas** | **Ciclo Completo de Desenvolvimento e Homologação** | **121 SP** | **100% dos Requisitos da II Avaliação UNIT Atendidos** |

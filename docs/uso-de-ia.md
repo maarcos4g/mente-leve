@@ -111,3 +111,61 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 ### Rayelen de Jesus Oliveira
 
 *(A preencher pelo integrante)*
+
+---
+
+## Sprint 2
+
+### Alexandre Pedro de Matos Ferreira
+
+*(A preencher pelo integrante)*
+
+### Abraão Luiz Ribeiro da Cruz Dantas
+
+* **Diário Reflexivo e Checklist de Pontos Positivos — RF02 (09/11):**
+  * **O que foi feito:** Criação da tela `DiaryReflectionView` (escolha de humor, escrita livre e checklist de pontos positivos com sugestões e itens personalizados), do `DiaryReflectionController` e do `PrefsDiaryRepository`, que salva o diário no aparelho com `shared_preferences`. O card "Diário Pessoal" da Home passou a abrir a nova tela. Também foram criados os testes do controller, da tela e do repositório. Depois, a tela foi refeita seguindo as telas "personal diary" e "personal diary / add" do Figma (semana atual, botão "Anotar no Diário", lista de registros recentes com exclusão ao arrastar e folha de escrita com "Registrar"), com o checklist em chips vindo do protótipo de baixa fidelidade "diario-reflexivo".
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um desenvolvedor Flutter sênior.
+    >
+    > **Tarefa:** implementar o RF02 (Diário Reflexivo e Checklist de Pontos Positivos) no módulo do aluno, seguindo a modelagem em `docs/modelagem/`.
+    >
+    > **Requisitos:**
+    > 1. Área de escrita livre e checklist de pontos positivos do dia, com sugestões prontas e a opção de o aluno adicionar os seus.
+    > 2. A reflexão deve completar o registro de humor do dia (RF01), sem criar um registro duplicado.
+    > 3. Salvar o diário somente no aparelho, funcionando offline e com os dados criptografados (RNF02, RNF03, RN02).
+    > 4. Seguir o padrão de pastas e de controllers do projeto e criar testes para a nova funcionalidade.
+    >
+    > **Ajuste de layout:** olhe no Figma do projeto (conector do Figma no Claude Code) e deixe a tela o mais parecida possível com o design.
+  * **Como a IA ajudou:** Estruturou a regra de completar o registro de humor do dia em vez de duplicá-lo, criou o repositório local do diário e escreveu os testes. Também leu as medidas, cores e fontes direto do Figma e reaproveitou componentes já existentes no projeto (ícones Lucide e o rostinho de emoção do RF01).
+  * **Dificuldades e ajustes manuais:**
+    1. **Repositório nos testes:** Foi criado o `DiaryController.defaultRepository`, para que o app use o `shared_preferences` e os testes continuem usando o repositório em memória.
+    2. **Arquivo do Firebase:** O `android/app/google-services.json` não estava no `.gitignore` e precisou ser deixado de fora do commit manualmente.
+    3. **Checklist fora do protótipo final:** O Figma final não tinha o checklist de pontos positivos exigido pela task; ele foi encaixado na folha de escrita usando os chips do protótipo de baixa fidelidade.
+    4. **Bug encontrado pelos testes:** O diálogo de "Novo ponto positivo" descartava o campo de texto antes de terminar a animação de fechamento, o que quebrava o app. O diálogo virou um widget com estado próprio.
+    5. **Ambiente:** O `flutter analyze` e o build Android falhavam com o "ç/ã" no nome da pasta (`Programação`), que foi renomeada para `Programacao`. O emulador Android 37 reiniciava sozinho por um bug gráfico com a GPU Intel, então o teste manual foi feito na versão web.
+
+* **Ajustes da revisão do PR #11: shared_preferences e conflitos com a `main` (11/11):**
+  * **O que foi feito:** O diário deixou de usar Hive CE e `flutter_secure_storage` e passou a usar o `shared_preferences`, que já estava no projeto: foi criado o `PrefsDiaryRepository`, que guarda os registros na chave `diario`, e os três pacotes saíram do `pubspec.yaml`. A branch recebeu o merge da `main` (Firebase e Home do aluno), com 11 arquivos em conflito resolvidos, e a `StudentHomeView` duplicada foi removida. Os docs de modelagem e o escopo foram atualizados, e a base do PR #11 mudou para a `main`.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompts utilizados:**
+    > 1. "Analise as duas imagens e me diga o que precisa atualizar" (prints dos comentários do grupo no PR: usar o `shared_preferences` e resolver os conflitos).
+    > 2. "Mantenha a Home da main e execute as outras tarefas."
+    > 3. "Atualize os docs que dizem Hive e depois faça um push e abra PR."
+  * **Como a IA ajudou:** Simulou o merge para listar os conflitos antes de mexer na branch, achou um conflito que o Git não acusava (duas classes `StudentHomeView`), reescreveu o repositório e o teste dele, ligou as rotas do diário à Home da `main` (`/diary` para sentimentos e `/diary/reflection` para a reflexão), rodou `flutter analyze` e `flutter test` (76 testes passando) e atualizou a descrição do PR.
+  * **Dificuldades e ajustes manuais:**
+    1. **Criptografia:** Com o `shared_preferences`, o diário continua só no aparelho, mas sem criptografia, o que precisa ser alinhado com o RNF03.
+    2. **Base do PR:** Mesmo depois do merge, o GitHub mostrava conflito porque o PR #11 tinha sido aberto em cima da branch do PR #12 (SCRUM-28). A base foi trocada para a `main`, e o #12 ficou redundante.
+    3. **OneDrive:** O `flutter test` falhou na primeira vez porque o OneDrive travou a pasta `build/`; foi preciso apagá-la e rodar de novo.
+
+### Marcos Paulo
+
+*(A preencher pelo integrante)*
+
+### Mateus Henrique de Araújo Santos
+
+*(A preencher pelo integrante)*
+
+### Rayelen de Jesus Oliveira
+
+*(A preencher pelo integrante)*

@@ -23,9 +23,9 @@ flowchart LR
     cDenuncias[("denuncias/{id}")]
   end
   AUTH["Firebase Auth<br/>anônima, e-mail e senha"]
-  subgraph HV["Aparelho: Hive CE criptografado"]
-    bDiario[("box diario")]
-    bPerfil[("box perfil")]
+  subgraph HV["Aparelho: SharedPreferences"]
+    bDiario[("chave diario")]
+    bPerfil[("chave profile")]
   end
 
   Usuario --> cUsuarios
@@ -50,8 +50,8 @@ flowchart LR
 | CanalApoio | Firestore | `canais/{id}` | `telefone` é omitido quando nulo. `podeDiscar` é calculado (`telefone != null`) e não é gravado. |
 | Denuncia | Firestore | `denuncias/{id}` | `tipo` e `status` viram texto. `criadoEm` usa `FieldValue.serverTimestamp()`. `aguardandoEnvio` não é gravado: vem de `metadata.hasPendingWrites`. |
 | RespostaDenuncia | Firestore | campo `resposta` (map) em `denuncias/{id}` | Vira `{texto, respondidaEm, psicologaUid}`. Ausente enquanto a denúncia está pendente. |
-| RegistroDiario | Aparelho | Hive, caixa `diario` (criptografada) | Gravado como `Map`: `humor` pelo nome do enum, `dataHora` em texto ISO 8601. |
-| PerfilLocal | Aparelho | Hive, caixa `perfil` | Gravado como `Map` com o `codinome`. |
+| RegistroDiario | Aparelho | SharedPreferences, chave `diario` | JSON `{id: registro}`; cada registro vem do `toMap`: `humor` pelo nome do enum, `dataHora` em texto ISO 8601. |
+| PerfilLocal | Aparelho | SharedPreferences, chave `profile` | JSON com codinome e avatar (`ProfileStore`). |
 
 Os enums são gravados pelo nome (`Humor.comRaiva` vira `"comRaiva"`) e lidos com `values.byName`.
 
@@ -217,7 +217,7 @@ A busca roda no aparelho, sobre a lista já carregada, porque o Firestore não f
 
 ## Exemplo: RegistroDiario no aparelho
 
-O diário vai para uma caixa do Hive criptografada, e a chave fica no `flutter_secure_storage`. Gravar como `Map` evita gerar adaptadores no começo do projeto.
+O diário vai para o `SharedPreferences`, na chave `diario`, como um JSON `{id: registro}` (`PrefsDiaryRepository`). É o mesmo pacote que já guarda o perfil do aluno, então não há dependência nova. Os dados ficam só no aparelho, mas sem criptografia.
 
 ```dart
 enum Humor { feliz, neutro, triste, ansioso, comRaiva, cansado }

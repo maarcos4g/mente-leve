@@ -15,6 +15,7 @@ class HomeController {
   /// registrar em `AppWidget.routes` (diário: etapa 2, FAQ: etapa 4,
   /// denúncia anônima: etapa 5).
   static const diaryRoute = '/diary';
+  static const diaryReflectionRoute = '/diary/reflection';
   static const reportRoute = '/report';
   static const faqRoute = '/faq';
 

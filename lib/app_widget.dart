@@ -7,6 +7,9 @@ import 'package:mente_leve/modules/psychologist/home/home_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
+import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
+import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
+import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
@@ -33,6 +36,9 @@ class AppWidget extends StatelessWidget {
         availableRoutes: routes.keys.toSet(),
       );
     },
+    HomeController.diaryRoute: (context) => const DiaryFeelingsView(),
+    HomeController.diaryReflectionRoute: (context) =>
+        const DiaryReflectionView(),
     '/parents/home': (context) => ParentsHomeView(),
     '/psychologist/home': (context) => PsychologistHomeView(),
   };

@@ -82,7 +82,8 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                                   'assets/home/diary_illustration.svg',
                               illustrationSize: const Size(121, 92),
                               illustrationOffset: const Offset(21, 78),
-                              onTap: () => _open(HomeController.diaryRoute),
+                              onTap: () =>
+                                  _open(HomeController.diaryReflectionRoute),
                             ),
                           ),
                           const SizedBox(width: 16),
