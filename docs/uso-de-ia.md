@@ -125,7 +125,11 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 * **Documentação do gatilho de apoio emergencial (SCRUM-31) (10/11 a 12/11):**
   * **O que foi feito:** A IA preencheu toda a documentação ligada ao ticket: o caso de uso UC20 e a regra RN11, a entidade local do estado do gatilho nos documentos de classes e de mapeamento, a nota de que o gatilho não usa o Firestore, a entrada do `CHANGELOG.md` e este registro. Também foi usada para escrever o prompt de desenvolvimento do ticket e os comentários de andamento no Jira.
   * **Ferramenta utilizada:** Claude (Claude Sonnet 5.5) e o agente que executou o desenvolvimento.
-  * **Como a IA ajudou:** Estruturou o prompt a partir da documentação (escopo, casos de uso, modelagem local e Firestore) e do código existente, e documentou o que foi implementado e as decisões pendentes.
+  * **Prompts utilizados:**
+    * > Parta da `origin/main` atualizada (`git fetch`; o histórico remoto já foi reescrito uma vez). Se algo abaixo contradizer o que você encontrar, siga a documentação e me avise.
+
+    * > Ao terminar, me entregue Um resumo curto do que foi feito e dos arquivos alterados. O resultado de `flutter analyze` e `flutter test`, e se o emulador foi usado. Dependências e lacunas encontradas (diário e registro de humor ausentes, Hive versus `shared_preferences`, 5 assets versus 6 humores). Decisões tomadas por falta de definição na documentação, que o grupo precisa validar.
+
   * **Dificuldades e ajustes manuais:**
     1. **Leitura desatualizada do repositório:** a primeira versão do prompt descrevia o humor como uma escala de 5 níveis. Ao atualizar o repositório, viu-se que a modelagem define 6 categorias sem ordem (`Humor`) e que a pasta `docs/` havia sido reorganizada. O prompt foi corrigido.
     2. **Divergência de armazenamento:** a modelagem prevê Hive criptografado, mas o código usa `SharedPreferences` sem criptografia. A decisão ficou registrada como pendente para o grupo.
