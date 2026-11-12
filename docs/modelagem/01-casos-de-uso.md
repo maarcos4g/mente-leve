@@ -44,6 +44,18 @@ O UC12 (tratar falha de conexão) é incluído por todo caso de uso que lê ou g
 | UC17 | Gerenciar guias (criar, editar, excluir) | Psicóloga | RF08 e RF11 |
 | UC18 | Autenticar responsável | Responsável | RF12, RNF10 |
 | UC19 | Consultar guias | Responsável | RF11 |
+| UC20 | Receber apoio por sofrimento intenso (inclui UC09) | Aluno, CVV 188 | Escopo (Gatilho de Apoio Emergencial), estudo de caso, fluxograma 2 e SCRUM-31. Regra em RN11. |
+
+### UC20: Receber apoio por sofrimento intenso
+
+- **Ator:** Aluno. O CVV 188 participa pelo UC09.
+- **Gatilho:** o aluno salva um humor (UC02) e a RN11 é satisfeita.
+- **Fluxo principal:** depois de salvar e da mensagem do mascote, o app mostra um modal acolhedor, na voz do mascote, com as opções: ligar para o CVV 188 (UC09), abrir Canais de Apoio e FAQ (UC06 e UC08), enviar relato anônimo à escola (UC10) e "Agora não", que fecha com um toque.
+- **Fluxos alternativos:**
+  - Canais e FAQ e relato anônimo só aparecem quando as telas já existem no app.
+  - Sem discador no aparelho, o modal mostra um aviso e continua aberto.
+  - Se a leitura do histórico ou do estado falhar, o modal não aparece. O humor já está salvo e o aluno segue para a Home.
+- **Restrições:** roda 100% no aparelho e sem internet; nada vai para o Firestore e a escola não é avisada (RN01, RN02, RN08); não acrescenta passos ao registro de humor (RN09); o texto só acolhe e encaminha, sem diagnóstico.
 
 
 
@@ -61,3 +73,4 @@ O UC12 (tratar falha de conexão) é incluído por todo caso de uso que lê ou g
 | RN08 | O app não coleta IP, localização nem dados do aparelho. Não usa ferramentas de analytics. | Unidade II |
 | RN09 | O registro de humor se faz em até 3 interações: abrir, tocar no emoji, salvar. | RNF05 |
 | RN10 | O modo escuro segue a configuração do sistema. | Unidade II, RNF08 |
+| RN11 | O modal de apoio (UC20) aparece logo depois de salvar o humor quando há **3 dias seguidos negativos, incluindo hoje**. Um dia é negativo se o último registro dele, pela data local do aparelho, é `triste`, `ansioso` ou `comRaiva` (`cansado`, `feliz` e `neutro` não contam). Um dia sem registro quebra a sequência. O modal aparece **no máximo uma vez por dia** e, ao aparecer, a contagem recomeça no dia seguinte. A avaliação lê só o histórico local e não registra quem recebeu o modal. Os valores são uma proposta e devem ser validados com a psicóloga da escola. | Escopo, estudo de caso, SCRUM-31 (decisão do grupo, a validar) |
