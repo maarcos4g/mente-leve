@@ -110,30 +110,32 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Rayelen de Jesus Oliveira
 
-*(A preencher pelo integrante)*
-
----
+* **Fluxograma de navegação (SCRUM-23) e preenchimento da documentação (03/11):**
+  * **O que foi feito:** Mapeamento do fluxo de navegação do aplicativo em quatro fluxogramas no FigJam (entrada e autenticação; aluno: humor, diário e CVV; aluno: canais, FAQ e denúncia; psicóloga e responsável), com rotas nomeadas, transições e estados vazio/erro. A IA foi usada para fazer todos os preenchimentos da documentação desta etapa: a entrada do `CHANGELOG.md`, o texto de responsabilidade no `README.md`, este registro de uso de IA e a explicação do fluxograma.
+  * **Ferramenta utilizada:** Claude (Claude Sonnet 5.5), com os conectores do Jira, do GitHub (leitura) e do Figma (FigJam).
+  * **Prompts utilizados:**
+    * > Verifique o ticket do Jira SCRUM-23 e o GitHub do projeto e avalie como deve ser feito esse fluxograma. Não faça nada, apenas responda.
+    * **Changelog.**  *"Atue como analista de documentação do projeto MenteLeve. Com base em tudo o que foi executado nesta tarefa (SCRUM-23), redija a entrada do `CHANGELOG.md` no padrão do repositório, apenas com o que de fato foi feito, sinalizando como 'a validar' o que for inferência e listando os itens pendentes. Não altere nenhum arquivo do repositório."*
+  * **Como a IA ajudou:** Leu o ticket e a documentação do repositório (escopo, requisitos, casos de uso, justificativas, modelagem do Firestore e protótipo de alta fidelidade), escolheu o fluxograma de processo como tipo de diagrama por ser o que o ticket pede, propôs a divisão em quatro fluxos por perfil e assunto e redigiu os textos de changelog, README e este registro.
 
 ## Sprint 2
 
-### Rayelen de Jesus Oliveira
 
-* **Gatilho automático de apoio emergencial para sofrimento intenso — SCRUM-31 (12/11):**
-  * **O que foi feito:** Criação do módulo `lib/modules/student/support_trigger/`: regra de detecção pura (`SupportTriggerRule`, com os parâmetros em `SupportTriggerConfig`), leitura do histórico por interface (`MoodRecordRepository`, com versão em memória para testes e um adaptador que lê a chave `diario` do `SharedPreferences`), estado de controle local (`SupportTriggerStateStore`, chave `support_trigger_state`), `SupportTriggerController` e o modal acolhedor (`SupportModal` e `showSupportModalIfNeeded`). A discagem do `CvvButton` virou o método `CvvButton.dial()`, usado também pelo modal. Foram escritos 48 testes (regra, armazenamento, controller e widget do modal) e a modelagem ganhou o UC20, a RN11 e a entidade local `EstadoGatilhoApoio`.
-  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
-  * **Prompt utilizado (resumido):**
-    > **Tarefa:** SCRUM-31 — "Sistema identifica sequências de humor negativo e dispara modal amigável sugerindo o CVV 188."
-    >
-    > **Regras:** partir da `origin/main` e ler a documentação antes de codar; detecção 100% offline lendo só o histórico local, sem Firestore, analytics ou notificação à escola; sem diagnóstico; modal só dentro do app, depois de salvar o humor e sem acrescentar passos ao registro; discagem do CVV 188 pelo discador nativo, com aviso se não houver discador; área de toque de 48x48dp, contraste WCAG AA e modo escuro do sistema.
-    >
-    > **Regra inicial (a validar com a psicóloga):** humores negativos `triste`, `ansioso` e `comRaiva`; um dia é negativo se o último registro dele é negativo; dispara com 3 dias seguidos, incluindo hoje; no máximo um modal por dia, com a contagem reiniciando depois de exibir.
-    >
-    > **Entregas:** testes unitários e de widget, `flutter analyze` e `flutter test`, documentação (UC20, RN11, modelagem, CHANGELOG e este registro) e commits pequenos em Conventional Commits, sem push.
-  * **Como a IA ajudou:** Encontrou o diário e o modelo `RegistroDiario` no PR #11 (ainda fora da `main`) e fez o gatilho depender só de uma interface compatível com o formato dele. Separou a regra em código Dart puro, testou casos de borda (dia sem registro, virada de dia e de mês, limite diário, reinício da contagem e humor fora do conjunto), calculou o contraste das cores do modal e rodou `flutter analyze` e `flutter test`.
+### Rayelen de Jesus Oliveira
+* **Documentação do gatilho de apoio emergencial (SCRUM-31) (10/11 a 12/11):**
+  * **O que foi feito:** A IA preencheu toda a documentação ligada ao ticket: o caso de uso UC20 e a regra RN11, a entidade local do estado do gatilho nos documentos de classes e de mapeamento, a nota de que o gatilho não usa o Firestore, a entrada do `CHANGELOG.md` e este registro. Também foi usada para escrever o prompt de desenvolvimento do ticket e os comentários de andamento no Jira.
+  * **Ferramenta utilizada:** Claude (Claude Sonnet 5.5) e o agente que executou o desenvolvimento.
+  * **Como a IA ajudou:** Estruturou o prompt a partir da documentação (escopo, casos de uso, modelagem local e Firestore) e do código existente, e documentou o que foi implementado e as decisões pendentes.
   * **Dificuldades e ajustes manuais:**
-    1. **Diário fora da `main`:** O registro de humor e a rota `/diary` só existem no PR #11. O gatilho está pronto, mas a chamada `showSupportModalIfNeeded` depois de salvar o humor ainda precisa ser ligada no `DiaryController`/`DiaryFeelingsView` quando o PR entrar.
-    2. **Hive ou SharedPreferences:** A modelagem na `main` fala em Hive criptografado, mas o código (e o PR #11) usa `SharedPreferences` sem criptografia. O estado do gatilho foi para o mesmo lugar do diário, então também fica sem criptografia, o que precisa ser alinhado com a RN02.
-    3. **5 imagens de humor e 6 humores:** A Home tem 5 imagens (`happy`, `sad`, `neutral`, `confused`, `angry`) e o enum `Humor` tem 6 valores. O mapeamento ficou configurável, e `confused` ficou sem correspondência até o grupo decidir.
-    4. **Contraste:** Texto branco sobre o azul `#00A6F4` tem contraste 2,71:1, abaixo do AA. O botão principal do modal usa `#0069A8` no modo claro (5,86:1). O `CvvButton` atual tem o mesmo problema e 34dp de altura, e não foi alterado nesta tarefa.
-    5. **Teste de widget:** O primeiro rascunho do teste do modal usava uma classe inexistente e envolvia o app em um `MediaQuery` sem tamanho de tela; os dois erros foram corrigidos na revisão, antes de rodar os testes.
-    6. **Ambiente:** O Flutter não estava no PATH e a máquina não tem Android SDK, então o emulador não foi usado: a validação foi feita só pelos testes automatizados, e o teste em API 24+ (e em modo avião) continua pendente.
+    1. **Leitura desatualizada do repositório:** a primeira versão do prompt descrevia o humor como uma escala de 5 níveis. Ao atualizar o repositório, viu-se que a modelagem define 6 categorias sem ordem (`Humor`) e que a pasta `docs/` havia sido reorganizada. O prompt foi corrigido.
+    2. **Divergência de armazenamento:** a modelagem prevê Hive criptografado, mas o código usa `SharedPreferences` sem criptografia. A decisão ficou registrada como pendente para o grupo.
+    3. **Validação clínica:** o texto do modal e os limites do gatilho precisam ser revisados pela psicóloga da escola.
+
+### 2. Integração via MCP do Jira
+- Conexão do assistente de IA ao Jira Cloud por meio do servidor MCP (*Model Context Protocol*) da Atlassian, permitindo que a IA consulte e manipule o backlog diretamente, sem a necessidade de scripts intermediários.
+- Consulta de épicos, stories e tasks do projeto SCRUM via JQL para apoiar revisões de escopo e acompanhamento das sprints.
+- Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
+- Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
+
+---
+
