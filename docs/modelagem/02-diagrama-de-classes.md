@@ -104,6 +104,10 @@ class CanalApoio {
   +int ordem
   +bool podeDiscar
 }
+class EstadoGatilhoApoio {
+  +DateTime? lastShownAt
+  +DateTime? countFrom
+}
 
 Usuario --> Papel
 RegistroDiario --> Humor
@@ -114,10 +118,14 @@ PerfilLocal "1" --> "0..*" RegistroDiario : registra (só no aparelho)
 Usuario "1" --> "0..*" PerguntaFaq : atualiza
 Usuario "1" --> "0..*" Guia : publica
 Usuario "1" --> "0..*" RespostaDenuncia : escreve
+EstadoGatilhoApoio ..> RegistroDiario : lê o histórico (RN11)
 
 note for Denuncia "alunoUid é o id da autenticação anônima. O aluno não tem documento em Usuario."
 note for RegistroDiario "Fica só no aparelho (Hive criptografado). Nunca vai para o Firestore."
+note for EstadoGatilhoApoio "Fica só no aparelho, junto do diário. Nunca vai para o Firestore."
 ```
+
+> A imagem `diagrama-de-classes.png` ainda não mostra `EstadoGatilhoApoio`. O código-fonte Mermaid acima é a versão atual.
 
 ## Descrição das classes
 
@@ -131,6 +139,7 @@ note for RegistroDiario "Fica só no aparelho (Hive criptografado). Nunca vai pa
 | PerguntaFaq | Pergunta e resposta do FAQ. | Firestore, coleção `faq` | RF04, RF08 |
 | Guia | Material de orientação para os responsáveis. | Firestore, coleção `guias` | RF08, RF11 |
 | CanalApoio | Canal de ajuda externo (CVV, Disque 100, Ouvidoria). | Firestore, coleção `canais` | RF04 |
+| EstadoGatilhoApoio | Controle do modal de apoio por sofrimento intenso: quando apareceu pela última vez (`lastShownAt`) e a partir de quando a sequência volta a contar (`countFrom`). Não identifica o aluno nem guarda o humor. Em Dart: `SupportTriggerState`. | Aparelho, junto do diário | RN11 (UC20) |
 
 Enums: `Papel` (aluno, psicologa, responsavel), `Humor` (feliz, neutro, triste, ansioso, comRaiva, cansado), `TipoRelato` (bullying, cyberbullying, outros) e `StatusDenuncia` (pendente, respondida).
 

@@ -202,6 +202,8 @@ A descrição da denúncia tem limite de 2000 caracteres.
 
 O diário do aluno (humor, texto, pontos positivos e histórico) e o codinome ficam no aparelho, em caixa criptografada. A decisão vem do aditivo e do RNF03. O mapeamento dessas classes está em `04-mapeamento-dart-firestore.md`.
 
+O gatilho de apoio por sofrimento intenso (UC20, RN11) também não usa o Firestore: ele lê o diário no aparelho e guarda só o próprio estado de controle (`EstadoGatilhoApoio`) localmente. Não há coleção nova, nem mudança em `firestore.rules`, nem leitura ou escrita no Firestore, e a escola não fica sabendo que o modal apareceu.
+
 ## Observações
 
 - O papel do usuário é lido do documento em `usuarios`.

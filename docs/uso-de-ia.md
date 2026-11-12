@@ -110,4 +110,36 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Rayelen de Jesus Oliveira
 
-*(A preencher pelo integrante)*
+* **Fluxograma de navegação (SCRUM-23) e preenchimento da documentação (03/11):**
+  * **O que foi feito:** Mapeamento do fluxo de navegação do aplicativo em quatro fluxogramas no FigJam (entrada e autenticação; aluno: humor, diário e CVV; aluno: canais, FAQ e denúncia; psicóloga e responsável), com rotas nomeadas, transições e estados vazio/erro. A IA foi usada para fazer todos os preenchimentos da documentação desta etapa: a entrada do `CHANGELOG.md`, o texto de responsabilidade no `README.md`, este registro de uso de IA e a explicação do fluxograma.
+  * **Ferramenta utilizada:** Claude (Claude Sonnet 5.5), com os conectores do Jira, do GitHub (leitura) e do Figma (FigJam).
+  * **Prompts utilizados:**
+    * > Verifique o ticket do Jira SCRUM-23 e o GitHub do projeto e avalie como deve ser feito esse fluxograma. Não faça nada, apenas responda.
+    * **Changelog.**  *"Atue como analista de documentação do projeto MenteLeve. Com base em tudo o que foi executado nesta tarefa (SCRUM-23), redija a entrada do `CHANGELOG.md` no padrão do repositório, apenas com o que de fato foi feito, sinalizando como 'a validar' o que for inferência e listando os itens pendentes. Não altere nenhum arquivo do repositório."*
+  * **Como a IA ajudou:** Leu o ticket e a documentação do repositório (escopo, requisitos, casos de uso, justificativas, modelagem do Firestore e protótipo de alta fidelidade), escolheu o fluxograma de processo como tipo de diagrama por ser o que o ticket pede, propôs a divisão em quatro fluxos por perfil e assunto e redigiu os textos de changelog, README e este registro.
+
+## Sprint 2
+
+
+### Rayelen de Jesus Oliveira
+* **Documentação do gatilho de apoio emergencial (SCRUM-31) (10/11 a 12/11):**
+  * **O que foi feito:** A IA preencheu toda a documentação ligada ao ticket: o caso de uso UC20 e a regra RN11, a entidade local do estado do gatilho nos documentos de classes e de mapeamento, a nota de que o gatilho não usa o Firestore, a entrada do `CHANGELOG.md` e este registro. Também foi usada para escrever o prompt de desenvolvimento do ticket e os comentários de andamento no Jira.
+  * **Ferramenta utilizada:** Claude (Claude Sonnet 5.5) e o agente que executou o desenvolvimento.
+  * **Prompts utilizados:**
+    * > Parta da `origin/main` atualizada (`git fetch`; o histórico remoto já foi reescrito uma vez). Se algo abaixo contradizer o que você encontrar, siga a documentação e me avise.
+
+    * > Ao terminar, me entregue Um resumo curto do que foi feito e dos arquivos alterados. O resultado de `flutter analyze` e `flutter test`, e se o emulador foi usado. Dependências e lacunas encontradas (diário e registro de humor ausentes, Hive versus `shared_preferences`, 5 assets versus 6 humores). Decisões tomadas por falta de definição na documentação, que o grupo precisa validar.
+
+  * **Dificuldades e ajustes manuais:**
+    1. **Leitura desatualizada do repositório:** a primeira versão do prompt descrevia o humor como uma escala de 5 níveis. Ao atualizar o repositório, viu-se que a modelagem define 6 categorias sem ordem (`Humor`) e que a pasta `docs/` havia sido reorganizada. O prompt foi corrigido.
+    2. **Divergência de armazenamento:** a modelagem prevê Hive criptografado, mas o código usa `SharedPreferences` sem criptografia. A decisão ficou registrada como pendente para o grupo.
+    3. **Validação clínica:** o texto do modal e os limites do gatilho precisam ser revisados pela psicóloga da escola.
+
+### 2. Integração via MCP do Jira
+- Conexão do assistente de IA ao Jira Cloud por meio do servidor MCP (*Model Context Protocol*) da Atlassian, permitindo que a IA consulte e manipule o backlog diretamente, sem a necessidade de scripts intermediários.
+- Consulta de épicos, stories e tasks do projeto SCRUM via JQL para apoiar revisões de escopo e acompanhamento das sprints.
+- Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
+- Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
+
+---
+

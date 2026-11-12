@@ -14,6 +14,7 @@ flowchart LR
   RespostaDenuncia
   RegistroDiario
   PerfilLocal
+  EstadoGatilhoApoio
 
   subgraph FS["Cloud Firestore"]
     cUsuarios[("usuarios/{uid}")]
@@ -27,6 +28,9 @@ flowchart LR
     bDiario[("box diario")]
     bPerfil[("box perfil")]
   end
+  subgraph SP["Aparelho: SharedPreferences"]
+    kGatilho[("chave support_trigger_state")]
+  end
 
   Usuario --> cUsuarios
   Usuario -. "credenciais" .-> AUTH
@@ -38,7 +42,11 @@ flowchart LR
   RespostaDenuncia -. "campo resposta (map)" .-> cDenuncias
   RegistroDiario --> bDiario
   PerfilLocal --> bPerfil
+  EstadoGatilhoApoio --> kGatilho
+  EstadoGatilhoApoio -. "lê (RN11)" .-> bDiario
 ```
+
+> A imagem `mapeamento-dart-firestore.png` ainda não mostra `EstadoGatilhoApoio`. O código-fonte Mermaid acima é a versão atual.
 
 ## Tabela de mapeamento
 
@@ -52,6 +60,7 @@ flowchart LR
 | RespostaDenuncia | Firestore | campo `resposta` (map) em `denuncias/{id}` | Vira `{texto, respondidaEm, psicologaUid}`. Ausente enquanto a denúncia está pendente. |
 | RegistroDiario | Aparelho | Hive, caixa `diario` (criptografada) | Gravado como `Map`: `humor` pelo nome do enum, `dataHora` em texto ISO 8601. |
 | PerfilLocal | Aparelho | Hive, caixa `perfil` | Gravado como `Map` com o `codinome`. |
+| EstadoGatilhoApoio (`SupportTriggerState`) | Aparelho | SharedPreferences, chave `support_trigger_state` | JSON `{lastShownAt, countFrom}`, datas em texto ISO 8601, gravado pelo `SupportTriggerStateStore`. Se a chave estiver corrompida, é lida como estado vazio. Fica no mesmo armazenamento do diário: se o diário passar a ser criptografado, esta chave também deve ser. Nunca vai para o Firestore. |
 
 Os enums são gravados pelo nome (`Humor.comRaiva` vira `"comRaiva"`) e lidos com `values.byName`.
 

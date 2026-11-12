@@ -91,3 +91,16 @@
 ### Modificado
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+
+## [12/11/2026]
+
+### Adicionado
+
+- Gatilho de apoio emergencial para sofrimento intenso (SCRUM-31, UC20, RN11): regra local que identifica 3 dias seguidos de humor negativo (`triste`, `ansioso`, `comRaiva`) e mostra, no máximo uma vez por dia, um modal acolhedor na voz do mascote com ligação para o CVV 188, Canais de Apoio e FAQ, relato anônimo (quando as telas existirem) e "Agora não". Roda 100% offline e não envia nada ao Firestore (`lib/modules/student/support_trigger/`).
+- Estado de controle do gatilho no aparelho (`SupportTriggerStateStore`, chave `support_trigger_state` no `SharedPreferences`).
+- Testes da regra, do armazenamento, do controller e do modal (`test/modules/student/support_trigger/`).
+- UC20 e RN11 em `docs/modelagem/01-casos-de-uso.md`; entidade local `EstadoGatilhoApoio` no diagrama de classes e no mapeamento.
+
+### Modificado
+
+- `CvvButton.dial()` passa a ser reaproveitado pelo modal de apoio, sem duplicar a discagem.
