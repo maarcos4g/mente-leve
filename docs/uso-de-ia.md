@@ -111,3 +111,29 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 ### Rayelen de Jesus Oliveira
 
 *(A preencher pelo integrante)*
+
+---
+
+## Sprint 2
+
+### Rayelen de Jesus Oliveira
+
+* **Gatilho automático de apoio emergencial para sofrimento intenso — SCRUM-31 (12/11):**
+  * **O que foi feito:** Criação do módulo `lib/modules/student/support_trigger/`: regra de detecção pura (`SupportTriggerRule`, com os parâmetros em `SupportTriggerConfig`), leitura do histórico por interface (`MoodRecordRepository`, com versão em memória para testes e um adaptador que lê a chave `diario` do `SharedPreferences`), estado de controle local (`SupportTriggerStateStore`, chave `support_trigger_state`), `SupportTriggerController` e o modal acolhedor (`SupportModal` e `showSupportModalIfNeeded`). A discagem do `CvvButton` virou o método `CvvButton.dial()`, usado também pelo modal. Foram escritos 48 testes (regra, armazenamento, controller e widget do modal) e a modelagem ganhou o UC20, a RN11 e a entidade local `EstadoGatilhoApoio`.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompt utilizado (resumido):**
+    > **Tarefa:** SCRUM-31 — "Sistema identifica sequências de humor negativo e dispara modal amigável sugerindo o CVV 188."
+    >
+    > **Regras:** partir da `origin/main` e ler a documentação antes de codar; detecção 100% offline lendo só o histórico local, sem Firestore, analytics ou notificação à escola; sem diagnóstico; modal só dentro do app, depois de salvar o humor e sem acrescentar passos ao registro; discagem do CVV 188 pelo discador nativo, com aviso se não houver discador; área de toque de 48x48dp, contraste WCAG AA e modo escuro do sistema.
+    >
+    > **Regra inicial (a validar com a psicóloga):** humores negativos `triste`, `ansioso` e `comRaiva`; um dia é negativo se o último registro dele é negativo; dispara com 3 dias seguidos, incluindo hoje; no máximo um modal por dia, com a contagem reiniciando depois de exibir.
+    >
+    > **Entregas:** testes unitários e de widget, `flutter analyze` e `flutter test`, documentação (UC20, RN11, modelagem, CHANGELOG e este registro) e commits pequenos em Conventional Commits, sem push.
+  * **Como a IA ajudou:** Encontrou o diário e o modelo `RegistroDiario` no PR #11 (ainda fora da `main`) e fez o gatilho depender só de uma interface compatível com o formato dele. Separou a regra em código Dart puro, testou casos de borda (dia sem registro, virada de dia e de mês, limite diário, reinício da contagem e humor fora do conjunto), calculou o contraste das cores do modal e rodou `flutter analyze` e `flutter test`.
+  * **Dificuldades e ajustes manuais:**
+    1. **Diário fora da `main`:** O registro de humor e a rota `/diary` só existem no PR #11. O gatilho está pronto, mas a chamada `showSupportModalIfNeeded` depois de salvar o humor ainda precisa ser ligada no `DiaryController`/`DiaryFeelingsView` quando o PR entrar.
+    2. **Hive ou SharedPreferences:** A modelagem na `main` fala em Hive criptografado, mas o código (e o PR #11) usa `SharedPreferences` sem criptografia. O estado do gatilho foi para o mesmo lugar do diário, então também fica sem criptografia, o que precisa ser alinhado com a RN02.
+    3. **5 imagens de humor e 6 humores:** A Home tem 5 imagens (`happy`, `sad`, `neutral`, `confused`, `angry`) e o enum `Humor` tem 6 valores. O mapeamento ficou configurável, e `confused` ficou sem correspondência até o grupo decidir.
+    4. **Contraste:** Texto branco sobre o azul `#00A6F4` tem contraste 2,71:1, abaixo do AA. O botão principal do modal usa `#0069A8` no modo claro (5,86:1). O `CvvButton` atual tem o mesmo problema e 34dp de altura, e não foi alterado nesta tarefa.
+    5. **Teste de widget:** O primeiro rascunho do teste do modal usava uma classe inexistente e envolvia o app em um `MediaQuery` sem tamanho de tela; os dois erros foram corrigidos na revisão, antes de rodar os testes.
+    6. **Ambiente:** O Flutter não estava no PATH e a máquina não tem Android SDK, então o emulador não foi usado: a validação foi feita só pelos testes automatizados, e o teste em API 24+ (e em modo avião) continua pendente.
