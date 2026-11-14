@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/themes/app_text_styles.dart';
-import 'package:mente_leve/shared/widgets/cvv_button/cvv_button.dart';
 import 'package:mente_leve/shared/widgets/home/home_feature_card.dart';
 import 'package:mente_leve/shared/widgets/home/home_header.dart';
 import 'package:mente_leve/shared/widgets/home/mood_prompt_card.dart';
@@ -15,7 +14,6 @@ class StudentHomeView extends StatefulWidget {
     this.nickname,
     this.avatar,
     this.availableRoutes = const {},
-    this.onCvvPressed,
   });
 
   final String? nickname;
@@ -23,9 +21,6 @@ class StudentHomeView extends StatefulWidget {
 
   /// Rotas já registradas no app (ver `AppWidget.routes`).
   final Set<String> availableRoutes;
-
-  /// Troca a ação do botão CVV (testes). Por padrão disca 188.
-  final VoidCallback? onCvvPressed;
 
   @override
   State<StudentHomeView> createState() => _StudentHomeViewState();
@@ -114,11 +109,6 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                   ],
                 ),
               ),
-            ),
-            Positioned(
-              right: 24,
-              bottom: 52,
-              child: CvvButton(onPressed: widget.onCvvPressed),
             ),
           ],
         ),

@@ -91,3 +91,16 @@
 ### Modificado
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+
+## [14/11/2026]
+
+### Adicionado
+
+- Botão de emergência "Ajuda (CVV)" fixo em todas as telas do app, que disca 188 pelo discador nativo (`url_launcher`) e não depende de internet (RF05).
+- `CvvOverlay` e `CvvRouteObserver` (`lib/shared/widgets/cvv_button/cvv_overlay.dart`), aplicados em `MaterialApp.builder` para sobrepor o botão a todas as rotas.
+- Teste de widget do overlay (`test/cvv_overlay_test.dart`): botão visível ao navegar, oculto no login e disparo da ação.
+
+### Modificado
+
+- Botão CVV oculto nas telas de login e seleção de avatar (rotas `/auth/*`).
+- Botão CVV removido da Home do aluno (`StudentHomeView` e `test/home_view_test.dart`), pois passou a ser exibido pelo overlay global.
