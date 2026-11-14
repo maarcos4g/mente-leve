@@ -6,7 +6,6 @@ Future<void> _pumpHome(
   WidgetTester tester, {
   required Size size,
   Set<String> availableRoutes = const {},
-  VoidCallback? onCvvPressed,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -15,7 +14,6 @@ Future<void> _pumpHome(
     MaterialApp(
       home: StudentHomeView(
         availableRoutes: availableRoutes,
-        onCvvPressed: onCvvPressed,
       ),
     ),
   );
@@ -35,7 +33,6 @@ void main() {
       expect(find.text('Chat\nAnônimo'), findsOneWidget);
       expect(find.text('Canais de Apoio'), findsOneWidget);
       expect(find.text('& FAQ'), findsOneWidget);
-      expect(find.text('Ajuda (CVV)'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
@@ -49,18 +46,5 @@ void main() {
     await tester.pump();
 
     expect(find.text('Disponível em breve.'), findsOneWidget);
-  });
-
-  testWidgets('Botão CVV dispara a ação', (tester) async {
-    var pressed = 0;
-    await _pumpHome(
-      tester,
-      size: const Size(390, 844),
-      onCvvPressed: () => pressed++,
-    );
-
-    await tester.tap(find.text('Ajuda (CVV)'));
-
-    expect(pressed, 1);
   });
 }

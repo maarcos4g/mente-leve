@@ -10,6 +10,7 @@ import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
+import 'package:mente_leve/shared/widgets/cvv_button/cvv_overlay.dart';
 import 'package:provider/provider.dart';
 
 class AppWidget extends StatelessWidget {
@@ -46,6 +47,9 @@ class AppWidget extends StatelessWidget {
         primaryColor: const Color(0xFF1A1A1A),
         primarySwatch: Colors.blue,
       ),
+      // Botão de emergência (CVV 188) visível em todas as telas.
+      builder: (context, child) =>
+          CvvOverlay(child: child ?? const SizedBox.shrink()),
       initialRoute: '/splash',
       routes: routes,
     );
