@@ -13,7 +13,7 @@ import 'package:mente_leve/shared/models/session_model.dart';
 import 'package:mente_leve/shared/widgets/cvv_button/cvv_overlay.dart';
 import 'package:provider/provider.dart';
 
-class AppWidget extends StatelessWidget {
+class AppWidget extends StatefulWidget {
   const AppWidget({super.key});
 
   /// Rotas nomeadas do app. Telas de outras etapas (diário, FAQ, denúncia)
@@ -39,6 +39,13 @@ class AppWidget extends StatelessWidget {
   };
 
   @override
+  State<AppWidget> createState() => _AppWidgetState();
+}
+
+class _AppWidgetState extends State<AppWidget> {
+  final CvvRouteObserver _routeObserver = CvvRouteObserver();
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mente Leve',
@@ -47,11 +54,14 @@ class AppWidget extends StatelessWidget {
         primaryColor: const Color(0xFF1A1A1A),
         primarySwatch: Colors.blue,
       ),
-      // Botão de emergência (CVV 188) visível em todas as telas.
-      builder: (context, child) =>
-          CvvOverlay(child: child ?? const SizedBox.shrink()),
+      // Botão de emergência (CVV 188) visível nas telas, exceto no login.
+      builder: (context, child) => CvvOverlay(
+        observer: _routeObserver,
+        child: child ?? const SizedBox.shrink(),
+      ),
+      navigatorObservers: [_routeObserver],
       initialRoute: '/splash',
-      routes: routes,
+      routes: AppWidget.routes,
     );
   }
 }
