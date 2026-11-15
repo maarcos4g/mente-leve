@@ -47,6 +47,23 @@ class AppTextStyles {
     fontWeight: FontWeight.w500,
   );
 
+  static final titleLight = GoogleFonts.poppins(
+    fontSize: 24,
+    height: 36 / 24,
+    fontWeight: FontWeight.w300,
+  );
+
+  static final titleBoldLine = GoogleFonts.poppins(
+    fontSize: 24,
+    height: 36 / 24,
+    fontWeight: FontWeight.w600,
+  );
+
+  static final captionXsMedium = GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+  );
+
   static final captionXs = GoogleFonts.poppins(
     fontSize: 10,
     fontWeight: FontWeight.w400,

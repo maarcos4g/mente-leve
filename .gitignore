@@ -52,5 +52,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+claude-md
 # Firebase (configuração por plataforma)
 android/app/google-services.json
