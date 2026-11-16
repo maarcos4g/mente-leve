@@ -52,7 +52,7 @@ enum Humor {
   }
 
   /// Cara do mascote Breno para este humor, a mesma ilustração usada no
-  /// "Resumo da semana" da Home. Cansado não tem cara própria e usa a neutra.
+  /// "Resumo da semana" da Home (a de cansado foi feita a partir da neutra).
   String get brenoAsset {
     switch (this) {
       case Humor.feliz:
@@ -66,7 +66,7 @@ enum Humor {
       case Humor.comRaiva:
         return 'assets/home/mood_angry.svg';
       case Humor.cansado:
-        return 'assets/home/mood_neutral.svg';
+        return 'assets/home/mood_tired.svg';
     }
   }
 
