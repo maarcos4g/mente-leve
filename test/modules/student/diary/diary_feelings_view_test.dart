@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
@@ -50,8 +51,12 @@ void main() {
       // Central emotion face (120px)
       expect(find.byKey(const Key('central_emotion_face')), findsOneWidget);
       // Mascote Breno no centro, no lugar do emoji (revisão do PR #11)
-      final breno = tester.widget<Image>(find.byKey(const Key('breno_mascote')));
-      expect((breno.image as AssetImage).assetName, brenoAsset);
+      // com a cara do humor selecionado (mesmas do resumo da semana).
+      final breno = tester.widget<SvgPicture>(find.byKey(const Key('breno_mascote')));
+      expect(
+        (breno.bytesLoader as SvgAssetLoader).assetName,
+        Humor.neutro.brenoAsset,
+      );
 
       // Needle pointer
       expect(find.byKey(const Key('needle_pointer')), findsOneWidget);

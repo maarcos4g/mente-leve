@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
@@ -36,8 +37,6 @@ extension HumorWheelTheme on Humor {
 /// - Indicador Chevron Down duplo (24x36 em top: 482)
 /// - Disco/Roda radial interativo (422x525 em left: -15, top: 623)
 /// - Ponteiro/Needle (#4F3422, 37x56 em top: 78 da roda, apontando para o humor selecionado)
-/// Imagem do mascote Breno, mostrada no centro do seletor de emoção.
-const brenoAsset = 'assets/images/breno.png';
 
 class DiaryFeelingsView extends StatefulWidget {
   final DiaryController? controller;
@@ -325,13 +324,14 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                             ],
                           ),
                           // Mascote Breno no lugar do emoji (protótipo do
-                          // Figma); o fundo assume a cor da emoção escolhida.
+                          // Figma), com a cara da emoção escolhida (as mesmas
+                          // do resumo da semana); o fundo assume a cor dela.
                           padding: const EdgeInsets.all(14),
                           child: Semantics(
                             label: 'Breno, ${_selectedHumor.label}',
                             image: true,
-                            child: Image.asset(
-                              brenoAsset,
+                            child: SvgPicture.asset(
+                              _selectedHumor.brenoAsset,
                               key: const Key('breno_mascote'),
                               fit: BoxFit.contain,
                             ),

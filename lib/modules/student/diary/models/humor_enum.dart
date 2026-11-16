@@ -51,6 +51,25 @@ enum Humor {
     }
   }
 
+  /// Cara do mascote Breno para este humor, a mesma ilustração usada no
+  /// "Resumo da semana" da Home. Cansado não tem cara própria e usa a neutra.
+  String get brenoAsset {
+    switch (this) {
+      case Humor.feliz:
+        return 'assets/home/mood_happy.svg';
+      case Humor.neutro:
+        return 'assets/home/mood_neutral.svg';
+      case Humor.triste:
+        return 'assets/home/mood_sad.svg';
+      case Humor.ansioso:
+        return 'assets/home/mood_confused.svg';
+      case Humor.comRaiva:
+        return 'assets/home/mood_angry.svg';
+      case Humor.cansado:
+        return 'assets/home/mood_neutral.svg';
+    }
+  }
+
   /// Cor temática do Design System Tailwind.
   Color get color {
     switch (this) {
