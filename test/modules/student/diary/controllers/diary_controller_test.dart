@@ -111,5 +111,73 @@ void main() {
       await controller.saveHumor();
       expect(controller.hasRecordedToday, isTrue);
     });
+      group('Um sentimento por dia', () {
+      test('salvar de novo no mesmo dia altera o humor sem criar outro registro', () async {
+        controller.selectHumor(Humor.triste);
+        await controller.saveHumor();
+        final id = controller.entries.single.id;
+        expect(controller.lastSaveUpdated, isFalse);
+
+        controller.selectHumor(Humor.feliz);
+        final success = await controller.saveHumor();
+
+        expect(success, isTrue);
+        expect(controller.lastSaveUpdated, isTrue);
+        expect(controller.entries.length, 1);
+        expect(controller.entries.single.id, id);
+        expect(controller.registroDeHoje?.humor, Humor.feliz);
+      });
+
+      test('alterar o humor mantém o texto e os pontos positivos do dia', () async {
+        await repository.save(RegistroDiario(
+          id: 'hoje',
+          humor: Humor.neutro,
+          texto: 'Dia de prova',
+          pontosPositivos: const ['Dormi bem'],
+          dataHora: DateTime.now(),
+        ));
+
+        controller.selectHumor(Humor.ansioso);
+        await controller.saveHumor();
+
+        final registro = controller.entries.single;
+        expect(registro.id, 'hoje');
+        expect(registro.humor, Humor.ansioso);
+        expect(registro.texto, 'Dia de prova');
+        expect(registro.pontosPositivos, ['Dormi bem']);
+      });
+
+      test('reconhece o registro de hoje mesmo sem loadEntries antes', () async {
+        await repository.save(RegistroDiario(
+          id: 'hoje',
+          humor: Humor.neutro,
+          dataHora: DateTime.now(),
+        ));
+
+        controller.selectHumor(Humor.feliz);
+        await controller.saveHumor();
+
+        expect(controller.entries.length, 1);
+        expect(controller.entries.single.humor, Humor.feliz);
+      });
+
+      test('registro de ontem não é alterado; hoje ganha um registro novo', () async {
+        final agora = DateTime(2026, 11, 16, 10);
+        controller = DiaryController(repository: repository, agora: () => agora);
+        await repository.save(RegistroDiario(
+          id: 'ontem',
+          humor: Humor.triste,
+          dataHora: DateTime(2026, 11, 15, 22),
+        ));
+
+        controller.selectHumor(Humor.feliz);
+        await controller.saveHumor();
+
+        expect(controller.entries.length, 2);
+        expect(controller.lastSaveUpdated, isFalse);
+        expect(controller.entries.firstWhere((e) => e.id == 'ontem').humor,
+            Humor.triste);
+      });
+    });
   });
 }

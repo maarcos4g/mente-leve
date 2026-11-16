@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
+import 'package:mente_leve/modules/student/diary/models/registro_diario.dart';
 import 'package:mente_leve/modules/student/diary/repositories/diary_repository.dart';
 
 void main() {
@@ -85,6 +86,47 @@ void main() {
       expect(controller.entries.length, 1);
       expect(controller.latestEntry?.humor, Humor.neutro);
       expect(find.textContaining('Neutro registrado!'), findsOneWidget);
+    });
+
+    testWidgets('com registro hoje, abre no humor do dia e salvar altera em vez de criar outro', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      await repository.save(RegistroDiario(
+        id: 'hoje',
+        humor: Humor.feliz,
+        dataHora: DateTime.now(),
+      ));
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Alterar para Feliz'), findsOneWidget);
+      expect(find.byKey(const Key('registro_hoje_aviso')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('save_humor_button')));
+      await tester.pumpAndSettle();
+
+      expect(controller.entries.length, 1);
+      expect(controller.entries.single.id, 'hoje');
+      expect(find.textContaining('Humor de hoje alterado para Feliz'), findsOneWidget);
+    });
+
+    testWidgets('sem registro hoje não mostra o aviso', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('registro_hoje_aviso')), findsNothing);
     });
 
     testWidgets('tap central face persists emotion in DiaryController', (tester) async {

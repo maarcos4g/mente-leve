@@ -16,7 +16,7 @@ O escopo do produto foi delimitado a partir dos requisitos funcionais (RF), requ
 
 #### A. Perfil do Estudante / Adolescente (Usuário Central — Anonimato Estrito)
 * **Sem Exigência de Login:** Acesso direto às ferramentas essenciais sem formulários de cadastro, login ou coleta de dados biográficos/identificadores.
-* **Diário de Sentimentos Rápido (RF01):** Registro diário do humor através de emojis grandes e amigáveis, com interação simplificada completada em até 3 toques.
+* **Diário de Sentimentos Rápido (RF01):** Registro diário do humor através de emojis grandes e amigáveis, com interação simplificada completada em até 3 toques. É um sentimento por dia: registrar de novo no mesmo dia altera o humor já registrado.
 * **Diário Reflexivo e Pontos Positivos (RF02):** Área de expressão livre com escrita aberta e ferramenta de checklist dos pontos positivos do dia.
 * **Mascote de Acolhimento Interativo (RF03):** Elemento de UI dinâmico que interpreta o humor selecionado e oferece devolutivas com linguagem acolhedora e escuta ativa.
 * **Gatilho de Apoio Emergencial para Sofrimento Intenso:** Reconhecimento automático de registros recorrentes de angústia grave com disparo de modal discreto incentivando a busca por ajuda.
