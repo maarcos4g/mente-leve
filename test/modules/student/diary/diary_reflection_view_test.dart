@@ -117,4 +117,65 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('tocar num dia anterior mostra os registros daquele dia',
+      (tester) async {
+    final agora = DateTime.now();
+    final hoje = DateTime(agora.year, agora.month, agora.day, 12);
+    final ontem = DateTime(agora.year, agora.month, agora.day - 1, 12);
+    await repository.save(RegistroDiario(
+      id: 'ontem',
+      humor: Humor.triste,
+      texto: 'Registro de ontem',
+      dataHora: ontem,
+    ));
+    await repository.save(RegistroDiario(
+      id: 'hoje',
+      humor: Humor.feliz,
+      texto: 'Registro de hoje',
+      dataHora: hoje,
+    ));
+    await pumpView(tester);
+
+    expect(find.text('Registro de ontem'), findsOneWidget);
+    expect(find.text('Registro de hoje'), findsOneWidget);
+
+    // Se hoje é domingo, ontem fica na semana anterior.
+    if (hoje.weekday == DateTime.sunday) {
+      await tester.tap(find.byKey(const Key('semana_anterior')));
+      await tester.pumpAndSettle();
+    }
+    final mm = ontem.month.toString().padLeft(2, '0');
+    final dd = ontem.day.toString().padLeft(2, '0');
+    await tester.tap(find.byKey(Key('dia_${ontem.year}-$mm-$dd')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Registros de $dd/$mm'), findsOneWidget);
+    expect(find.text('Registro de ontem'), findsOneWidget);
+    expect(find.text('Registro de hoje'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('ver_todos')));
+    await tester.pumpAndSettle();
+    expect(find.text('Registros recentes'), findsOneWidget);
+    expect(find.text('Registro de hoje'), findsOneWidget);
+  });
+
+  testWidgets('setas trocam a semana e não passam da atual', (tester) async {
+    await pumpView(tester);
+
+    final proxima = find.byKey(const Key('proxima_semana'));
+    expect(tester.widget<IconButton>(proxima).onPressed, isNull);
+
+    final antes = tester
+        .widget<Text>(find.byKey(const Key('semana_intervalo')))
+        .data;
+    await tester.tap(find.byKey(const Key('semana_anterior')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.byKey(const Key('semana_intervalo'))).data,
+      isNot(antes),
+    );
+    expect(tester.widget<IconButton>(proxima).onPressed, isNotNull);
+  });
 }

@@ -11,10 +11,18 @@ import 'package:mente_leve/modules/student/diary/repositories/diary_repository.d
 /// Diário" completa o registro de hoje, se existir; tocar num registro da
 /// lista abre esse registro para edição.
 class DiaryReflectionController extends ChangeNotifier {
-  DiaryReflectionController({DiaryRepository? repository})
-      : repository = repository ?? DiaryController.defaultRepository;
+  DiaryReflectionController({
+    DiaryRepository? repository,
+    DateTime Function()? agora,
+  })  : repository = repository ?? DiaryController.defaultRepository,
+        _agora = agora ?? DateTime.now {
+    _inicioSemana = domingoDe(_agora());
+  }
 
   final DiaryRepository repository;
+
+  /// Relógio injetável, para os testes fixarem o "hoje".
+  final DateTime Function() _agora;
 
   static const maxTextoLength = 2000;
   static const maxPontoLength = 40;
@@ -66,13 +74,84 @@ class DiaryReflectionController extends ChangeNotifier {
 
   /// Registro de hoje, se o aluno já fez algum.
   RegistroDiario? get registroDeHoje {
-    final now = DateTime.now();
+    final now = _agora();
     return _entries.where((e) => _mesmoDia(e.dataHora, now)).firstOrNull;
   }
 
-  /// Dias da semana atual (domingo a sábado) que têm registro.
+  /// Indica se algum registro foi feito em [dia].
   bool temRegistroEm(DateTime dia) =>
       _entries.any((e) => _mesmoDia(e.dataHora, dia));
+
+  // ---- Calendário (histórico por semana) ----
+  late DateTime _inicioSemana;
+  DateTime? _diaSelecionado;
+
+  DateTime get hoje {
+    final now = _agora();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  /// Domingo da semana exibida no calendário.
+  DateTime get inicioSemana => _inicioSemana;
+
+  /// Dias da semana exibida, de domingo a sábado.
+  List<DateTime> get diasDaSemana => List.generate(
+        7,
+        (i) => DateTime(
+            _inicioSemana.year, _inicioSemana.month, _inicioSemana.day + i),
+      );
+
+  /// Dia escolhido no calendário; nulo mostra todos os registros.
+  DateTime? get diaSelecionado => _diaSelecionado;
+
+  /// Só deixa avançar até a semana atual.
+  bool get podeAvancar => _inicioSemana.isBefore(domingoDe(hoje));
+
+  bool isHoje(DateTime dia) => _mesmoDia(dia, hoje);
+  bool isFuturo(DateTime dia) => dia.isAfter(hoje) && !isHoje(dia);
+  bool isSelecionado(DateTime dia) =>
+      _diaSelecionado != null && _mesmoDia(dia, _diaSelecionado!);
+
+  void semanaAnterior() {
+    _inicioSemana = DateTime(
+        _inicioSemana.year, _inicioSemana.month, _inicioSemana.day - 7);
+    notifyListeners();
+  }
+
+  void proximaSemana() {
+    if (!podeAvancar) return;
+    _inicioSemana = DateTime(
+        _inicioSemana.year, _inicioSemana.month, _inicioSemana.day + 7);
+    notifyListeners();
+  }
+
+  /// Seleciona [dia] para ver os registros dele; tocar de novo desmarca.
+  /// Dias futuros são ignorados.
+  void selecionarDia(DateTime dia) {
+    if (isFuturo(dia)) return;
+    _diaSelecionado = isSelecionado(dia)
+        ? null
+        : DateTime(dia.year, dia.month, dia.day);
+    notifyListeners();
+  }
+
+  /// Volta a mostrar todos os registros.
+  void limparSelecao() {
+    if (_diaSelecionado == null) return;
+    _diaSelecionado = null;
+    notifyListeners();
+  }
+
+  /// Registros mostrados na lista: os do dia selecionado ou todos.
+  List<RegistroDiario> get entriesVisiveis {
+    final dia = _diaSelecionado;
+    if (dia == null) return entries;
+    return List.unmodifiable(
+        _entries.where((e) => _mesmoDia(e.dataHora, dia)));
+  }
+
+  static DateTime domingoDe(DateTime data) =>
+      DateTime(data.year, data.month, data.day - data.weekday % 7);
 
   Future<void> load() async {
     _isLoading = true;
@@ -152,11 +231,11 @@ class DiaryReflectionController extends ChangeNotifier {
               pontosPositivos: marcados,
             )
           : RegistroDiario(
-              id: DateTime.now().microsecondsSinceEpoch.toString(),
+              id: _agora().microsecondsSinceEpoch.toString(),
               humor: _humor!,
               texto: texto.isEmpty ? null : texto,
               pontosPositivos: marcados,
-              dataHora: DateTime.now(),
+              dataHora: _agora(),
             );
 
       await repository.save(registro);

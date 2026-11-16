@@ -220,6 +220,67 @@ void main() {
       expect(failing.isSaving, isFalse);
     });
   });
+
+  group('Calendário com histórico', () {
+    // Quarta-feira, 11/11/2026: semana de domingo 08/11 a sábado 14/11.
+    final hoje = DateTime(2026, 11, 11, 15);
+    late DiaryReflectionController calendario;
+
+    setUp(() => calendario = DiaryReflectionController(
+          repository: repository,
+          agora: () => hoje,
+        ));
+    tearDown(() => calendario.dispose());
+
+    test('começa na semana atual, sem dia selecionado', () {
+      expect(calendario.inicioSemana, DateTime(2026, 11, 8));
+      expect(calendario.diasDaSemana.last, DateTime(2026, 11, 14));
+      expect(calendario.diaSelecionado, isNull);
+      expect(calendario.podeAvancar, isFalse);
+    });
+
+    test('volta semanas e não avança além da atual', () {
+      calendario.semanaAnterior();
+      expect(calendario.inicioSemana, DateTime(2026, 11, 1));
+      expect(calendario.podeAvancar, isTrue);
+
+      calendario.proximaSemana();
+      expect(calendario.inicioSemana, DateTime(2026, 11, 8));
+
+      calendario.proximaSemana();
+      expect(calendario.inicioSemana, DateTime(2026, 11, 8));
+    });
+
+    test('selecionar um dia filtra os registros; tocar de novo desmarca',
+        () async {
+      await repository.save(registro(id: 'ontem', data: DateTime(2026, 11, 10, 9)));
+      await repository.save(registro(id: 'hoje', data: DateTime(2026, 11, 11, 9)));
+      await repository.save(registro(id: 'antigo', data: DateTime(2026, 10, 30, 9)));
+      await calendario.load();
+
+      expect(calendario.entriesVisiveis, hasLength(3));
+
+      calendario.selecionarDia(DateTime(2026, 11, 10));
+      expect(calendario.entriesVisiveis.map((e) => e.id), ['ontem']);
+
+      calendario.selecionarDia(DateTime(2026, 11, 10));
+      expect(calendario.diaSelecionado, isNull);
+      expect(calendario.entriesVisiveis, hasLength(3));
+
+      calendario.selecionarDia(DateTime(2026, 10, 30));
+      expect(calendario.entriesVisiveis.map((e) => e.id), ['antigo']);
+
+      calendario.limparSelecao();
+      expect(calendario.entriesVisiveis, hasLength(3));
+    });
+
+    test('ignora dias futuros', () {
+      calendario.selecionarDia(DateTime(2026, 11, 12));
+      expect(calendario.diaSelecionado, isNull);
+      expect(calendario.isFuturo(DateTime(2026, 11, 12)), isTrue);
+      expect(calendario.isHoje(DateTime(2026, 11, 11)), isTrue);
+    });
+  });
 }
 
 class _FailingRepository extends LocalDiaryRepository {

@@ -36,6 +36,9 @@ extension HumorWheelTheme on Humor {
 /// - Indicador Chevron Down duplo (24x36 em top: 482)
 /// - Disco/Roda radial interativo (422x525 em left: -15, top: 623)
 /// - Ponteiro/Needle (#4F3422, 37x56 em top: 78 da roda, apontando para o humor selecionado)
+/// Imagem do mascote Breno, mostrada no centro do seletor de emoção.
+const brenoAsset = 'assets/images/breno.png';
+
 class DiaryFeelingsView extends StatefulWidget {
   final DiaryController? controller;
   final Humor? initialHumor;
@@ -321,11 +324,16 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                               ),
                             ],
                           ),
-                          child: CustomPaint(
-                            size: const Size(120, 120),
-                            painter: EmotionFacePainter(
-                              humor: _selectedHumor,
-                              scale: 1.0,
+                          // Mascote Breno no lugar do emoji (protótipo do
+                          // Figma); o fundo assume a cor da emoção escolhida.
+                          padding: const EdgeInsets.all(14),
+                          child: Semantics(
+                            label: 'Breno, ${_selectedHumor.label}',
+                            image: true,
+                            child: Image.asset(
+                              brenoAsset,
+                              key: const Key('breno_mascote'),
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),

@@ -98,3 +98,10 @@
 
 - Diário Reflexivo Livre e Checklist de Pontos Positivos (RF02): tela com área de texto livre, checklist de pontos positivos do dia (com sugestões e itens personalizados) e salvamento local. A reflexão completa o registro de humor do dia (RF01) em vez de criar outro.
 - Persistência do diário no aparelho com `shared_preferences`, reaproveitando o pacote já usado pelo perfil do aluno (RNF02 / RNF03).
+
+## [16/11/2026]
+
+### Modificado
+
+- Diário Pessoal: o calendário da semana ganhou setas para ver semanas anteriores, e tocar num dia mostra só os registros dele ("Ver todos" volta à lista completa). Dias futuros ficam desativados.
+- Seletor de emoção (RF01): o mascote Breno substitui o emoji no centro do disco, com o fundo na cor da emoção escolhida.

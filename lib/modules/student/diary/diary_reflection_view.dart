@@ -119,11 +119,7 @@ class _DiaryReflectionViewState extends State<DiaryReflectionView> {
                       const SizedBox(height: 42),
                       _AnotarButton(onPressed: () => _openSheet()),
                       const SizedBox(height: 42),
-                      Text(
-                        'Registros recentes',
-                        style: _poppins(16, FontWeight.w600, Colors.black,
-                            height: 36 / 16),
-                      ),
+                      _EntriesHeader(controller: _controller),
                       const SizedBox(height: 24),
                       ..._buildEntries(),
                     ],
@@ -141,16 +137,19 @@ class _DiaryReflectionViewState extends State<DiaryReflectionView> {
     if (_controller.isLoading) {
       return const [Center(child: CircularProgressIndicator())];
     }
-    if (_controller.entries.isEmpty) {
+    final visiveis = _controller.entriesVisiveis;
+    if (visiveis.isEmpty) {
       return [
         Text(
-          'Nenhum registro ainda. Toque em "Anotar no Diário" para começar.',
+          _controller.diaSelecionado != null
+              ? 'Nenhum registro neste dia.'
+              : 'Nenhum registro ainda. Toque em "Anotar no Diário" para começar.',
           style: _poppins(14, FontWeight.w400, _zinc400, height: 20 / 14),
         ),
       ];
     }
     return [
-      for (final registro in _controller.entries)
+      for (final registro in visiveis)
         Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child: _EntryItem(
@@ -207,23 +206,56 @@ class _AppBar extends StatelessWidget {
   }
 }
 
-/// Semana atual (D S T Q Q S S) com o dia de hoje destacado.
+/// Calendário da semana (D S T Q Q S S) com setas para ver semanas
+/// anteriores. Tocar num dia filtra a lista com os registros dele.
 class _WeekCalendar extends StatelessWidget {
   const _WeekCalendar({required this.controller});
 
   final DiaryReflectionController controller;
 
   static const _letras = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  static const _meses = [
+    'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+    'jul', 'ago', 'set', 'out', 'nov', 'dez',
+  ];
+
+  static String _intervalo(List<DateTime> dias) {
+    final ini = dias.first;
+    final fim = dias.last;
+    final mesmoMes = ini.month == fim.month;
+    final inicio = mesmoMes ? '${ini.day}' : '${ini.day} ${_meses[ini.month - 1]}';
+    return '$inicio – ${fim.day} ${_meses[fim.month - 1]}';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final hoje = DateTime.now();
-    final domingo = DateTime(hoje.year, hoje.month, hoje.day)
-        .subtract(Duration(days: hoje.weekday % 7));
-    final dias = List.generate(7, (i) => domingo.add(Duration(days: i)));
+    final dias = controller.diasDaSemana;
 
     return Column(
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              key: const Key('semana_anterior'),
+              tooltip: 'Semana anterior',
+              onPressed: controller.semanaAnterior,
+              icon: const Icon(LucideIcons.chevronLeft, size: 22),
+            ),
+            Text(
+              _intervalo(dias),
+              key: const Key('semana_intervalo'),
+              style: _poppins(14, FontWeight.w600, _zinc900),
+            ),
+            IconButton(
+              key: const Key('proxima_semana'),
+              tooltip: 'Próxima semana',
+              onPressed:
+                  controller.podeAvancar ? controller.proximaSemana : null,
+              icon: const Icon(LucideIcons.chevronRight, size: 22),
+            ),
+          ],
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -241,48 +273,109 @@ class _WeekCalendar extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            for (final dia in dias) _buildDia(dia, dia.day == hoje.day),
-          ],
+          children: [for (final dia in dias) _buildDia(dia)],
         ),
       ],
     );
   }
 
-  Widget _buildDia(DateTime dia, bool isHoje) {
+  Widget _buildDia(DateTime dia) {
     final temRegistro = controller.temRegistroEm(dia);
-    return SizedBox(
-      width: 32,
-      height: 40,
-      child: Column(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: isHoje
-                ? const BoxDecoration(color: _sky700, shape: BoxShape.circle)
-                : null,
-            child: Text(
-              '${dia.day}',
-              style: isHoje
-                  ? _poppins(16, FontWeight.w600, _zinc50)
-                  : _poppins(18, FontWeight.w600, Colors.black),
-            ),
+    final selecionado = controller.isSelecionado(dia);
+    final hoje = controller.isHoje(dia);
+    final futuro = controller.isFuturo(dia);
+
+    final BoxDecoration? decoracao;
+    final TextStyle estilo;
+    if (selecionado) {
+      decoracao = const BoxDecoration(color: _sky700, shape: BoxShape.circle);
+      estilo = _poppins(16, FontWeight.w600, _zinc50);
+    } else if (hoje) {
+      decoracao = BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: _sky700, width: 2),
+      );
+      estilo = _poppins(16, FontWeight.w600, _sky700);
+    } else {
+      decoracao = null;
+      estilo = _poppins(18, FontWeight.w600, futuro ? _zinc400 : Colors.black);
+    }
+
+    final mm = dia.month.toString().padLeft(2, '0');
+    final dd = dia.day.toString().padLeft(2, '0');
+
+    return Semantics(
+      button: !futuro,
+      selected: selecionado,
+      label: 'Dia ${dia.day}${temRegistro ? ', com registro' : ''}',
+      child: GestureDetector(
+        key: Key('dia_${dia.year}-$mm-$dd'),
+        behavior: HitTestBehavior.opaque,
+        onTap: futuro ? null : () => controller.selecionarDia(dia),
+        child: SizedBox(
+          width: 32,
+          height: 40,
+          child: Column(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: decoracao,
+                child: Text('${dia.day}', style: estilo),
+              ),
+              const SizedBox(height: 2),
+              // Pontinho nos dias com registro (o Figma não mostra, mas ajuda o
+              // aluno a ver os dias em que escreveu).
+              Container(
+                width: 5,
+                height: 5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: temRegistro ? _sky600 : Colors.transparent,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 2),
-          // Pontinho nos dias com registro (o Figma não mostra, mas ajuda o
-          // aluno a ver os dias em que escreveu).
-          Container(
-            width: 5,
-            height: 5,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: temRegistro ? _sky600 : Colors.transparent,
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+}
+
+/// Título da lista: "Registros recentes" ou o dia escolhido no calendário,
+/// com "Ver todos" para limpar o filtro.
+class _EntriesHeader extends StatelessWidget {
+  const _EntriesHeader({required this.controller});
+
+  final DiaryReflectionController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final dia = controller.diaSelecionado;
+    final titulo = dia == null
+        ? 'Registros recentes'
+        : 'Registros de ${dia.day.toString().padLeft(2, '0')}/'
+            '${dia.month.toString().padLeft(2, '0')}';
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            titulo,
+            style: _poppins(16, FontWeight.w600, Colors.black, height: 36 / 16),
+          ),
+        ),
+        if (dia != null)
+          TextButton(
+            key: const Key('ver_todos'),
+            onPressed: controller.limparSelecao,
+            child: Text(
+              'Ver todos',
+              style: _poppins(14, FontWeight.w600, _sky700),
+            ),
+          ),
+      ],
     );
   }
 }

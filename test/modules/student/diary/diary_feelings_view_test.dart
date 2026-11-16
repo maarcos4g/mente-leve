@@ -49,6 +49,9 @@ void main() {
 
       // Central emotion face (120px)
       expect(find.byKey(const Key('central_emotion_face')), findsOneWidget);
+      // Mascote Breno no centro, no lugar do emoji (revisão do PR #11)
+      final breno = tester.widget<Image>(find.byKey(const Key('breno_mascote')));
+      expect((breno.image as AssetImage).assetName, brenoAsset);
 
       // Needle pointer
       expect(find.byKey(const Key('needle_pointer')), findsOneWidget);
