@@ -54,7 +54,7 @@ class _AppWidgetState extends State<AppWidget> {
         primaryColor: const Color(0xFF1A1A1A),
         primarySwatch: Colors.blue,
       ),
-      // Botão de emergência (CVV 188) visível nas telas, exceto no login.
+      // Botão de emergência (CVV 188) visível apenas nas telas funcionais do aluno.
       builder: (context, child) => CvvOverlay(
         observer: _routeObserver,
         child: child ?? const SizedBox.shrink(),

@@ -47,26 +47,36 @@ class CvvRouteObserver extends NavigatorObserver {
   }
 }
 
-/// Sobrepõe o botão "Ajuda (CVV)" às telas do app (RF05).
+/// Rotas funcionais do aluno: Home e os atalhos que ela abre (diário, chat
+/// anônimo/denúncia e canais de apoio/FAQ).
+const defaultVisibleRoutePrefixes = <String>[
+  '/student/home',
+  '/diary',
+  '/report',
+  '/faq',
+];
+
+/// Sobrepõe o botão "Ajuda (CVV)" às telas funcionais do aluno (RF05).
 ///
 /// Usado em `MaterialApp.builder`, fica acima do Navigator e, por isso,
-/// permanece visível ao navegar, sem cada tela precisar incluí-lo. Some nas
-/// rotas que começam com [hiddenRoutePrefixes] (ex.: telas de login).
+/// permanece visível ao navegar, sem cada tela precisar incluí-lo. Só aparece
+/// nas rotas de [visibleRoutePrefixes]; nunca em splash, onboarding, login ou
+/// telas de pais e psicólogo.
 /// A discagem usa o discador nativo (`tel:188`) e não depende de internet.
 class CvvOverlay extends StatelessWidget {
   const CvvOverlay({
     super.key,
     required this.child,
     required this.observer,
-    this.hiddenRoutePrefixes = const ['/auth/'],
+    this.visibleRoutePrefixes = defaultVisibleRoutePrefixes,
     this.onCvvPressed,
   });
 
   final Widget child;
   final CvvRouteObserver observer;
 
-  /// Rotas cujo nome começa com algum destes prefixos não mostram o botão.
-  final List<String> hiddenRoutePrefixes;
+  /// O botão só aparece em rotas cujo nome começa com algum destes prefixos.
+  final List<String> visibleRoutePrefixes;
 
   /// Troca a ação do botão (testes). Por padrão abre o discador em 188.
   final VoidCallback? onCvvPressed;
@@ -79,9 +89,9 @@ class CvvOverlay extends StatelessWidget {
         ValueListenableBuilder<String?>(
           valueListenable: observer.currentRoute,
           builder: (context, route, _) {
-            final hidden =
-                route != null && hiddenRoutePrefixes.any(route.startsWith);
-            if (hidden) return const SizedBox.shrink();
+            final visible =
+                route != null && visibleRoutePrefixes.any(route.startsWith);
+            if (!visible) return const SizedBox.shrink();
             return Positioned(
               right: 24,
               bottom: 52,

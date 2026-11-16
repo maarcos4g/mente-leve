@@ -96,11 +96,11 @@
 
 ### Adicionado
 
-- Botão de emergência "Ajuda (CVV)" fixo em todas as telas do app, que disca 188 pelo discador nativo (`url_launcher`) e não depende de internet (RF05).
+- Botão de emergência "Ajuda (CVV)" fixo nas telas funcionais do aluno (Home e rotas de diário, chat anônimo e FAQ), que disca 188 pelo discador nativo (`url_launcher`) e não depende de internet (RF05).
 - `CvvOverlay` e `CvvRouteObserver` (`lib/shared/widgets/cvv_button/cvv_overlay.dart`), aplicados em `MaterialApp.builder` para sobrepor o botão a todas as rotas.
-- Teste de widget do overlay (`test/cvv_overlay_test.dart`): botão visível ao navegar, oculto no login e disparo da ação.
+- Teste de widget do overlay (`test/cvv_overlay_test.dart`): botão visível apenas nas telas do aluno, oculto em splash, onboarding, login, pais e psicólogo, e disparo da ação.
 
 ### Modificado
 
-- Botão CVV oculto nas telas de login e seleção de avatar (rotas `/auth/*`).
+- Botão CVV oculto em splash, onboarding, telas de login e homes de pais e psicólogo.
 - Botão CVV removido da Home do aluno (`StudentHomeView` e `test/home_view_test.dart`), pois passou a ser exibido pelo overlay global.
