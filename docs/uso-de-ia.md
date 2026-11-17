@@ -118,7 +118,25 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Alexandre Pedro de Matos Ferreira
 
-*(A preencher pelo integrante)*
+* **Desenvolvimento do Diário de Sentimentos por Emojis (RF01 / SCRUM-28 — 08/11):**
+  * **O que foi feito:** Implementação do módulo do Diário de Sentimentos (`lib/modules/student/diary/`), incluindo modelos (`Humor`, `RegistroDiario`), repositório local (`LocalDiaryRepository`), controlador (`DiaryController`), widgets de apoio (`MoodSelectorCard`, `EmojiButton`, `RecentMoodsSummary`), a tela principal `DiaryFeelingsView` fiel ao protótipo do Figma (disco radial interativo de 12 setores, expressões faciais em `CustomPainter`, ponteiro em gota e indicador duplo chevron) e suíte de testes automatizados (`test/modules/student/diary/`).
+  * **Ferramenta utilizada:** Antigravity (Gemini 3.8 Flash).
+  * **Prompts utilizados:**
+    * > `https://menteleve.atlassian.net/jira/software/projects/SCRUM/boards/1?filter=&groupBy=none&selectedIssue=SCRUM-28` `/boost comece a trabalhar nessa tarefa.`
+    * > Especificações CSS do Figma e imagem de referência da tela `diary-feelings`, seguido de: `dê um jeito de emular a tela, e qualquer arquivo q for criar, use a pasta /.agents`
+  * **Como a IA ajudou:** Estruturou a arquitetura em camadas (model, repository, controller e views/widgets), implementou a geometria trigonométrica da roda de sentimentos com `CustomPainter` e rotação interativa (`GestureDetector` + `AnimationController`), escreveu os testes unitários e de widgets e montou um script de renderização headless (`.agents/render_screens_real.dart`) carregando as fontes Poppins e ícones Lucide para validar o visual em PNG sem precisar de emulador Android.
+  * **Dificuldades e ajustes manuais:**
+    1. **Emulação visual sem Android AVD:** Como não havia emulador Android configurado na máquina e o `flutter test` substitui fontes por blocos retangulares por padrão, foi necessário baixar os arquivos TTF da fonte Poppins na pasta ignorada `.agents/` e carregá-los via `FontLoader` junto ao `AssetManifest` para gerar as capturas reais da tela.
+    2. **Ajustes visuais em relação ao protótipo do Figma:** Na primeira captura gerada pela IA, o título `"Como você está se sentindo hoje?"` cortava a palavra `"hoje?"`, o ponteiro apresentava uma deformação na ponta e havia um botão `"Salvar Neutro"` no centro vazado da roda que não existia no Figma. Após envio da imagem de referência, a caixa do título foi redimensionada, o `NeedlePainter` foi refeito com tangentes circulares contínuas e o botão sobreposto foi ocultado, mantendo o registro pelo toque no rosto central ou no ponteiro.
+
+* **Revisão Técnica do PR #9 (08/11) e Resolução de Conflitos do PR #12 (15/11):**
+  * **O que foi feito:** Revisão técnica do Pull Request #9 (integração com Firebase Auth/Firestore e autenticação por perfil) e resolução dos conflitos da branch `feat/SCRUM-28/diario-sentimentos-emojis` (PR #12) com a `main`.
+  * **Ferramenta utilizada:** Antigravity (Gemini 3.8 Flash e Gemini 4 Argon).
+  * **Prompts utilizados:**
+    * > `atue como um especialista em codigo para revisar o pull request: https://github.com/maarcos4g/mente-leve/pull/9`
+    * > `verifique o pull request que você fez sobre essa ultima tarefa e verifique os possíveis conflitos com a main para o merge. Corrija-os e atualize o changelog e o arquivo de uso de ia.`
+  * **Como a IA ajudou:** Na revisão do PR #9, apontou o risco de logout forçado de usuários institucionais quando sem internet no `restoreSession()`, a falta de `WidgetsFlutterBinding.ensureInitialized()` no `main()` e a ausência do estado `isLoading` nas telas de login de pais e psicólogos. Na atualização do PR #12, identificou o conflito em `lib/app_widget.dart` e a duplicidade da Home do aluno após o merge da Home oficial na `main`, mantendo a `HomeView` da `main` e conectando a rota `HomeController.diaryRoute` (`/diary`) à `DiaryFeelingsView`.
+  * **Dificuldades e ajustes manuais:** Durante os testes locais na Web (Chrome), a autenticação anônima do Firebase falhava por ausência de `FirebaseOptions` web registrado no console, sendo necessário reverter alterações temporárias no `lib/main.dart` antes do envio do PR para não impactar a inicialização nativa do Android.
 
 ### Abraão Luiz Ribeiro da Cruz Dantas
 
@@ -157,6 +175,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     1. **Criptografia:** Com o `shared_preferences`, o diário continua só no aparelho, mas sem criptografia, o que precisa ser alinhado com o RNF03.
     2. **Base do PR:** Mesmo depois do merge, o GitHub mostrava conflito porque o PR #11 tinha sido aberto em cima da branch do PR #12 (SCRUM-28). A base foi trocada para a `main`, e o #12 ficou redundante.
     3. **OneDrive:** O `flutter test` falhou na primeira vez porque o OneDrive travou a pasta `build/`; foi preciso apagá-la e rodar de novo.
+
 
 ### Marcos Paulo
 
