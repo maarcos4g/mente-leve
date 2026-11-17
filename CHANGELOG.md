@@ -87,10 +87,13 @@
 - Botão "Ajuda (CVV)" compartilhado, que disca 188 pelo discador nativo (`url_launcher`).
 - Cores do Figma em `lib/shared/themes/app_colors.dart` e ilustrações em `assets/home/`.
 - Teste de widget da Home (`test/home_view_test.dart`).
+- Diário de Sentimentos por Emojis (RF01 / SCRUM-28): tela `DiaryFeelingsView` fiel ao protótipo do Figma com disco radial interativo de 12 setores, expressões faciais vetoriais (`EmotionFacePainter`), ponteiro em gota (`NeedlePainter`), controlador (`DiaryController`), modelos (`Humor` e `RegistroDiario`), repositório local (`LocalDiaryRepository`) e widgets (`MoodSelectorCard`, `EmojiButton` e `RecentMoodsSummary`), cumprindo o fluxo de registro rápido em até 3 interações (RNF05).
+- Testes unitários e de widgets para o módulo do Diário de Sentimentos (`test/modules/student/diary/`).
 
 ### Modificado
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+- Rota `/diary` (`HomeController.diaryRoute`) registrada em `AppWidget.routes`, integrando os atalhos da Home do aluno à tela do Diário de Sentimentos (`DiaryFeelingsView`).
 
 ## [10/11/2026]
 
