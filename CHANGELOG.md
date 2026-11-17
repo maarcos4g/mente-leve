@@ -94,6 +94,19 @@
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
 
+## [09/11/2026]
+
+### Adicionado
+
+- Diário Reflexivo Livre e Checklist de Pontos Positivos (RF02): tela com área de texto livre, checklist de pontos positivos do dia (com sugestões e itens personalizados) e salvamento local. A reflexão completa o registro de humor do dia (RF01) em vez de criar outro.
+- Persistência do diário no aparelho com `shared_preferences`, reaproveitando o pacote já usado pelo perfil do aluno (RNF02 / RNF03).
+
+## [10/11/2026]
+
+## Adicionado
+
+- Pipeline CI/CD com Github Actions e Firebase App Distribution
+
 ## [14/11/2026]
 
 ### Adicionado
@@ -108,8 +121,11 @@
 - Botão CVV removido da Home do aluno (`StudentHomeView` e `test/home_view_test.dart`), pois passou a ser exibido pelo overlay global.
 - Rota `/diary` (`HomeController.diaryRoute`) registrada em `AppWidget.routes`, integrando os atalhos da Home do aluno à tela do Diário de Sentimentos (`DiaryFeelingsView`).
 
-## [10/11/2026]
+## [16/11/2026]
 
-## Adicionado
+### Modificado
 
-- Pipeline CI/CD com Github Actions e Firebase App Distribution
+- Diário Pessoal: o calendário da semana ganhou setas para ver semanas anteriores, e tocar num dia mostra só os registros dele ("Ver todos" volta à lista completa). Dias futuros ficam desativados.
+- Seletor de emoção (RF01): o mascote Breno substitui o emoji no centro do disco, com a cara de cada emoção (as mesmas do "Resumo da semana" da Home, mais uma nova para Cansado, `assets/home/mood_tired.svg`) e o fundo na cor da emoção escolhida.
+- Diário Pessoal: a folha "Como você está se sentindo?", a lista de registros e o botão de humor mostram o Breno com a cara de cada emoção no lugar dos rostinhos desenhados.
+- Seletor de emoção (RF01): um sentimento por dia. Se já houver registro hoje, a roda abre no humor registrado, avisa "Hoje você registrou: X" e salvar altera o humor do dia (mantendo texto e pontos positivos) em vez de criar outro registro.

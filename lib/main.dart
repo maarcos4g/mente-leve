@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
+import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
+import 'package:mente_leve/modules/student/diary/repositories/prefs_diary_repository.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/auth/auth_repository.dart';
 import 'package:mente_leve/shared/auth/profile_store.dart';
@@ -27,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   Future<AuthNotifier> _bootstrap() async {
     await Firebase.initializeApp();
     final storage = await SharedPreferences.getInstance();
+    DiaryController.defaultRepository = PrefsDiaryRepository(storage);
     return AuthNotifier(
       AuthRepository(
         FirebaseAuth.instance,

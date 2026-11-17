@@ -60,7 +60,7 @@ class RegistroDiario {
     );
   }
 
-  /// Serialização para persistência local (JSON / Hive / SQLite).
+  /// Serialização para persistência local (JSON no shared_preferences).
   Map<String, dynamic> toMap() => {
         'id': id,
         'humor': humor.name,

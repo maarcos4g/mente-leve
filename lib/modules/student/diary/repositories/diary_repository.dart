@@ -25,7 +25,7 @@ abstract class DiaryRepository {
 /// Implementação padrão em memória / local com ordenação cronológica decrescente.
 ///
 /// Projetada para operação local imediata, totalmente offline e compatível
-/// com a camada de persistência definitiva (Hive/SQLite) de RNF03.
+/// com a camada de persistência definitiva (`PrefsDiaryRepository`) de RNF03.
 class LocalDiaryRepository implements DiaryRepository {
   /// Construtor público permitindo instâncias isoladas (útil para testes unitários).
   LocalDiaryRepository([Map<String, RegistroDiario>? initialStorage]) {

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
@@ -36,6 +37,7 @@ extension HumorWheelTheme on Humor {
 /// - Indicador Chevron Down duplo (24x36 em top: 482)
 /// - Disco/Roda radial interativo (422x525 em left: -15, top: 623)
 /// - Ponteiro/Needle (#4F3422, 37x56 em top: 78 da roda, apontando para o humor selecionado)
+
 class DiaryFeelingsView extends StatefulWidget {
   final DiaryController? controller;
   final Humor? initialHumor;
@@ -113,8 +115,24 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _controller.selectHumor(_selectedHumor);
+        _carregarRegistroDeHoje();
       }
     });
+  }
+
+  /// Um sentimento por dia: se já houver registro hoje, a roda abre no humor
+  /// registrado e salvar passa a alterá-lo.
+  Future<void> _carregarRegistroDeHoje() async {
+    await _controller.loadEntries();
+    if (!mounted) return;
+    final hoje = _controller.registroDeHoje;
+    if (hoje != null &&
+        widget.initialHumor == null &&
+        hoje.humor != _selectedHumor) {
+      animateToEmotion(hoje.humor);
+    } else {
+      setState(() {});
+    }
   }
 
   @override
@@ -197,7 +215,9 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${_selectedHumor.label} registrado! ${_selectedHumor.comfortingMessage}',
+              _controller.lastSaveUpdated
+                  ? 'Humor de hoje alterado para ${_selectedHumor.label}! ${_selectedHumor.comfortingMessage}'
+                  : '${_selectedHumor.label} registrado! ${_selectedHumor.comfortingMessage}',
             ),
             backgroundColor: _selectedHumor.wheelColor,
             duration: const Duration(seconds: 2),
@@ -296,6 +316,29 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                       ),
                     ),
 
+                    // 3b. Aviso de que o dia já tem um sentimento registrado
+                    if (_controller.registroDeHoje case final hoje?)
+                      Positioned(
+                        left: 16,
+                        right: 16,
+                        top: 304,
+                        height: 18,
+                        child: Center(
+                          child: Text(
+                            'Hoje você registrou: ${hoje.humor.label}. '
+                            'Toque no Breno para alterar.',
+                            key: const Key('registro_hoje_aviso'),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: const Color(0xFF71717A),
+                            ),
+                          ),
+                        ),
+                      ),
+
                     // 4. Emotion (Rosto central da emoção)
                     // width: 120px, height: 120px, left: calc(50% - 120px/2), top: 328px
                     // background: #FFCE5C (dinâmico), box-shadow: 0px 13px 13px rgba(255, 206, 92, 0.09), border-radius: 6170px
@@ -321,11 +364,17 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                               ),
                             ],
                           ),
-                          child: CustomPaint(
-                            size: const Size(120, 120),
-                            painter: EmotionFacePainter(
-                              humor: _selectedHumor,
-                              scale: 1.0,
+                          // Mascote Breno no lugar do emoji (protótipo do
+                          // Figma), com a cara da emoção escolhida (as mesmas
+                          // do resumo da semana); o fundo assume a cor dela.
+                          padding: const EdgeInsets.all(14),
+                          child: Semantics(
+                            label: 'Breno, ${_selectedHumor.label}',
+                            image: true,
+                            child: SvgPicture.asset(
+                              _selectedHumor.brenoAsset,
+                              key: const Key('breno_mascote'),
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
@@ -471,7 +520,9 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                                           ),
                                         )
                                       : Text(
-                                          'Salvar ${_selectedHumor.label}',
+                                          _controller.hasRecordedToday
+                                              ? 'Alterar para ${_selectedHumor.label}'
+                                              : 'Salvar ${_selectedHumor.label}',
                                           style: GoogleFonts.poppins(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,

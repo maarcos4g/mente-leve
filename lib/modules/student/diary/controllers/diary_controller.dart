@@ -9,11 +9,23 @@ import 'package:mente_leve/modules/student/diary/repositories/diary_repository.d
 /// - RNF05: Registro realizado em até 3 interações (1. Abrir tela -> 2. Tocar no emoji -> 3. Salvar).
 /// - RNF02: Operação 100% offline.
 /// - RNF03: Persistência local no dispositivo do aluno.
+///
+/// O aluno tem um sentimento por dia: salvar de novo no mesmo dia altera o
+/// humor do registro de hoje (mantendo texto e pontos positivos) em vez de
+/// criar outro registro.
 class DiaryController extends ChangeNotifier {
+  /// Repositório usado quando nenhum é injetado. O `main.dart` troca pelo
+  /// `PrefsDiaryRepository` na inicialização; nos testes fica o de memória.
+  static DiaryRepository defaultRepository = LocalDiaryRepository.instance;
+
   final DiaryRepository repository;
 
-  DiaryController({DiaryRepository? repository})
-      : repository = repository ?? LocalDiaryRepository.instance;
+  DiaryController({DiaryRepository? repository, DateTime Function()? agora})
+      : repository = repository ?? defaultRepository,
+        _agora = agora ?? DateTime.now;
+
+  /// Relógio injetável para os testes.
+  final DateTime Function() _agora;
 
   Humor? _selectedHumor;
   bool _isLoading = false;
@@ -21,6 +33,7 @@ class DiaryController extends ChangeNotifier {
   String? _feedbackMessage;
   List<RegistroDiario> _entries = [];
   int _interactionCount = 1; // 1 = Tela aberta pelo aluno
+  bool _lastSaveUpdated = false;
 
   /// Humor atualmente selecionado no seletor de emojis.
   Humor? get selectedHumor => _selectedHumor;
@@ -46,15 +59,26 @@ class DiaryController extends ChangeNotifier {
   /// Indica se o botão de salvar está apto a ser acionado.
   bool get isReadyToSave => _selectedHumor != null && !_isLoading;
 
-  /// Verifica se o aluno já realizou algum registro na data atual.
-  bool get hasRecordedToday {
-    if (_entries.isEmpty) return false;
-    final now = DateTime.now();
-    return _entries.any((entry) =>
-        entry.dataHora.year == now.year &&
-        entry.dataHora.month == now.month &&
-        entry.dataHora.day == now.day);
+  /// Registro de hoje, se houver (o mais recente, caso existam dados antigos
+  /// com mais de um registro no mesmo dia).
+  RegistroDiario? get registroDeHoje {
+    final now = _agora();
+    for (final entry in _entries) {
+      if (entry.dataHora.year == now.year &&
+          entry.dataHora.month == now.month &&
+          entry.dataHora.day == now.day) {
+        return entry;
+      }
+    }
+    return null;
   }
+
+  /// Verifica se o aluno já realizou algum registro na data atual.
+  bool get hasRecordedToday => registroDeHoje != null;
+
+  /// Indica se o último salvamento alterou o registro de hoje em vez de
+  /// criar um novo.
+  bool get lastSaveUpdated => _lastSaveUpdated;
 
   /// Inicializa o controlador carregando os registros do diário local.
   Future<void> init() async {
@@ -94,16 +118,22 @@ class DiaryController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final now = DateTime.now();
-      final id = now.microsecondsSinceEpoch.toString();
+      // Relê do repositório para não duplicar o dia se a lista estiver
+      // desatualizada (ex.: registro feito na tela do diário reflexivo).
+      _entries = await repository.getAll();
+      final hoje = registroDeHoje;
+      final now = _agora();
 
-      final registro = RegistroDiario(
-        id: id,
-        humor: _selectedHumor!,
-        dataHora: now,
-      );
+      final registro = hoje != null
+          ? hoje.editar(humor: _selectedHumor)
+          : RegistroDiario(
+              id: now.microsecondsSinceEpoch.toString(),
+              humor: _selectedHumor!,
+              dataHora: now,
+            );
 
       await repository.save(registro);
+      _lastSaveUpdated = hoje != null;
       _entries = await repository.getAll();
       _isSaved = true;
       _feedbackMessage = _selectedHumor!.comfortingMessage;
