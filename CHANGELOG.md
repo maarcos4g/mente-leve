@@ -93,6 +93,19 @@
 ### Modificado
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+
+## [14/11/2026]
+
+### Adicionado
+
+- Botão de emergência "Ajuda (CVV)" fixo nas telas funcionais do aluno (Home e rotas de diário, chat anônimo e FAQ), que disca 188 pelo discador nativo (`url_launcher`) e não depende de internet (RF05).
+- `CvvOverlay` e `CvvRouteObserver` (`lib/shared/widgets/cvv_button/cvv_overlay.dart`), aplicados em `MaterialApp.builder` para sobrepor o botão a todas as rotas.
+- Teste de widget do overlay (`test/cvv_overlay_test.dart`): botão visível apenas nas telas do aluno, oculto em splash, onboarding, login, pais e psicólogo, e disparo da ação.
+
+### Modificado
+
+- Botão CVV oculto em splash, onboarding, telas de login e homes de pais e psicólogo.
+- Botão CVV removido da Home do aluno (`StudentHomeView` e `test/home_view_test.dart`), pois passou a ser exibido pelo overlay global.
 - Rota `/diary` (`HomeController.diaryRoute`) registrada em `AppWidget.routes`, integrando os atalhos da Home do aluno à tela do Diário de Sentimentos (`DiaryFeelingsView`).
 
 ## [10/11/2026]
