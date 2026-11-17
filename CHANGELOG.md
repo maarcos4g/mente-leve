@@ -94,3 +94,9 @@
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
 - Rota `/diary` (`HomeController.diaryRoute`) registrada em `AppWidget.routes`, integrando os atalhos da Home do aluno à tela do Diário de Sentimentos (`DiaryFeelingsView`).
+
+## [10/11/2026]
+
+## Adicionado
+
+- Pipeline CI/CD com Github Actions e Firebase App Distribution
