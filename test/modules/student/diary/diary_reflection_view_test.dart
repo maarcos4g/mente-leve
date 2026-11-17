@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
@@ -63,6 +64,14 @@ void main() {
     // Sem humor, "Registrar" pede o humor e, escolhido, já salva.
     await tester.tap(find.byKey(const Key('botao_registrar')));
     await tester.pumpAndSettle();
+    // A folha de humor mostra o Breno com a cara de cada emoção.
+    for (final humor in Humor.values) {
+      final breno = tester.widget<SvgPicture>(find.descendant(
+        of: find.byKey(Key('humor_${humor.name}')),
+        matching: find.byType(SvgPicture),
+      ));
+      expect((breno.bytesLoader as SvgAssetLoader).assetName, humor.brenoAsset);
+    }
     await tester.tap(find.byKey(const Key('humor_feliz')));
     await tester.pumpAndSettle();
 

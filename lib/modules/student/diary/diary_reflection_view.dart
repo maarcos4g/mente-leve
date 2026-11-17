@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_reflection_controller.dart';
@@ -493,7 +494,8 @@ class _EntryItem extends StatelessWidget {
   }
 }
 
-/// Rostinho da emoção, o mesmo da tela de humor (RF01).
+/// Breno com a cara da emoção, o mesmo do seletor de humor (RF01), num
+/// círculo com a cor da emoção.
 class _EmotionAvatar extends StatelessWidget {
   const _EmotionAvatar({required this.humor, required this.size});
 
@@ -509,9 +511,11 @@ class _EmotionAvatar extends StatelessWidget {
         color: humor.wheelColor,
         shape: BoxShape.circle,
       ),
-      child: CustomPaint(
-        size: Size.square(size),
-        painter: EmotionFacePainter(humor: humor),
+      padding: EdgeInsets.all(size * 0.08),
+      child: SvgPicture.asset(
+        humor.brenoAsset,
+        key: Key('breno_${humor.name}'),
+        fit: BoxFit.contain,
       ),
     );
   }
