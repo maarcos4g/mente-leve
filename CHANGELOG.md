@@ -99,6 +99,12 @@
 - Diário Reflexivo Livre e Checklist de Pontos Positivos (RF02): tela com área de texto livre, checklist de pontos positivos do dia (com sugestões e itens personalizados) e salvamento local. A reflexão completa o registro de humor do dia (RF01) em vez de criar outro.
 - Persistência do diário no aparelho com `shared_preferences`, reaproveitando o pacote já usado pelo perfil do aluno (RNF02 / RNF03).
 
+## [10/11/2026]
+
+## Adicionado
+
+- Pipeline CI/CD com Github Actions e Firebase App Distribution
+
 ## [16/11/2026]
 
 ### Modificado
