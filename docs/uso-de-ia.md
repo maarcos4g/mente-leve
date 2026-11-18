@@ -220,3 +220,35 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Consulta de épicos, stories e tasks do projeto SCRUM via JQL para apoiar revisões de escopo e acompanhamento das sprints.
 - Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
+
+---
+
+## Sprint 3
+
+### Alexandre Pedro de Matos Ferreira
+
+* **Desenvolvimento do FAQ Empático Dinâmico (RF04 / SCRUM-33), Painel de Publicação do FAQ da Psicóloga (RF08 / SCRUM-36) e Auditoria WCAG AA / Testes (SCRUM-41 / SCRUM-44 — 18/11):**
+  * **O que foi feito:** Implementação da entidade `PerguntaFaq` (`lib/shared/models/pergunta_faq.dart`), dos repositórios `FirestoreFaqRepository` e `LocalFaqRepository` com cache offline em `SharedPreferences` (`lib/shared/faq/faq_repository.dart`), do card expansível compartilhado `FaqExpandableCard` (`lib/shared/widgets/faq/faq_expandable_card.dart`), da tela de Canais de Apoio & FAQ do estudante (`StudentFaqView` e `StudentFaqController` na rota `/faq`), do painel administrativo de CRUD de perguntas frequentes da psicóloga (`PsychologistFaqView` e `PsychologistFaqController` na rota `/psychologist/faq`) e da suíte de testes unitários, de widgets e de acessibilidade WCAG AA (`test/shared/faq/`, `test/modules/student/faq/`, `test/modules/psychologist/faq/` e `test/accessibility_wcag_test.dart`).
+  * **Ferramenta utilizada:** Antigravity (Gemini 4 Argon).
+  * **Prompt utilizado:**
+    > `/goal Perfeito, pegue as tarefas que estão atribuidas a mim, Alexandre, e comece a produção delas em uma nova branch.`
+  * **Como a IA ajudou:** Consultou a API do Jira para levantar os critérios de aceite das tarefas `SCRUM-33`, `SCRUM-36`, `SCRUM-41` e `SCRUM-44`, seguiu o modelo `PerguntaFaq` especificado em `docs/modelagem/04-mapeamento-dart-firestore.md` e o layout das telas `Canais de Apoio & FAQ` e `FAQ (Psicóloga)` em `docs/prototipos/prototipoAltaFidelidade.pdf`, implementou o cache offline com `SharedPreferences` e escreveu testes de contraste relativo WCAG 2.1 ($\ge 4,5:1$) e áreas de toque mínimas ($\ge 48\times 48\text{dp}$).
+  * **Dificuldades e ajustes manuais:**
+    1. **Rolagem automática ao editar pergunta no painel da psicóloga:** No teste de edição (`PsychologistFaqView`), ao tocar no botão de editar um card no final da lista, o botão de submissão `"Atualizar"` ficava fora da área visível do `SingleChildScrollView`. Foi adicionado um `ScrollController` que rola suavemente para o formulário no topo ao iniciar a edição de um item.
+    2. **Espaço em disco durante execução paralela de testes:** O comando `flutter test` padrão falhou inicialmente com `errno = 112` (espaço insuficiente no disco `C:`) devido ao acúmulo de artefatos temporários em `build/` e `%TEMP%\flutter_tools.*`. Foi feita a limpeza dos diretórios temporários de build e a execução controlada com `--concurrency=2`.
+
+### Abraão Luiz Ribeiro da Cruz Dantas
+
+*(A preencher pelo integrante)*
+
+### Marcos Paulo
+
+*(A preencher pelo integrante)*
+
+### Mateus Henrique de Araújo Santos
+
+*(A preencher pelo integrante)*
+
+### Rayelen de Jesus Oliveira
+
+*(A preencher pelo integrante)*

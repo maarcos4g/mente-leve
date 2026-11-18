@@ -145,6 +145,16 @@
 
 ## [18/11/2026]
 
+### Adicionado
+
+- FAQ Empático Dinâmico e Canais de Apoio para o estudante (`StudentFaqView`, `StudentFaqController`, `FaqExpandableCard`, `PerguntaFaq` e `FirestoreFaqRepository` / `LocalFaqRepository` — RF04 / SCRUM-33), com busca por palavras-chave, cards expansíveis fiéis ao protótipo do Figma, cache em `SharedPreferences` e fallback offline.
+- Painel Institucional de Publicação e Edição do FAQ para a psicóloga (`PsychologistFaqView` e `PsychologistFaqController` — RF08 / SCRUM-36), com CRUD completo (criar, listar, editar e excluir perguntas e orientações no Firestore/cache local) e atalho no `PsychologistHomeView`.
+- Suíte de testes automatizados de unidade, widgets e auditoria de acessibilidade WCAG AA (contraste $\ge 4,5:1$ e áreas mínimas de toque $\ge 48\times 48\text{dp}$ — SCRUM-41 / SCRUM-44) em `test/shared/faq/`, `test/modules/student/faq/`, `test/modules/psychologist/faq/` e `test/accessibility_wcag_test.dart`.
+
+### Modificado
+
+- Rotas `/faq` (`HomeController.faqRoute`) e `/psychologist/faq` (`PsychologistFaqView.routeName`) registradas em `AppWidget.routes` e repositório do FAQ injetado no bootstrap (`main.dart`).
+
 ### Corrigido
 
 - Roleta do Diário de Sentimentos (`DiaryFeelingsView` — RF01 / SCRUM-28): restaurado o emoji central (`EmotionFacePainter`) fiel ao protótipo do Figma e corrigida a área de captura de gestos (`Positioned` e física do `SingleChildScrollView`) para permitir girar a roleta livremente em qualquer posição do dedo (topo, laterais ou centro).
