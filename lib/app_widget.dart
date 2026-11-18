@@ -7,12 +7,16 @@ import 'package:mente_leve/modules/psychologist/home/home_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
+import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
+import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
+import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
+import 'package:mente_leve/shared/widgets/cvv_button/cvv_overlay.dart';
 import 'package:provider/provider.dart';
 
-class AppWidget extends StatelessWidget {
+class AppWidget extends StatefulWidget {
   const AppWidget({super.key});
 
   /// Rotas nomeadas do app. Telas de outras etapas (diário, FAQ, denúncia)
@@ -33,9 +37,19 @@ class AppWidget extends StatelessWidget {
         availableRoutes: routes.keys.toSet(),
       );
     },
+    HomeController.diaryRoute: (context) => const DiaryFeelingsView(),
+    HomeController.diaryReflectionRoute: (context) =>
+        const DiaryReflectionView(),
     '/parents/home': (context) => ParentsHomeView(),
     '/psychologist/home': (context) => PsychologistHomeView(),
   };
+
+  @override
+  State<AppWidget> createState() => _AppWidgetState();
+}
+
+class _AppWidgetState extends State<AppWidget> {
+  final CvvRouteObserver _routeObserver = CvvRouteObserver();
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +60,14 @@ class AppWidget extends StatelessWidget {
         primaryColor: const Color(0xFF1A1A1A),
         primarySwatch: Colors.blue,
       ),
+      // Botão de emergência (CVV 188) visível apenas nas telas funcionais do aluno.
+      builder: (context, child) => CvvOverlay(
+        observer: _routeObserver,
+        child: child ?? const SizedBox.shrink(),
+      ),
+      navigatorObservers: [_routeObserver],
       initialRoute: '/splash',
-      routes: routes,
+      routes: AppWidget.routes,
     );
   }
 }

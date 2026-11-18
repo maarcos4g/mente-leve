@@ -121,7 +121,7 @@ Usuario "1" --> "0..*" RespostaDenuncia : escreve
 EstadoGatilhoApoio ..> RegistroDiario : lê o histórico (RN11)
 
 note for Denuncia "alunoUid é o id da autenticação anônima. O aluno não tem documento em Usuario."
-note for RegistroDiario "Fica só no aparelho (Hive criptografado). Nunca vai para o Firestore."
+note for RegistroDiario "Fica só no aparelho (SharedPreferences). Nunca vai para o Firestore."
 note for EstadoGatilhoApoio "Fica só no aparelho, junto do diário. Nunca vai para o Firestore."
 ```
 
@@ -132,8 +132,8 @@ note for EstadoGatilhoApoio "Fica só no aparelho, junto do diário. Nunca vai p
 | Classe | Papel no sistema | Onde é guardada | Requisitos |
 |---|---|---|---|
 | Usuario | Psicóloga ou responsável autenticado. Define o que cada perfil pode fazer. | Firestore, coleção `usuarios` | RF07, RF12 |
-| PerfilLocal | Codinome escolhido pelo aluno na entrada. | Aparelho (Hive) | RNF01 |
-| RegistroDiario | Um registro do aluno: humor com emoji, texto opcional e pontos positivos opcionais. | Aparelho (Hive criptografado) | RF01, RF02, RF06 |
+| PerfilLocal | Codinome escolhido pelo aluno na entrada. | Aparelho (SharedPreferences) | RNF01 |
+| RegistroDiario | Um registro do aluno: humor com emoji, texto opcional e pontos positivos opcionais. | Aparelho (SharedPreferences) | RF01, RF02, RF06 |
 | Denuncia | Relato anônimo enviado pelo aluno à escola. | Firestore, coleção `denuncias` | RF05, RF09 |
 | RespostaDenuncia | Resposta da psicóloga. Fica dentro da denúncia. | Campo `resposta` da denúncia | RF10 |
 | PerguntaFaq | Pergunta e resposta do FAQ. | Firestore, coleção `faq` | RF04, RF08 |

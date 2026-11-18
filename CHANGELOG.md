@@ -87,10 +87,25 @@
 - Botão "Ajuda (CVV)" compartilhado, que disca 188 pelo discador nativo (`url_launcher`).
 - Cores do Figma em `lib/shared/themes/app_colors.dart` e ilustrações em `assets/home/`.
 - Teste de widget da Home (`test/home_view_test.dart`).
+- Diário de Sentimentos por Emojis (RF01 / SCRUM-28): tela `DiaryFeelingsView` fiel ao protótipo do Figma com disco radial interativo de 12 setores, expressões faciais vetoriais (`EmotionFacePainter`), ponteiro em gota (`NeedlePainter`), controlador (`DiaryController`), modelos (`Humor` e `RegistroDiario`), repositório local (`LocalDiaryRepository`) e widgets (`MoodSelectorCard`, `EmojiButton` e `RecentMoodsSummary`), cumprindo o fluxo de registro rápido em até 3 interações (RNF05).
+- Testes unitários e de widgets para o módulo do Diário de Sentimentos (`test/modules/student/diary/`).
 
 ### Modificado
 
 - Home do aluno (`/student/home`) substitui a tela provisória e lê codinome e avatar da sessão do aluno.
+
+## [09/11/2026]
+
+### Adicionado
+
+- Diário Reflexivo Livre e Checklist de Pontos Positivos (RF02): tela com área de texto livre, checklist de pontos positivos do dia (com sugestões e itens personalizados) e salvamento local. A reflexão completa o registro de humor do dia (RF01) em vez de criar outro.
+- Persistência do diário no aparelho com `shared_preferences`, reaproveitando o pacote já usado pelo perfil do aluno (RNF02 / RNF03).
+
+## [10/11/2026]
+
+## Adicionado
+
+- Pipeline CI/CD com Github Actions e Firebase App Distribution
 
 ## [12/11/2026]
 
@@ -104,3 +119,33 @@
 ### Modificado
 
 - `CvvButton.dial()` passa a ser reaproveitado pelo modal de apoio, sem duplicar a discagem.
+
+## [14/11/2026]
+
+### Adicionado
+
+- Botão de emergência "Ajuda (CVV)" fixo nas telas funcionais do aluno (Home e rotas de diário, chat anônimo e FAQ), que disca 188 pelo discador nativo (`url_launcher`) e não depende de internet (RF05).
+- `CvvOverlay` e `CvvRouteObserver` (`lib/shared/widgets/cvv_button/cvv_overlay.dart`), aplicados em `MaterialApp.builder` para sobrepor o botão a todas as rotas.
+- Teste de widget do overlay (`test/cvv_overlay_test.dart`): botão visível apenas nas telas do aluno, oculto em splash, onboarding, login, pais e psicólogo, e disparo da ação.
+
+### Modificado
+
+- Botão CVV oculto em splash, onboarding, telas de login e homes de pais e psicólogo.
+- Botão CVV removido da Home do aluno (`StudentHomeView` e `test/home_view_test.dart`), pois passou a ser exibido pelo overlay global.
+- Rota `/diary` (`HomeController.diaryRoute`) registrada em `AppWidget.routes`, integrando os atalhos da Home do aluno à tela do Diário de Sentimentos (`DiaryFeelingsView`).
+
+## [16/11/2026]
+
+### Modificado
+
+- Diário Pessoal: o calendário da semana ganhou setas para ver semanas anteriores, e tocar num dia mostra só os registros dele ("Ver todos" volta à lista completa). Dias futuros ficam desativados.
+- Seletor de emoção (RF01): o mascote Breno substitui o emoji no centro do disco, com a cara de cada emoção (as mesmas do "Resumo da semana" da Home, mais uma nova para Cansado, `assets/home/mood_tired.svg`) e o fundo na cor da emoção escolhida.
+- Diário Pessoal: a folha "Como você está se sentindo?", a lista de registros e o botão de humor mostram o Breno com a cara de cada emoção no lugar dos rostinhos desenhados.
+- Seletor de emoção (RF01): um sentimento por dia. Se já houver registro hoje, a roda abre no humor registrado, avisa "Hoje você registrou: X" e salvar altera o humor do dia (mantendo texto e pontos positivos) em vez de criar outro registro.
+
+## [18/11/2026]
+
+### Modificado
+
+- Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
+- Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
