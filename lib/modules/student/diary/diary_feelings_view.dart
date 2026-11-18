@@ -42,10 +42,15 @@ class DiaryFeelingsView extends StatefulWidget {
   final DiaryController? controller;
   final Humor? initialHumor;
 
+  /// Chamado depois de salvar, antes de fechar a tela (gatilho de apoio,
+  /// RN11). Devolve a rota aberta no lugar desta tela, se houver.
+  final Future<String?> Function(BuildContext context)? onMoodSaved;
+
   const DiaryFeelingsView({
     super.key,
     this.controller,
     this.initialHumor,
+    this.onMoodSaved,
   });
 
   @override
@@ -223,6 +228,8 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
             duration: const Duration(seconds: 2),
           ),
         );
+        final openedRoute = await widget.onMoodSaved?.call(context);
+        if (!mounted || openedRoute != null) return;
         Navigator.maybePop(context, _selectedHumor);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

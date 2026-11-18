@@ -11,6 +11,11 @@ class AppColors {
   static const Color slate600 = Color(0xFF45556C);
   static const Color zinc50 = Color(0xFFFAFAFA);
   static const Color zinc100 = Color(0xFFF4F4F5);
+  static const Color zinc900 = Color(0xFF18181B);
   static const Color zinc950 = Color(0xFF09090B);
   static const Color accentBrown = Color(0xFFAC7F5E);
+
+  /// Acento rosa da marca (`docs/levantamento/justificativas.md`). Só para
+  /// elementos decorativos: não tem contraste para texto.
+  static const Color accentPink = Color(0xFFFDADC1);
 }

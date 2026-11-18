@@ -11,6 +11,7 @@ import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
 import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
+import 'package:mente_leve/modules/student/support_trigger/support_modal_view.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
 import 'package:mente_leve/shared/widgets/cvv_button/cvv_overlay.dart';
@@ -37,12 +38,30 @@ class AppWidget extends StatefulWidget {
         availableRoutes: routes.keys.toSet(),
       );
     },
-    HomeController.diaryRoute: (context) => const DiaryFeelingsView(),
+    HomeController.diaryRoute: (context) => DiaryFeelingsView(
+      onMoodSaved: (context) =>
+          _offerSupport(context, replaceCurrentRoute: true),
+    ),
     HomeController.diaryReflectionRoute: (context) =>
-        const DiaryReflectionView(),
+        const DiaryReflectionView(onMoodSaved: _offerSupport),
     '/parents/home': (context) => ParentsHomeView(),
     '/psychologist/home': (context) => PsychologistHomeView(),
   };
+
+  /// Avalia o gatilho de apoio (RN11) depois que o humor foi salvo.
+  static Future<String?> _offerSupport(
+    BuildContext context, {
+    bool replaceCurrentRoute = false,
+  }) {
+    final session = context.read<AuthNotifier>().session;
+    final user = session is StudentSessionModel ? session.user : null;
+    return showSupportModalIfNeeded(
+      context,
+      availableRoutes: routes.keys.toSet(),
+      avatar: user?.avatar,
+      replaceCurrentRoute: replaceCurrentRoute,
+    );
+  }
 
   @override
   State<AppWidget> createState() => _AppWidgetState();

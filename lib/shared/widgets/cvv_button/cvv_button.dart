@@ -16,14 +16,19 @@ class CvvButton extends StatelessWidget {
   /// Permite trocar a ação (testes). Por padrão abre o discador.
   final VoidCallback? onPressed;
 
+  /// Abre o discador nativo com o 188. Devolve `false` quando o aparelho não
+  /// tem discador (ou ele não abre), sem lançar erro.
+  static Future<bool> dial() async {
+    try {
+      return await launchUrl(cvvUri);
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _dial(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
-    var opened = false;
-    try {
-      opened = await launchUrl(cvvUri);
-    } catch (_) {
-      opened = false;
-    }
+    final opened = await dial();
     if (!opened) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Não foi possível abrir o discador.')),

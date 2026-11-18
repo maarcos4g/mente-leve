@@ -107,6 +107,19 @@
 
 - Pipeline CI/CD com Github Actions e Firebase App Distribution
 
+## [12/11/2026]
+
+### Adicionado
+
+- Gatilho de apoio emergencial para sofrimento intenso (SCRUM-31, UC20, RN11): regra local que identifica 3 dias seguidos de humor negativo (`triste`, `ansioso`, `comRaiva`) e mostra, no máximo uma vez por dia, um modal acolhedor na voz do mascote com ligação para o CVV 188, Canais de Apoio e FAQ, relato anônimo (quando as telas existirem) e "Agora não". Roda 100% offline e não envia nada ao Firestore (`lib/modules/student/support_trigger/`).
+- Estado de controle do gatilho no aparelho (`SupportTriggerStateStore`, chave `support_trigger_state` no `SharedPreferences`).
+- Testes da regra, do armazenamento, do controller e do modal (`test/modules/student/support_trigger/`).
+- UC20 e RN11 em `docs/modelagem/01-casos-de-uso.md`; entidade local `EstadoGatilhoApoio` no diagrama de classes e no mapeamento.
+
+### Modificado
+
+- `CvvButton.dial()` passa a ser reaproveitado pelo modal de apoio, sem duplicar a discagem.
+
 ## [14/11/2026]
 
 ### Adicionado
@@ -129,3 +142,10 @@
 - Seletor de emoção (RF01): o mascote Breno substitui o emoji no centro do disco, com a cara de cada emoção (as mesmas do "Resumo da semana" da Home, mais uma nova para Cansado, `assets/home/mood_tired.svg`) e o fundo na cor da emoção escolhida.
 - Diário Pessoal: a folha "Como você está se sentindo?", a lista de registros e o botão de humor mostram o Breno com a cara de cada emoção no lugar dos rostinhos desenhados.
 - Seletor de emoção (RF01): um sentimento por dia. Se já houver registro hoje, a roda abre no humor registrado, avisa "Hoje você registrou: X" e salvar altera o humor do dia (mantendo texto e pontos positivos) em vez de criar outro registro.
+
+## [18/11/2026]
+
+### Modificado
+
+- Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
+- Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
