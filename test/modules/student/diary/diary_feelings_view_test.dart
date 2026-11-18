@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
@@ -49,15 +48,13 @@ void main() {
       expect(find.byKey(const Key('selected_emotion_label')), findsOneWidget);
       expect(find.text('Neutro'), findsOneWidget);
 
-      // Central emotion face (120px)
+      // Central emotion face (120px) with EmotionFacePainter
       expect(find.byKey(const Key('central_emotion_face')), findsOneWidget);
-      // Mascote Breno no centro, no lugar do emoji (revisão do PR #11)
-      // com a cara do humor selecionado (mesmas do resumo da semana).
-      final breno = tester.widget<SvgPicture>(find.byKey(const Key('breno_mascote')));
-      expect(
-        (breno.bytesLoader as SvgAssetLoader).assetName,
-        Humor.neutro.brenoAsset,
+      final customPaint = tester.widget<CustomPaint>(
+        find.byKey(const Key('central_emotion_custom_paint')),
       );
+      expect(customPaint.painter, isA<EmotionFacePainter>());
+      expect((customPaint.painter as EmotionFacePainter).humor, Humor.neutro);
 
       // Needle pointer
       expect(find.byKey(const Key('needle_pointer')), findsOneWidget);
@@ -212,7 +209,7 @@ void main() {
       expect(popped, isTrue);
     });
 
-    testWidgets('wheel drag updates selection and emotion label', (tester) async {
+    testWidgets('wheel drag updates selection and emotion label from any finger position (top arc and lateral edges)', (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -223,13 +220,16 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(initialHumor: Humor.neutro));
       await tester.pumpAndSettle();
 
-      // Drag wheel left or right
-      final wheelFinder = find.byType(GestureDetector).last;
-      await tester.drag(wheelFinder, const Offset(-120, 0));
+      // 1. Drag from the upper arc of the wheel (y = 590, previously outside GestureDetector bounds)
+      await tester.dragFrom(const Offset(260, 590), const Offset(-140, 20));
       await tester.pumpAndSettle();
+      expect(controller.selectedHumor, isNot(Humor.neutro));
 
-      // Selection must have updated
-      expect(controller.selectedHumor, isNotNull);
+      // 2. Drag from the far left lateral edge with a strong vertical component
+      final previousHumor = controller.selectedHumor;
+      await tester.dragFrom(const Offset(50, 720), const Offset(130, -90));
+      await tester.pumpAndSettle();
+      expect(controller.selectedHumor, isNot(previousHumor));
     });
 
     testWidgets('tapping on wheel ring area triggers emotion selection', (tester) async {

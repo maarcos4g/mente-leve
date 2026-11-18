@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
@@ -252,7 +251,7 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
       backgroundColor: const Color(0xFFFAFAFA),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -333,7 +332,7 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                         child: Center(
                           child: Text(
                             'Hoje você registrou: ${hoje.humor.label}. '
-                            'Toque no Breno para alterar.',
+                            'Toque no emoji para alterar.',
                             key: const Key('registro_hoje_aviso'),
                             textAlign: TextAlign.center,
                             maxLines: 1,
@@ -371,17 +370,12 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                               ),
                             ],
                           ),
-                          // Mascote Breno no lugar do emoji (protótipo do
-                          // Figma), com a cara da emoção escolhida (as mesmas
-                          // do resumo da semana); o fundo assume a cor dela.
-                          padding: const EdgeInsets.all(14),
-                          child: Semantics(
-                            label: 'Breno, ${_selectedHumor.label}',
-                            image: true,
-                            child: SvgPicture.asset(
-                              _selectedHumor.brenoAsset,
-                              key: const Key('breno_mascote'),
-                              fit: BoxFit.contain,
+                          child: CustomPaint(
+                            key: const Key('central_emotion_custom_paint'),
+                            size: const Size(120, 120),
+                            painter: EmotionFacePainter(
+                              humor: _selectedHumor,
+                              scale: 1.0,
                             ),
                           ),
                         ),
@@ -402,26 +396,28 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                     ),
 
                     // 6. Disco/Roda radial de emoções (Frame / Wheel)
-                    // width: 422px, height: 525px, left: -15px, top: 623px
-                    // Outer radius: 377px, Inner radius: 216px, center at (210, 320)
+                    // Posicionado em top: 540 (com centro em 210, 403 -> screenY = 943)
+                    // para que 100% do arco visível (screenY >= 566, localY >= 26)
+                    // fique dentro da caixa de hit-test do GestureDetector em qualquer posição do dedo.
                     Positioned(
                       left: -15,
-                      top: 623,
+                      top: 540,
                       width: 422,
-                      height: 525,
+                      height: 608,
                       child: GestureDetector(
+                        key: const Key('feelings_wheel_gesture'),
                         behavior: HitTestBehavior.opaque,
                         onPanStart: (details) {
                           _animController.stop();
                           const centerX = 210.0;
-                          const centerY = 320.0;
+                          const centerY = 403.0;
                           final dx = details.localPosition.dx - centerX;
                           final dy = details.localPosition.dy - centerY;
                           _lastPanAngle = math.atan2(dy, dx);
                         },
                         onPanUpdate: (details) {
                           const centerX = 210.0;
-                          const centerY = 320.0;
+                          const centerY = 403.0;
                           final dx = details.localPosition.dx - centerX;
                           final dy = details.localPosition.dy - centerY;
                           final currentAngle = math.atan2(dy, dx);
@@ -444,13 +440,13 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                         },
                         onTapUp: (details) {
                           const centerX = 210.0;
-                          const centerY = 320.0;
+                          const centerY = 403.0;
                           final dx = details.localPosition.dx - centerX;
                           final dy = details.localPosition.dy - centerY;
                           final dist = math.sqrt(dx * dx + dy * dy);
 
-                          // Wheel ring range
-                          if (dist >= 210 && dist <= 385) {
+                          // Wheel ring range (permite toque amplo em toda a faixa da roleta)
+                          if (dist >= 150 && dist <= 400) {
                             final tapAngle = math.atan2(dy, dx);
                             int bestIndex = 0;
                             double minDiff = double.infinity;
@@ -470,7 +466,7 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                           children: [
                             // Radial Wheel Painter
                             CustomPaint(
-                              size: const Size(422, 525),
+                              size: const Size(422, 608),
                               painter: RadialWheelPainter(
                                 rotationAngle: _currentAngle,
                                 emotions: wheelEmotions,
@@ -479,10 +475,10 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                             ),
 
                             // 7. Ponteiro/Needle
-                            // width: 38px, height: 68px, left: calc(50% - 38px/2), top: 56px
+                            // width: 38px, height: 68px, left: calc(50% - 38px/2), top: 139px (screenY = 679)
                             Positioned(
                               left: (422 - 38) / 2,
-                              top: 56,
+                              top: 139,
                               width: 38,
                               height: 68,
                               child: GestureDetector(
@@ -500,7 +496,7 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                             // e compatibilidade total com testes automatizados e acessibilidade.
                             Positioned(
                               left: (422 - 160) / 2,
-                              top: 152,
+                              top: 235,
                               width: 160,
                               height: 40,
                               child: Opacity(
@@ -569,7 +565,7 @@ class RadialWheelPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const center = Offset(210.0, 320.0);
+    const center = Offset(210.0, 403.0);
     const outerRadius = 377.0;
     const innerRadius = 216.0;
     final step = (2 * math.pi) / emotions.length;
