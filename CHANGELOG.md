@@ -129,3 +129,9 @@
 - Seletor de emoção (RF01): o mascote Breno substitui o emoji no centro do disco, com a cara de cada emoção (as mesmas do "Resumo da semana" da Home, mais uma nova para Cansado, `assets/home/mood_tired.svg`) e o fundo na cor da emoção escolhida.
 - Diário Pessoal: a folha "Como você está se sentindo?", a lista de registros e o botão de humor mostram o Breno com a cara de cada emoção no lugar dos rostinhos desenhados.
 - Seletor de emoção (RF01): um sentimento por dia. Se já houver registro hoje, a roda abre no humor registrado, avisa "Hoje você registrou: X" e salvar altera o humor do dia (mantendo texto e pontos positivos) em vez de criar outro registro.
+
+## [18/11/2026]
+
+### Corrigido
+
+- Roleta do Diário de Sentimentos (`DiaryFeelingsView` — RF01 / SCRUM-28): restaurado o emoji central (`EmotionFacePainter`) fiel ao protótipo do Figma e corrigida a área de captura de gestos (`Positioned` e física do `SingleChildScrollView`) para permitir girar a roleta livremente em qualquer posição do dedo (topo, laterais ou centro).
