@@ -13,27 +13,38 @@ import 'package:provider/provider.dart';
 /// Não adiciona passos ao registro (RN09): o humor já está salvo quando a
 /// regra é avaliada, e o modal fecha com um toque. [availableRoutes] são as
 /// rotas registradas em `AppWidget.routes`, como na Home.
-Future<void> showSupportModalIfNeeded(
+///
+/// Devolve a rota aberta pelo aluno, ou `null` se nenhuma foi aberta. Use
+/// [replaceCurrentRoute] quando a tela que chama fecha logo depois de salvar:
+/// a rota escolhida entra no lugar dela.
+Future<String?> showSupportModalIfNeeded(
   BuildContext context, {
   required Set<String> availableRoutes,
   String? avatar,
   SupportTriggerController? controller,
+  bool replaceCurrentRoute = false,
 }) async {
   final trigger = controller ?? context.read<SupportTriggerController>();
-  if (!await trigger.shouldShowAfterMoodSaved()) return;
-  if (!context.mounted) return;
+  if (!await trigger.shouldShowAfterMoodSaved()) return null;
+  if (!context.mounted) return null;
 
   await trigger.markShown();
-  if (!context.mounted) return;
+  if (!context.mounted) return null;
 
   final route = await showSupportModal(
     context,
     availableRoutes: availableRoutes,
     avatar: avatar,
   );
-  if (route != null && context.mounted) {
-    Navigator.of(context).pushNamed(route);
+  if (route == null || !context.mounted) return null;
+
+  final navigator = Navigator.of(context);
+  if (replaceCurrentRoute) {
+    navigator.pushReplacementNamed(route);
+  } else {
+    navigator.pushNamed(route);
   }
+  return route;
 }
 
 /// Mostra o modal. Devolve a rota escolhida pelo aluno (Canais e FAQ ou

@@ -254,8 +254,9 @@ void main() {
       expect(config.isNegative('angry'), isTrue);
       expect(config.isNegative('happy'), isFalse);
       expect(config.isNegative('neutral'), isFalse);
-      // Sem mapeamento definido: não conta como negativo.
-      expect(config.isNegative('confused'), isFalse);
+      // Mesma correspondência de `Humor.brenoAsset`; cansado não é negativo.
+      expect(config.isNegative('confused'), isTrue);
+      expect(config.isNegative('tired'), isFalse);
     });
 
     test('parâmetros podem ser trocados em um só lugar', () {

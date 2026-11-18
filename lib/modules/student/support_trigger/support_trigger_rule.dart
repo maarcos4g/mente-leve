@@ -22,15 +22,15 @@ class SupportTriggerConfig {
 
   /// Traduz outros nomes de humor para os nomes do enum `Humor`.
   ///
-  /// A Home tem 5 imagens de humor (`assets/home/mood_*.svg`) e o enum tem 6
-  /// valores. Se o registro de humor gravar o nome da imagem, ele passa por
-  /// aqui. `confused` ficou sem mapeamento de propósito (não conta como
-  /// negativo) até o grupo decidir a qual humor ele corresponde.
+  /// O diário grava o nome do enum; estes são os nomes das imagens
+  /// (`assets/home/mood_*.svg`), na mesma correspondência de `Humor.brenoAsset`.
   static const defaultMoodAliases = {
     'happy': 'feliz',
     'neutral': 'neutro',
     'sad': 'triste',
+    'confused': 'ansioso',
     'angry': 'comRaiva',
+    'tired': 'cansado',
   };
 
   final Set<String> negativeMoods;

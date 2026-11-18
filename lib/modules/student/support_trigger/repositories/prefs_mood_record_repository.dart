@@ -6,13 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Lê o histórico de humor direto do armazenamento local do diário.
 ///
-/// Segue o formato do `PrefsDiaryRepository` (PR #11, ainda fora da `main`):
-/// chave `diario` no `SharedPreferences`, com um JSON `{id: registro}` em que
-/// cada registro tem `humor` (nome do enum) e `dataHora` (ISO 8601). Enquanto
-/// o diário não existir, a chave está vazia e o gatilho nunca dispara.
+/// Segue o formato do `PrefsDiaryRepository`: chave `diario` no
+/// `SharedPreferences`, com um JSON `{id: registro}` em que cada registro tem
+/// `humor` (nome do enum) e `dataHora` (ISO 8601).
 ///
-/// Quando o diário entrar na `main`, o ideal é trocar esta classe por um
-/// adaptador sobre o `DiaryRepository`, para o formato ficar em um só lugar.
+/// Não usa `DiaryRepository.getAll` porque ele falha inteiro com um único
+/// registro inválido, e isso desligaria o gatilho de apoio.
 class PrefsMoodRecordRepository implements MoodRecordRepository {
   PrefsMoodRecordRepository(this._prefs);
 

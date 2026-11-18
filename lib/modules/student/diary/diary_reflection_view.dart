@@ -33,10 +33,13 @@ TextStyle _poppins(double size, FontWeight weight, Color color,
 /// salvos só no aparelho. Retorna `true` via `Navigator.pop` se algo mudou,
 /// para a Home atualizar o resumo da semana.
 class DiaryReflectionView extends StatefulWidget {
-  const DiaryReflectionView({super.key, this.repository});
+  const DiaryReflectionView({super.key, this.repository, this.onMoodSaved});
 
   /// Repositório do diário. Nulo usa o padrão do app (shared_preferences).
   final DiaryRepository? repository;
+
+  /// Chamado depois de salvar um registro (gatilho de apoio, RN11).
+  final Future<String?> Function(BuildContext context)? onMoodSaved;
 
   @override
   State<DiaryReflectionView> createState() => _DiaryReflectionViewState();
@@ -71,6 +74,7 @@ class _DiaryReflectionViewState extends State<DiaryReflectionView> {
     if (saved == true && mounted) {
       _changed = true;
       _showMessage('Registro salvo no seu diário.');
+      await widget.onMoodSaved?.call(context);
     }
   }
 
