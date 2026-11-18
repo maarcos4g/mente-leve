@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/repositories/prefs_diary_repository.dart';
+import 'package:mente_leve/modules/student/support_trigger/repositories/prefs_mood_record_repository.dart';
+import 'package:mente_leve/modules/student/support_trigger/repositories/support_trigger_state_store.dart';
+import 'package:mente_leve/modules/student/support_trigger/support_trigger_controller.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/auth/auth_repository.dart';
 import 'package:mente_leve/shared/auth/profile_store.dart';
@@ -26,9 +29,16 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late final Future<AuthNotifier> _initialization = _bootstrap();
 
+  /// Gatilho de apoio (RN11): lê o diário e guarda seu estado só no aparelho.
+  late final SupportTriggerController _supportTrigger;
+
   Future<AuthNotifier> _bootstrap() async {
     await Firebase.initializeApp();
     final storage = await SharedPreferences.getInstance();
+    _supportTrigger = SupportTriggerController(
+      records: PrefsMoodRecordRepository(storage),
+      stateStore: SupportTriggerStateStore(storage),
+    );
     DiaryController.defaultRepository = PrefsDiaryRepository(storage);
     return AuthNotifier(
       AuthRepository(
@@ -57,10 +67,13 @@ class _MyAppState extends State<MyApp> {
         if (!snapshot.hasData) {
           return ColoredBox(color: Colors.white);
         }
-        
-        return ChangeNotifierProvider.value(
-          value: snapshot.data!,
-          child: AppWidget(),
+
+        return Provider.value(
+          value: _supportTrigger,
+          child: ChangeNotifierProvider.value(
+            value: snapshot.data!,
+            child: AppWidget(),
+          ),
         );
       },
     );
