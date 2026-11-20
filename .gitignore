@@ -55,3 +55,4 @@ app.*.map.json
 claude-md
 # Firebase (configuração por plataforma)
 android/app/google-services.json
+/.claude
