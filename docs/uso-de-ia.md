@@ -221,6 +221,24 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
 
+---
+
+## Sprint 3 e 4
+
+### Mateus Henrique de Araújo Santos
+
+* **Justificativa técnica das bibliotecas e dependências do `pubspec.yaml` (SCRUM-43 — 20/11):**
+  * **O que foi feito:** Criação da seção "Justificativa de Bibliotecas e Dependências" neste documento, com uma tabela que descreve a finalidade de cada pacote declarado no `pubspec.yaml` (dependências, `dev_dependencies`, assets e configuração) e os arquivos de `lib/` em que cada um é usado. Também foram registradas observações para o grupo: `cupertino_icons` sem uso direto, Firebase configurado só para Android e a divergência entre Hive (modelagem) e `shared_preferences` (código).
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompts utilizados:**
+    * > Justificativa Técnica das Bibliotecas e Dependências Adotadas. Documentação em `docs/uso-de-ia.md` explicando o motivo de cada pacote no `pubspec.yaml`. Crie uma nova subcategoria `## Justificativa de Bibliotecas e Dependências`. Analise todos os pacotes utilizados no projeto, veja o pubspec de todos os commits mais recentes de cada usuário do repositório e descreva a análise de forma objetiva e profissional. As alterações serão commitadas em `docs/SCRUM-43/pubspec-justificativas`.
+    * > Você vai registrar essa atividade no uso de IA de Mateus na seção `## Sprint 3 e 4` após a seção `## Sprint 2`.
+  * **Como a IA ajudou:** Levantou o autor e o último commit de cada integrante e comparou o `pubspec.yaml` de cada um com o da `main`, concluindo que o conjunto de pacotes é idêntico. Depois cruzou cada pacote com os imports em `lib/` para indicar onde é usado e identificou o `cupertino_icons` como o único sem uso direto. Redigiu a seção e fez o commit e o push.
+  * **Dificuldades e ajustes manuais:**
+    1. **Branch em uso por outro worktree:** `docs/SCRUM-43/pubspec-justificativas` já estava em checkout em outro worktree, então o commit foi feito em uma branch temporária e enviado ao remoto com o nome pedido. A branch local de mesmo nome precisa de um `git pull`.
+    2. **Quebra de linha:** o arquivo usa CRLF, e o trecho inserido teve de ser normalizado para não misturar finais de linha.
+    3. **Validação:** a análise se baseia em leitura de imports e de diffs. Os testes e o app não foram executados, e a lista de dependências precisa ser revisada pelo grupo.
+
 ## Justificativa de Bibliotecas e Dependências
 
 Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.yaml` do MenteLeve.
