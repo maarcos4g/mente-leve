@@ -220,3 +220,45 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Consulta de épicos, stories e tasks do projeto SCRUM via JQL para apoiar revisões de escopo e acompanhamento das sprints.
 - Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
+
+## Justificativa de Bibliotecas e Dependências
+
+Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.yaml` do MenteLeve.
+
+**Escopo da análise:** foi lido o `pubspec.yaml` do commit mais recente de cada integrante (Abraão, Alexandre, Marcos, Mateus e Rayelen) e o da `main`. Em todos eles o conjunto de pacotes é idêntico. Só a branch antiga `scrum-25-27/integrate-firebase` diverge, por ser anterior à inclusão do `url_launcher` e da pasta `assets/home/`. O uso de cada pacote foi conferido nos imports de `lib/`.
+
+### Dependências de execução (`dependencies`)
+
+| Pacote | Versão | Finalidade | Onde é usado |
+|---|---|---|---|
+| `flutter` (SDK) | — | Framework de UI multiplataforma, base do app. | Todo o projeto |
+| `firebase_core` | ^5.1.0 | Inicializa o Firebase, pré-requisito dos demais pacotes `firebase_*`. | `main.dart` |
+| `firebase_auth` | ^7.0.1 | Autenticação: login anônimo do aluno (`signInAnonymously`) e login por e-mail/senha da psicóloga e do responsável. Dispensa backend próprio de credenciais. | `auth_repository.dart`, `auth_notifier.dart` |
+| `cloud_firestore` | ^7.1.0 | Banco NoSQL gerenciado, usado para o papel institucional do usuário e para conteúdos institucionais (FAQ, guias, canais, denúncias). Dados do aluno não são gravados nele. | `auth_repository.dart`, `user_model.dart` |
+| `provider` | ^6.1.5+1 | Gerência de estado e injeção de dependência (`ChangeNotifierProvider`). Solução oficialmente recomendada, simples e suficiente para o porte do projeto. | `app_widget.dart`, `main.dart` e views de todos os perfis |
+| `shared_preferences` | ^2.5.6 | Armazenamento local chave-valor. Mantém no aparelho o perfil do aluno (codinome e avatar), o diário e o estado do gatilho de apoio, preservando o anonimato. | `profile_store.dart`, `prefs_diary_repository.dart`, `prefs_mood_record_repository.dart`, `support_trigger_state_store.dart` |
+| `google_fonts` | ^8.2.1 | Carrega a família Poppins definida no padrão visual, sem empacotar arquivos de fonte manualmente. | `app_text_styles.dart` e telas do diário |
+| `flutter_svg` | ^2.3.2 | Renderiza SVG. Avatares, mascote e ilustrações da home são vetoriais, o que mantém nitidez em qualquer densidade de tela e reduz o tamanho dos assets. | Seleção de avatar, diário, modal de apoio e widgets da home |
+| `lucide_icons_flutter` | ^4.0.2 | Conjunto de ícones Lucide, de traço leve e consistente, que complementa os ícones nativos do Material. | Onboarding, telas de autenticação, diário, home e botão CVV |
+| `url_launcher` | ^6.3.2 | Abre aplicativos externos a partir do app. Faz a ligação para o CVV (188), um canal de apoio emergencial. | `cvv_button.dart` |
+| `cupertino_icons` | ^1.0.8 | Fonte de ícones estilo iOS, incluída pelo template do Flutter. **Não há uso direto em `lib/` hoje**; pode ser removida sem impacto se a equipe preferir enxugar o `pubspec.yaml`. | — |
+
+### Dependências de desenvolvimento (`dev_dependencies`)
+
+| Pacote | Versão | Finalidade |
+|---|---|---|
+| `flutter_test` (SDK) | — | Framework de testes de unidade e de widget. Ainda não há pasta `test/` no repositório. |
+| `flutter_lints` | ^6.0.0 | Conjunto de regras de lint recomendado, ativado em `analysis_options.yaml`. Padroniza o código e é executado por `flutter analyze`. |
+
+### Assets e configuração
+
+- **`assets/images/`, `assets/avatars/`, `assets/home/`:** imagens gerais, avatares SVG do aluno e ilustrações da home.
+- **`uses-material-design: true`:** inclui a fonte de ícones do Material.
+- **`publish_to: 'none'`:** impede publicação acidental no pub.dev, pois o app é privado.
+- **`sdk: ^3.12.0`:** versão mínima do Dart exigida pelo projeto.
+
+### Observações
+
+1. **Firebase só está configurado para Android** (`google-services.json`, fora do controle de versão). Os pacotes `firebase_*` estão declarados para todas as plataformas, mas só inicializam no Android.
+2. **Persistência local:** a modelagem prevê Hive criptografado para os dados do aluno, mas o código usa `shared_preferences`, que não criptografa. A decisão está pendente para o grupo (ver o registro do SCRUM-31 acima).
+3. **Sem pacote de roteamento ou de injeção de dependência extra:** a navegação usa rotas nomeadas do próprio `MaterialApp`, e a injeção é manual no bootstrap. É uma escolha deliberada para manter poucas dependências.
