@@ -152,3 +152,10 @@
 
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
 - Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
+
+## [20/11/2026]
+
+### Adicionado
+
+- Perfil do usuário: tocar no avatar da Home do aluno (ou no ícone de perfil das Homes de psicóloga e responsável) abre um painel com codinome/avatar (aluno) ou nome, e-mail e papel (perfis institucionais), e a opção "Sair da conta".
+- Logout com confirmação: o aluno é avisado de que o perfil anônimo será removido do aparelho; depois de sair, o app volta ao `/onboarding`. `InstitutionalSession` passou a carregar o e-mail da conta.

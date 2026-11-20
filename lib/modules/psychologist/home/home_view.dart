@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mente_leve/shared/auth/auth_notifier.dart';
-import 'package:provider/provider.dart';
+import 'package:mente_leve/shared/widgets/profile/profile_sheet.dart';
 
 class PsychologistHomeView extends StatelessWidget {
   const PsychologistHomeView({super.key});
@@ -8,15 +7,14 @@ class PsychologistHomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: TextButton(
-          onPressed: () async {
-            final nav = Navigator.of(context);
-            await context.read<AuthNotifier>().signOut();
-            nav.pushNamedAndRemoveUntil('/onboarding', (_) => false);
-          },
-          child: const Text('Sair'),
-        ),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            tooltip: 'Perfil',
+            icon: const Icon(Icons.account_circle_outlined),
+            onPressed: () => showProfileSheet(context),
+          ),
+        ],
       ),
     );
   }

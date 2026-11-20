@@ -33,7 +33,7 @@ class AuthRepository {
     try {
       final institutional = await _fetchUser(user.uid);
       if (institutional == null) throw const AccessDenied();
-      return InstitutionalSession(institutional);
+      return InstitutionalSession(institutional, email: user.email);
     } catch (error) {
       if (_isConnectivityError(error)) rethrow;
       await _auth.signOut();
@@ -68,7 +68,7 @@ class AuthRepository {
     try {
       final user = await _fetchUser(credentials.user!.uid);
       if (user == null || user.role != role) throw AccessDenied();
-      return InstitutionalSession(user);
+      return InstitutionalSession(user, email: credentials.user!.email);
     } catch (_) {
       await _auth.signOut();
       rethrow;
