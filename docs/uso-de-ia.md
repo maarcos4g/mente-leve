@@ -226,18 +226,6 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ## Sprint 3 e 4
 
-### Alexandre Pedro de Matos Ferreira
-
-*(A preencher pelo integrante)*
-
-### Abraão Luiz Ribeiro da Cruz Dantas
-
-*(A preencher pelo integrante)*
-
-### Marcos Paulo
-
-*(A preencher pelo integrante)*
-
 ### Mateus Henrique de Araújo Santos
 
 * **Perfil do usuário e logout com confirmação — SCRUM-51 (20/11):**
@@ -251,8 +239,5 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Dificuldades e ajustes manuais:**
     1. **Arquivo do Firebase:** o worktree isolado não tinha o `android/app/google-services.json` (ignorado pelo git), e o build falhou até o arquivo ser copiado do checkout principal.
     2. **Branch:** o trabalho começou numa branch provisória de worktree e foi renomeado para `SCRUM51/perfil-logout`; commits locais, sem push.
+
     3. **Pendências:** não há teste automatizado de `AuthRepository.signOut`, porque ele depende do `FirebaseAuth`; o fluxo foi conferido manualmente no emulador. As Homes de psicóloga e responsável ainda são placeholders.
-
-### Rayelen de Jesus Oliveira
-
-*(A preencher pelo integrante)*
