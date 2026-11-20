@@ -89,7 +89,8 @@ void main() {
 
     await tester.tap(find.text('Sair da conta'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('será removido deste aparelho'), findsOneWidget);
+    expect(find.textContaining('registros do diário serão apagados'), findsOneWidget);
+    expect(find.textContaining('não poderão ser recuperados'), findsOneWidget);
 
     await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
@@ -105,7 +106,7 @@ void main() {
 
     await tester.tap(find.text('Sair da conta'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('removido'), findsNothing);
+    expect(find.textContaining('diário'), findsNothing);
 
     await tester.tap(find.text('Sair'));
     await tester.pumpAndSettle();

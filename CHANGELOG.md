@@ -158,4 +158,4 @@
 ### Adicionado
 
 - Perfil do usuário: tocar no avatar da Home do aluno (ou no ícone de perfil das Homes de psicóloga e responsável) abre um painel com codinome/avatar (aluno) ou nome, e-mail e papel (perfis institucionais), e a opção "Sair da conta".
-- Logout com confirmação: o aluno é avisado de que o perfil anônimo será removido do aparelho; depois de sair, o app volta ao `/onboarding`. `InstitutionalSession` passou a carregar o e-mail da conta.
+- Logout com confirmação: o aluno é avisado de que o perfil anônimo e os registros do diário serão apagados do aparelho (e o logout passa a apagá-los de fato: diário e estado do gatilho de apoio); depois de sair, o app volta ao `/onboarding`. `InstitutionalSession` passou a carregar o e-mail da conta.

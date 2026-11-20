@@ -12,7 +12,15 @@ class AuthRepository {
   final FirebaseFirestore _firestore;
   final ProfileStore _store;
 
-  AuthRepository(this._auth, this._firestore, this._store);
+  /// Apaga os dados locais do aluno (diário, estado do gatilho) ao sair.
+  final Future<void> Function()? clearStudentData;
+
+  AuthRepository(
+    this._auth,
+    this._firestore,
+    this._store, {
+    this.clearStudentData,
+  });
 
   Future<SessionModel?> restoreSession() async {
     final user = _auth.currentUser;
@@ -76,7 +84,10 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    if (_auth.currentUser?.isAnonymous ?? false) await _store.clear();
+    if (_auth.currentUser?.isAnonymous ?? false) {
+      await clearStudentData?.call();
+      await _store.clear();
+    }
     await _auth.signOut();
   }
 

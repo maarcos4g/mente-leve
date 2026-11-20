@@ -155,8 +155,9 @@ class LogoutDialog extends StatelessWidget {
       title: const Text('Sair da conta?'),
       content: Text(
         isStudent
-            ? 'Seu perfil anônimo (codinome e avatar) será removido deste '
-                  'aparelho. Para voltar, você precisará criar um novo perfil.'
+            ? 'Ao sair, seu perfil anônimo (codinome e avatar) e todos os seus '
+                  'registros do diário serão apagados deste aparelho. Eles '
+                  'ficam só aqui e não poderão ser recuperados.'
             : 'Você voltará para a tela inicial e precisará entrar de novo '
                   'com seu e-mail e senha.',
       ),
