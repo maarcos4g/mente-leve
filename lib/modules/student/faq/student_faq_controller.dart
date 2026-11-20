@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
-import 'package:mente_leve/shared/models/pergunta_faq.dart';
+import 'package:mente_leve/shared/models/faq_model.dart';
 
 /// Controlador da tela de Canais de Apoio & FAQ do estudante (RF04 / SCRUM-33).
 class StudentFaqController extends ChangeNotifier {
@@ -13,7 +13,7 @@ class StudentFaqController extends ChangeNotifier {
 
   final FaqRepository _repository;
 
-  List<PerguntaFaq> _allItems = const [];
+  List<FaqModel> _allItems = const [];
   final Set<String> _expandedIds = {};
   String _searchQuery = '';
   bool _isLoading = false;
@@ -23,10 +23,10 @@ class StudentFaqController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String get searchQuery => _searchQuery;
 
-  List<PerguntaFaq> get items {
+  List<FaqModel> get items {
     if (_searchQuery.trim().isEmpty) return _allItems;
     return _allItems
-        .where((item) => item.corresponde(_searchQuery))
+        .where((item) => item.matches(_searchQuery))
         .toList(growable: false);
   }
 
@@ -37,7 +37,7 @@ class StudentFaqController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      _allItems = await _repository.listar();
+      _allItems = await _repository.list();
       // Expande por padrão a pergunta de destaque do protótipo se nenhuma
       // estiver aberta ainda.
       if (_expandedIds.isEmpty && _allItems.isNotEmpty) {

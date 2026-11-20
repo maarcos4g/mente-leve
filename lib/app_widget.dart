@@ -49,7 +49,11 @@ class AppWidget extends StatefulWidget {
     HomeController.faqRoute: (context) =>
         StudentFaqView(availableRoutes: routes.keys.toSet()),
     '/parents/home': (context) => ParentsHomeView(),
-    '/psychologist/home': (context) => const PsychologistHomeView(),
+    '/psychologist/home': (context) {
+      final session = context.watch<AuthNotifier>().session;
+      final user = session is InstitutionalSession ? session.user : null;
+      return PsychologistHomeView(user: user);
+    },
     PsychologistFaqView.routeName: (context) => const PsychologistFaqView(),
   };
 

@@ -11,7 +11,9 @@ import 'package:mente_leve/shared/widgets/faq/faq_expandable_card.dart';
 /// Calcula a razão de contraste WCAG 2.1 entre duas cores (1.0 a 21.0).
 double wcagContrastRatio(Color a, Color b) {
   double channelLuminance(double c) {
-    return c <= 0.03928 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4).toDouble();
+    return c <= 0.03928
+        ? c / 12.92
+        : math.pow((c + 0.055) / 1.055, 2.4).toDouble();
   }
 
   double relativeLuminance(Color color) {
@@ -34,45 +36,61 @@ void main() {
       LocalFaqRepository.instance.resetToDefaults();
     });
 
-    test('pares de cores de texto e botões cumprem contraste WCAG AA (>= 4.5:1)', () {
-      // Texto principal (zinc950) sobre fundo claro (zinc50 / white)
-      expect(
-        wcagContrastRatio(AppColors.zinc950, AppColors.zinc50),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        wcagContrastRatio(AppColors.zinc950, Colors.white),
-        greaterThanOrEqualTo(4.5),
-      );
+    test(
+      'pares de cores de texto e botões cumprem contraste WCAG AA (>= 4.5:1)',
+      () {
+        // Texto principal (zinc950) sobre fundo claro (zinc50 / zinc100 / white)
+        expect(
+          wcagContrastRatio(AppColors.zinc950, AppColors.zinc50),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          wcagContrastRatio(AppColors.zinc950, AppColors.zinc100),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          wcagContrastRatio(AppColors.zinc950, Colors.white),
+          greaterThanOrEqualTo(4.5),
+        );
 
-      // Texto secundário (slate600) sobre fundo claro (zinc50 / white)
-      expect(
-        wcagContrastRatio(AppColors.slate600, AppColors.zinc50),
-        greaterThanOrEqualTo(4.5),
-      );
+        // Texto secundário (slate600) sobre fundo claro (zinc50)
+        expect(
+          wcagContrastRatio(AppColors.slate600, AppColors.zinc50),
+          greaterThanOrEqualTo(4.5),
+        );
 
-      // Botões primários (branco sobre sky700)
-      expect(
-        wcagContrastRatio(Colors.white, AppColors.sky700),
-        greaterThanOrEqualTo(4.5),
-      );
+        // Botões primários (branco sobre sky700)
+        expect(
+          wcagContrastRatio(Colors.white, AppColors.sky700),
+          greaterThanOrEqualTo(4.5),
+        );
 
-      // Card de FAQ expandido (sky700 sobre #E0F2FE)
-      expect(
-        wcagContrastRatio(AppColors.sky700, FaqExpandableCard.expandedBackground),
-        greaterThanOrEqualTo(4.5),
-      );
+        // Card de FAQ expandido (#00598A sobre #DFF2FE — conforme Figma)
+        expect(
+          wcagContrastRatio(
+            FaqExpandableCard.expandedTextColor,
+            FaqExpandableCard.expandedBackground,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
 
-      // Texto nos cards de canais de apoio (zinc950 sobre rosa claro e âmbar claro)
-      expect(
-        wcagContrastRatio(AppColors.zinc950, const Color(0xFFFEE2E2)),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        wcagContrastRatio(AppColors.zinc950, const Color(0xFFFEF3C7)),
-        greaterThanOrEqualTo(4.5),
-      );
-    });
+        // Texto nos cards de canais de apoio do Figma (#FFE2E2 e #DFF2FE)
+        expect(
+          wcagContrastRatio(
+            AppColors.zinc950,
+            StudentFaqView.cvvCardBackground,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          wcagContrastRatio(
+            AppColors.zinc950,
+            StudentFaqView.reportCardBackground,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
+      },
+    );
 
     testWidgets(
       'controles interativos na StudentFaqView possuem área mínima de toque >= 48x48dp',
@@ -107,7 +125,7 @@ void main() {
     );
 
     testWidgets(
-      'controles interativos na PsychologistFaqView possuem área mínima de toque >= 48x48dp',
+      'controles interativos na PsychologistFaqView (incluindo ações de swipe) possuem área mínima >= 48x48dp',
       (tester) async {
         await tester.pumpWidget(
           const MaterialApp(home: PsychologistFaqView()),
@@ -125,6 +143,12 @@ void main() {
         );
         expect(submitSize.width, greaterThanOrEqualTo(48));
         expect(submitSize.height, greaterThanOrEqualTo(48));
+
+        // Arrasta card para a esquerda para revelar ações e auditar áreas de toque
+        final swipeTarget = find.byKey(const Key('faq_swipe_faq-cyberbullying'));
+        await tester.ensureVisible(swipeTarget);
+        await tester.drag(swipeTarget, const Offset(-100, 0));
+        await tester.pumpAndSettle();
 
         final editSize = tester.getSize(
           find.byKey(const Key('faq_edit_faq-cyberbullying')),

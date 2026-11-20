@@ -21,6 +21,12 @@ class StudentFaqView extends StatefulWidget {
   final Set<String> availableRoutes;
   final VoidCallback? onCvvPressed;
 
+  /// Cores oficiais dos cards de Canais de Apoio extraídas do Figma.
+  static const Color cvvCardBackground = Color(0xFFFFE2E2);
+  static const Color cvvIconColor = Color(0xFFFB2C36);
+  static const Color reportCardBackground = Color(0xFFDFF2FE);
+  static const Color reportIconColor = AppColors.sky500;
+
   @override
   State<StudentFaqView> createState() => _StudentFaqViewState();
 }
@@ -103,8 +109,8 @@ class _StudentFaqViewState extends State<StudentFaqView> {
                     const SizedBox(height: 12),
                     _SupportChannelCard(
                       cardKey: const Key('support_channel_cvv'),
-                      backgroundColor: const Color(0xFFFEE2E2),
-                      iconColor: const Color(0xFFE11D48),
+                      backgroundColor: StudentFaqView.cvvCardBackground,
+                      iconColor: StudentFaqView.cvvIconColor,
                       icon: LucideIcons.phoneCall,
                       title: 'CVV - Centro de Valorização da vida',
                       subtitle: 'Ligue 188. Atendimento 24h, anônimo e seguro.',
@@ -113,8 +119,8 @@ class _StudentFaqViewState extends State<StudentFaqView> {
                     const SizedBox(height: 12),
                     _SupportChannelCard(
                       cardKey: const Key('support_channel_report'),
-                      backgroundColor: const Color(0xFFFEF3C7),
-                      iconColor: const Color(0xFFD97706),
+                      backgroundColor: StudentFaqView.reportCardBackground,
+                      iconColor: StudentFaqView.reportIconColor,
                       icon: LucideIcons.messageSquare,
                       title: 'Denúncias anônimas à escola',
                       subtitle: 'Relate problemas de forma 100% anônima.',
@@ -316,7 +322,7 @@ class _SupportChannelCard extends StatelessWidget {
           key: cardKey,
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 76),
+            constraints: const BoxConstraints(minHeight: 80),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(

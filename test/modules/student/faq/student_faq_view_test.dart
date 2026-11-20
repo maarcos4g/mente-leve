@@ -27,7 +27,7 @@ void main() {
       );
     }
 
-    testWidgets('renderiza cabeçalho, canais de apoio e perguntas do FAQ', (
+    testWidgets('renderiza cabeçalho, canais de apoio com cores do Figma e perguntas do FAQ', (
       tester,
     ) async {
       await tester.pumpWidget(createWidget());
@@ -38,6 +38,23 @@ void main() {
       expect(find.text('CVV - Centro de Valorização da vida'), findsOneWidget);
       expect(find.text('Denúncias anônimas à escola'), findsOneWidget);
       expect(find.text('FAQ e Dúvidas'), findsOneWidget);
+
+      // Confere cores fiéis ao protótipo do Figma (#FFE2E2 e #DFF2FE)
+      final cvvMaterial = tester.widget<Material>(
+        find.ancestor(
+          of: find.byKey(const Key('support_channel_cvv')),
+          matching: find.byType(Material),
+        ).first,
+      );
+      expect(cvvMaterial.color, const Color(0xFFFFE2E2));
+
+      final reportMaterial = tester.widget<Material>(
+        find.ancestor(
+          of: find.byKey(const Key('support_channel_report')),
+          matching: find.byType(Material),
+        ).first,
+      );
+      expect(reportMaterial.color, const Color(0xFFDFF2FE));
 
       expect(find.text('O que é cyberbullying'), findsOneWidget);
       expect(find.text('Como lidar com a ansiedade?'), findsOneWidget);

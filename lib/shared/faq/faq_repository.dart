@@ -1,88 +1,88 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:mente_leve/shared/models/pergunta_faq.dart';
+import 'package:mente_leve/shared/models/faq_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Perguntas e respostas curadas do protótipo de alta fidelidade (RF04),
 /// utilizadas como conteúdo inicial e fallback offline quando não há cache.
-final List<PerguntaFaq> defaultFaqItems = List.unmodifiable([
-  PerguntaFaq(
+final List<FaqModel> defaultFaqItems = List.unmodifiable([
+  FaqModel(
     id: 'faq-cyberbullying',
-    pergunta: 'O que é cyberbullying',
-    resposta:
+    question: 'O que é cyberbullying',
+    answer:
         'Cyberbullying é a intimidação, humilhação ou agressão repetida '
         'feita por meio de redes sociais, aplicativos de mensagens ou jogos '
         'online. Você não tem culpa pelo que está acontecendo: guarde provas '
         '(prints) e procure um adulto de confiança ou a equipe da escola.',
-    criadoEm: DateTime.utc(2026, 11, 1, 10, 0),
-    atualizadoEm: DateTime.utc(2026, 11, 1, 10, 0),
-    atualizadoPor: 'sistema',
+    createdAt: DateTime.utc(2026, 11, 1, 10, 0),
+    updatedAt: DateTime.utc(2026, 11, 1, 10, 0),
+    updatedBy: 'system',
   ),
-  PerguntaFaq(
+  FaqModel(
     id: 'faq-lidar-ansiedade',
-    pergunta: 'Como lidar com a ansiedade?',
-    resposta:
+    question: 'Como lidar com a ansiedade?',
+    answer:
         'Respire fundo, foque no presente e lembre-se que sentimentos ruins '
         'passam. Se precisar, converse anonimamente no nosso canal ou '
         'registre no diário para clarear seus pensamentos.',
-    criadoEm: DateTime.utc(2026, 11, 1, 10, 1),
-    atualizadoEm: DateTime.utc(2026, 11, 1, 10, 1),
-    atualizadoPor: 'sistema',
+    createdAt: DateTime.utc(2026, 11, 1, 10, 1),
+    updatedAt: DateTime.utc(2026, 11, 1, 10, 1),
+    updatedBy: 'system',
   ),
-  PerguntaFaq(
+  FaqModel(
     id: 'faq-pedir-ajuda',
-    pergunta: 'Como pedir ajuda a um adulto?',
-    resposta:
+    question: 'Como pedir ajuda a um adulto?',
+    answer:
         'Escolha alguém em quem você confie — um familiar, professor, '
         'orientador ou a psicóloga da escola. Você pode começar dizendo que '
         'precisa conversar sobre algo que está te deixando desconfortável '
         'ou usar o canal anônimo do aplicativo.',
-    criadoEm: DateTime.utc(2026, 11, 1, 10, 2),
-    atualizadoEm: DateTime.utc(2026, 11, 1, 10, 2),
-    atualizadoPor: 'sistema',
+    createdAt: DateTime.utc(2026, 11, 1, 10, 2),
+    updatedAt: DateTime.utc(2026, 11, 1, 10, 2),
+    updatedBy: 'system',
   ),
-  PerguntaFaq(
+  FaqModel(
     id: 'faq-saber-ansioso',
-    pergunta: 'Como saber se estou ansioso?',
-    resposta:
+    question: 'Como saber se estou ansioso?',
+    answer:
         'Coração acelerado, preocupação constante, dificuldade para se '
         'concentrar nas aulas ou alterações no sono são sinais comuns. '
         'Registrar como você se sente no diário ajuda a perceber quando '
         'esses sinais se repetem.',
-    criadoEm: DateTime.utc(2026, 11, 1, 10, 3),
-    atualizadoEm: DateTime.utc(2026, 11, 1, 10, 3),
-    atualizadoPor: 'sistema',
+    createdAt: DateTime.utc(2026, 11, 1, 10, 3),
+    updatedAt: DateTime.utc(2026, 11, 1, 10, 3),
+    updatedBy: 'system',
   ),
 ]);
 
 /// Contrato de persistência para leitura e gestão do FAQ (RF04, RF08).
 abstract class FaqRepository {
-  Future<List<PerguntaFaq>> listar();
+  Future<List<FaqModel>> list();
 
-  Future<PerguntaFaq> criar({
-    required String pergunta,
-    required String resposta,
-    required String atualizadoPor,
+  Future<FaqModel> create({
+    required String question,
+    required String answer,
+    required String updatedBy,
   });
 
-  Future<PerguntaFaq> atualizar(PerguntaFaq item);
+  Future<FaqModel> update(FaqModel item);
 
-  Future<void> excluir(String id);
+  Future<void> delete(String id);
 }
 
 /// Repositório local (em memória + opcionalmente `SharedPreferences`) com
 /// fallback para [defaultFaqItems]. Usado nos testes e em modo offline.
 class LocalFaqRepository implements FaqRepository {
-  LocalFaqRepository({this.storage, List<PerguntaFaq>? initial})
-    : _items = List<PerguntaFaq>.from(initial ?? defaultFaqItems);
+  LocalFaqRepository({this.storage, List<FaqModel>? initial})
+    : _items = List<FaqModel>.from(initial ?? defaultFaqItems);
 
   static final LocalFaqRepository instance = LocalFaqRepository();
 
   static const cacheKey = 'faq_cache';
 
   final SharedPreferences? storage;
-  final List<PerguntaFaq> _items;
+  final List<FaqModel> _items;
   int _counter = 0;
 
   void resetToDefaults() {
@@ -97,20 +97,20 @@ class LocalFaqRepository implements FaqRepository {
     _counter = 0;
   }
 
-  List<PerguntaFaq>? _readCache() {
+  List<FaqModel>? _readCache() {
     final raw = storage?.getString(cacheKey);
     if (raw == null || raw.isEmpty) return null;
     try {
       final decoded = jsonDecode(raw) as List<dynamic>;
       return decoded
-          .map((e) => PerguntaFaq.fromMap(Map<String, dynamic>.from(e as Map)))
+          .map((e) => FaqModel.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList();
     } catch (_) {
       return null;
     }
   }
 
-  Future<void> _writeCache(List<PerguntaFaq> items) async {
+  Future<void> _writeCache(List<FaqModel> items) async {
     await storage?.setString(
       cacheKey,
       jsonEncode(items.map((e) => e.toMap()).toList()),
@@ -118,7 +118,7 @@ class LocalFaqRepository implements FaqRepository {
   }
 
   @override
-  Future<List<PerguntaFaq>> listar() async {
+  Future<List<FaqModel>> list() async {
     final cached = _readCache();
     if (cached != null) {
       _items
@@ -129,45 +129,45 @@ class LocalFaqRepository implements FaqRepository {
   }
 
   @override
-  Future<PerguntaFaq> criar({
-    required String pergunta,
-    required String resposta,
-    required String atualizadoPor,
+  Future<FaqModel> create({
+    required String question,
+    required String answer,
+    required String updatedBy,
   }) async {
     final now = DateTime.now();
     _counter++;
-    final novo = PerguntaFaq(
+    final created = FaqModel(
       id: 'faq-${now.microsecondsSinceEpoch}-$_counter',
-      pergunta: pergunta.trim(),
-      resposta: resposta.trim(),
-      criadoEm: now,
-      atualizadoEm: now,
-      atualizadoPor: atualizadoPor,
+      question: question.trim(),
+      answer: answer.trim(),
+      createdAt: now,
+      updatedAt: now,
+      updatedBy: updatedBy,
     );
-    _items.insert(0, novo);
+    _items.insert(0, created);
     await _writeCache(_items);
-    return novo;
+    return created;
   }
 
   @override
-  Future<PerguntaFaq> atualizar(PerguntaFaq item) async {
-    final atualizada = item.copyWith(
-      pergunta: item.pergunta.trim(),
-      resposta: item.resposta.trim(),
-      atualizadoEm: DateTime.now(),
+  Future<FaqModel> update(FaqModel item) async {
+    final updated = item.copyWith(
+      question: item.question.trim(),
+      answer: item.answer.trim(),
+      updatedAt: DateTime.now(),
     );
     final index = _items.indexWhere((e) => e.id == item.id);
     if (index >= 0) {
-      _items[index] = atualizada;
+      _items[index] = updated;
     } else {
-      _items.insert(0, atualizada);
+      _items.insert(0, updated);
     }
     await _writeCache(_items);
-    return atualizada;
+    return updated;
   }
 
   @override
-  Future<void> excluir(String id) async {
+  Future<void> delete(String id) async {
     _items.removeWhere((e) => e.id == id);
     await _writeCache(_items);
   }
@@ -186,12 +186,12 @@ class FirestoreFaqRepository implements FaqRepository {
       _firestore.collection('faq');
 
   @override
-  Future<List<PerguntaFaq>> listar() async {
+  Future<List<FaqModel>> list() async {
     try {
-      final snap = await _collection.orderBy('criadoEm', descending: true).get();
+      final snap = await _collection.orderBy('createdAt', descending: true).get();
       if (snap.docs.isNotEmpty) {
         final items = snap.docs
-            .map((doc) => PerguntaFaq.fromFirestore(doc, null))
+            .map((doc) => FaqModel.fromFirestore(doc, null))
             .toList();
         await _fallback._writeCache(items);
         return List.unmodifiable(items);
@@ -199,65 +199,65 @@ class FirestoreFaqRepository implements FaqRepository {
     } catch (_) {
       // Sem internet ou erro do Firestore: usa cache local / defaultFaqItems.
     }
-    return _fallback.listar();
+    return _fallback.list();
   }
 
   @override
-  Future<PerguntaFaq> criar({
-    required String pergunta,
-    required String resposta,
-    required String atualizadoPor,
+  Future<FaqModel> create({
+    required String question,
+    required String answer,
+    required String updatedBy,
   }) async {
     final now = DateTime.now();
     try {
       final docRef = _collection.doc();
-      final item = PerguntaFaq(
+      final item = FaqModel(
         id: docRef.id,
-        pergunta: pergunta.trim(),
-        resposta: resposta.trim(),
-        criadoEm: now,
-        atualizadoEm: now,
-        atualizadoPor: atualizadoPor,
+        question: question.trim(),
+        answer: answer.trim(),
+        createdAt: now,
+        updatedAt: now,
+        updatedBy: updatedBy,
       );
       await docRef.set(item.toFirestore());
-      final current = List<PerguntaFaq>.from(await _fallback.listar());
+      final current = List<FaqModel>.from(await _fallback.list());
       current.insert(0, item);
       await _fallback._writeCache(current);
       return item;
     } catch (_) {
-      return _fallback.criar(
-        pergunta: pergunta,
-        resposta: resposta,
-        atualizadoPor: atualizadoPor,
+      return _fallback.create(
+        question: question,
+        answer: answer,
+        updatedBy: updatedBy,
       );
     }
   }
 
   @override
-  Future<PerguntaFaq> atualizar(PerguntaFaq item) async {
-    final atualizada = item.copyWith(
-      pergunta: item.pergunta.trim(),
-      resposta: item.resposta.trim(),
-      atualizadoEm: DateTime.now(),
+  Future<FaqModel> update(FaqModel item) async {
+    final updated = item.copyWith(
+      question: item.question.trim(),
+      answer: item.answer.trim(),
+      updatedAt: DateTime.now(),
     );
     try {
       await _collection.doc(item.id).set(
-        atualizada.toFirestore(),
+        updated.toFirestore(),
         SetOptions(merge: true),
       );
     } catch (_) {
       // Atualiza também o cache local mesmo se offline.
     }
-    return _fallback.atualizar(atualizada);
+    return _fallback.update(updated);
   }
 
   @override
-  Future<void> excluir(String id) async {
+  Future<void> delete(String id) async {
     try {
       await _collection.doc(id).delete();
     } catch (_) {
       // Remove também do cache local mesmo se offline.
     }
-    await _fallback.excluir(id);
+    await _fallback.delete(id);
   }
 }

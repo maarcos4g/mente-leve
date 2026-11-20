@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
-import 'package:mente_leve/shared/models/pergunta_faq.dart';
+import 'package:mente_leve/shared/models/faq_model.dart';
 
 /// Controlador do Painel de Publicação e Edição do FAQ da psicóloga
 /// (RF08 / SCRUM-36).
@@ -15,21 +15,24 @@ class PsychologistFaqController extends ChangeNotifier {
   final FaqRepository _repository;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  List<PerguntaFaq> _items = const [];
+  List<FaqModel> _items = const [];
   final Set<String> _expandedIds = {};
-  PerguntaFaq? _editingItem;
+  String? _revealedId;
+  FaqModel? _editingItem;
   bool _isLoading = false;
   bool _isSaving = false;
   String? _errorMessage;
 
-  List<PerguntaFaq> get items => _items;
-  PerguntaFaq? get editingItem => _editingItem;
+  List<FaqModel> get items => _items;
+  FaqModel? get editingItem => _editingItem;
+  String? get revealedId => _revealedId;
   bool get isEditing => _editingItem != null;
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   String? get errorMessage => _errorMessage;
 
   bool isExpanded(String id) => _expandedIds.contains(id);
+  bool isRevealed(String id) => _revealedId == id;
 
   String? validateTitle(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -50,7 +53,7 @@ class PsychologistFaqController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      _items = await _repository.listar();
+      _items = await _repository.list();
       if (_expandedIds.isEmpty && _items.isNotEmpty) {
         final highlight = _items.firstWhere(
           (e) => e.id == 'faq-lidar-ansiedade',
@@ -67,6 +70,11 @@ class PsychologistFaqController extends ChangeNotifier {
   }
 
   void toggleExpanded(String id) {
+    if (_revealedId == id) {
+      _revealedId = null;
+      notifyListeners();
+      return;
+    }
     if (_expandedIds.contains(id)) {
       _expandedIds.remove(id);
     } else {
@@ -75,8 +83,21 @@ class PsychologistFaqController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void iniciarEdicao(PerguntaFaq item) {
+  void revealActions(String id) {
+    if (_revealedId == id) return;
+    _revealedId = id;
+    notifyListeners();
+  }
+
+  void hideActions() {
+    if (_revealedId == null) return;
+    _revealedId = null;
+    notifyListeners();
+  }
+
+  void iniciarEdicao(FaqModel item) {
     _editingItem = item;
+    _revealedId = null;
     notifyListeners();
   }
 
@@ -87,13 +108,13 @@ class PsychologistFaqController extends ChangeNotifier {
   }
 
   Future<bool> salvar({
-    required String pergunta,
-    required String resposta,
-    String atualizadoPor = 'psicologa',
+    required String question,
+    required String answer,
+    String updatedBy = 'psychologist',
   }) async {
     if (_isSaving) return false;
-    final trimmedTitle = pergunta.trim();
-    final trimmedDesc = resposta.trim();
+    final trimmedTitle = question.trim();
+    final trimmedDesc = answer.trim();
     if (trimmedTitle.isEmpty || trimmedDesc.isEmpty) return false;
 
     _isSaving = true;
@@ -102,24 +123,24 @@ class PsychologistFaqController extends ChangeNotifier {
 
     try {
       if (_editingItem != null) {
-        final atualizado = await _repository.atualizar(
+        final updated = await _repository.update(
           _editingItem!.copyWith(
-            pergunta: trimmedTitle,
-            resposta: trimmedDesc,
-            atualizadoPor: atualizadoPor,
+            question: trimmedTitle,
+            answer: trimmedDesc,
+            updatedBy: updatedBy,
           ),
         );
         _editingItem = null;
-        _items = await _repository.listar();
-        _expandedIds.add(atualizado.id);
+        _items = await _repository.list();
+        _expandedIds.add(updated.id);
       } else {
-        final criado = await _repository.criar(
-          pergunta: trimmedTitle,
-          resposta: trimmedDesc,
-          atualizadoPor: atualizadoPor,
+        final created = await _repository.create(
+          question: trimmedTitle,
+          answer: trimmedDesc,
+          updatedBy: updatedBy,
         );
-        _items = await _repository.listar();
-        _expandedIds.add(criado.id);
+        _items = await _repository.list();
+        _expandedIds.add(created.id);
       }
       return true;
     } catch (_) {
@@ -133,12 +154,15 @@ class PsychologistFaqController extends ChangeNotifier {
 
   Future<bool> excluir(String id) async {
     try {
-      await _repository.excluir(id);
+      await _repository.delete(id);
       if (_editingItem?.id == id) {
         _editingItem = null;
       }
+      if (_revealedId == id) {
+        _revealedId = null;
+      }
       _expandedIds.remove(id);
-      _items = await _repository.listar();
+      _items = await _repository.list();
       notifyListeners();
       return true;
     } catch (_) {
