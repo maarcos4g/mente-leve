@@ -239,4 +239,4 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Dificuldades e ajustes manuais:**
     1. **Arquivo do Firebase:** o worktree isolado não tinha o `android/app/google-services.json` (ignorado pelo git), e o build falhou até o arquivo ser copiado do checkout principal.
     2. **Branch:** o trabalho começou numa branch provisória de worktree (`SCRUM51/perfil-logout`); a branch combinada pelo grupo era `feature/SCRUM-51/perfil-logout`, que já existia com um commit a mais. A IA reaplicou os commits (rebase) em cima dela, avançou a branch e apagou a provisória, sem perder nada.
-    3. **Pendências:** não há teste automatizado de `AuthRepository.signOut`, porque ele depende do `FirebaseAuth`; o fluxo foi conferido manualmente no emulador. As Homes de psicóloga e responsável ainda são placeholders.
+    3. **Pendências:** não há teste automatizado de `AuthRepository.signOut`, porque ele depende do `FirebaseAuth`; o fluxo foi conferido manualmente no emulador. As Homes de psicóloga e responsável ainda são placeholders no momento de execução da task.
