@@ -278,5 +278,4 @@ Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.ya
 ### Observações
 
 1. **Firebase só está configurado para Android** (`google-services.json`, fora do controle de versão). Os pacotes `firebase_*` estão declarados para todas as plataformas, mas só inicializam no Android.
-2. **Persistência local:** a modelagem prevê Hive criptografado para os dados do aluno, mas o código usa `shared_preferences`, que não criptografa. A decisão está pendente para o grupo (ver o registro do SCRUM-31 acima).
-3. **Sem pacote de roteamento ou de injeção de dependência extra:** a navegação usa rotas nomeadas do próprio `MaterialApp`, e a injeção é manual no bootstrap. É uma escolha deliberada para manter poucas dependências.
+2. **Sem pacote de roteamento ou de injeção de dependência extra:** a navegação usa rotas nomeadas do próprio `MaterialApp`, e a injeção é manual no bootstrap. É uma escolha deliberada para manter poucas dependências.
