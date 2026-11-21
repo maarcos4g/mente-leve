@@ -181,7 +181,6 @@
 - Coleção `faq` no Firestore (`FaqModel` e `FirestoreFaqRepository`): campos padronizados em inglês (`question`, `answer`, `createdAt`, `updatedAt`, `updatedBy`), seguindo a mesma convenção da coleção `users`.0
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
 - Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
-<<<<<<< HEAD
 
 ## [21/11/2026]
 
@@ -195,11 +194,9 @@
 - Diário Pessoal (`PrefsDiaryRepository`): um registro em formato inesperado não derruba mais a leitura do diário inteiro. Se a chave `diario` estiver ilegível, o conteúdo é copiado para `diario_corrompido` e o diário volta a funcionar.
 - Sair da conta numa sessão offline agora também apaga o perfil local, para o app não entrar de novo sozinho.
 - Onboarding (`OnboardingView`): o conteúdo passa a rolar. No Android 7 (731 dp de altura) ele estourava 194 px e o botão "Entrar como aluno" ficava fora da área de toque.
-=======
 - Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
 
 ### Adicionado
 
 - Especificação técnica dos mappers Documento (Firestore e aparelho) ↔ entidade de domínio: `toMap()`, `fromMap()`, conversores do Firestore, serialização JSON e tratamento de nulos (`docs/modelagem/05-especificacao-mappers.md`).
 - Mascote de acolhimento (RF03 / SCRUM-30): o resumo da semana da Home do aluno passa a ser uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz) calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado.
->>>>>>> origin/main

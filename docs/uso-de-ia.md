@@ -251,7 +251,6 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Abraão Luiz Ribeiro da Cruz Dantas
 
-<<<<<<< HEAD
 * **Persistência Offline e Cache Local do diário — EPIC-03 (21/11):**
   * **O que foi feito:**
     * O diário já gravava no `SharedPreferences`, mas o aluno só entrava no app com internet, porque o login anônimo do Firebase falha sem rede.
@@ -274,7 +273,6 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     2. **Fonte de teste:** Nos testes de widget, a fonte padrão do Flutter desenha cada letra como um quadrado e estoura o botão na horizontal. Isso não acontece no aparelho, então o teste do onboarding descarta esse aviso e confere só a navegação.
     3. **Ping no Android 7:** O emulador API 24 não responde a `ping` mesmo com internet. A volta da rede foi confirmada pela fonte Poppins carregando e pela sessão do Firebase criada.
     4. **Commit pelo PowerShell:** Aspas dentro da mensagem quebravam o `git commit -m` no PowerShell 5.1; a mensagem passou a ir por arquivo (`git commit -F`).
-=======
 * **Proteção por PIN no Diário Pessoal (19/11 a 21/11):**
   * **O que foi feito:** O cadeado (`LucideIcons.lockKeyhole`) que já existia na App Bar do `DiaryReflectionView` passou a abrir um fluxo para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, a tela pede o PIN antes de mostrar os registros. Foram criados o `DiaryLockRepository` / `PrefsDiaryLockRepository` (PIN salvo no `SharedPreferences`, chave `diario_pin`, como hash SHA-256 com salt) e o `DiaryLockController`, além dos testes do repositório, do controller e da tela. Depois, a branch recebeu o merge da `main` (FAQ da Sprint 3) e o app foi testado no emulador Android.
   * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
@@ -290,7 +288,6 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     3. **Arquivo duplicado no Android:** Uma cópia solta, `GeneratedPluginRegistrant - Copy.java`, foi tirada do projeto para não quebrar o build.
     4. **Emulador sem internet:** O emulador travou no primeiro boot e, depois de reiniciado, ficou sem rede. O "Entrar como aluno" mostrava "Sem conexão com a internet", porque o login anônimo do Firebase precisa de rede. Foi resolvido desligando e ligando de novo o Wi-Fi e os dados do emulador.
     5. **Sem recuperação de PIN:** A task não pedia recuperação. Quem esquecer o PIN não consegue mais abrir o diário, o que precisa ser alinhado com o grupo.
->>>>>>> origin/main
 
 ### Marcos Paulo
 
