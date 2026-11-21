@@ -24,7 +24,11 @@ class StudentSessionModel extends SessionModel {
 
 class InstitutionalSession extends SessionModel {
   final UserModel user;
-  InstitutionalSession(this.user);
+
+  /// E-mail da conta no Firebase Auth (não fica no documento `users/{uid}`).
+  final String? email;
+
+  InstitutionalSession(this.user, {this.email});
 
   @override
   String get uid => user.uid;

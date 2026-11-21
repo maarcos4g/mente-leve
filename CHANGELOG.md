@@ -188,6 +188,13 @@
 
 ### Adicionado
 
+- Perfil do usuário (SCRUM-51): tocar no avatar da Home do aluno (ou no ícone de perfil das Homes de psicóloga e responsável) abre um painel com codinome/avatar (aluno) ou nome, e-mail e papel (perfis institucionais), e a opção "Sair da conta".
+- Logout com confirmação (SCRUM-51): o aluno é avisado de que o perfil anônimo e os registros do diário serão apagados do aparelho (e o logout passa a apagá-los de fato: diário e estado do gatilho de apoio); depois de sair, o app volta ao `/onboarding`. `InstitutionalSession` passou a carregar o e-mail da conta.
+
+### Modificado
+
+- Logout do aluno (SCRUM-51, `AuthRepository.signOut`): além do perfil, apaga o diário e o estado do gatilho de apoio guardados no aparelho, por meio do novo parâmetro opcional `clearStudentData` (ligado no `main.dart`). Logout de psicóloga e responsável não apaga nada local.
+- Homes de psicóloga e responsável (SCRUM-51): o botão "Sair" sem confirmação foi trocado por um ícone de perfil na barra superior, que abre o mesmo painel de perfil.
 - Mascote de acolhimento (RF03 / SCRUM-30): o resumo da semana da Home do aluno passa a ser uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz) calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado.
 
 ### Modificado
