@@ -27,121 +27,132 @@ class OnboardingView extends StatelessWidget {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 120,
-              horizontal: 35.0,
-            ),
-            child: Column(
-              children: [
-                Image.asset('assets/images/logo.png', width: 166, height: 33),
-                SizedBox(height: 92),
-                Image.asset(
-                  'assets/images/bro.png',
-                  width: 280,
-                  height: 240,
-                  fit: BoxFit.cover,
+          // Em telas baixas (ex.: Android 7, 731 dp) o conteúdo passa da
+          // altura da tela; a rolagem mantém o botão de entrar tocável.
+          Positioned.fill(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 120,
+                  horizontal: 35.0,
                 ),
-                SizedBox(height: 64),
-                Text(
-                  'Seu porto seguro, direto no seu bolso',
-                  style: AppTextStyles.captionMedium.copyWith(
-                    color: TailwindColors.zinc50,
-                  ),
-                ),
-                SizedBox(height: 80),
-                ButtonWidget(
-                  label: "Entrar como aluno",
-                  textStyle: AppTextStyles.buttonHeading.copyWith(
-                    color: TailwindColors.sky700,
-                  ),
-                  icon: LucideIcons.graduationCap,
-                  backgroundColor: TailwindColors.zinc50,
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/auth/student');
-                  },
-                ),
-                SizedBox(height: 48),
-                InkWell(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) {
-                        return Container(
-                          constraints: BoxConstraints(
-                            maxHeight: 256,
-                            minWidth: double.infinity,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(24.0),
-                            ),
-                          ),
-                          padding: EdgeInsets.all(24.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: TailwindColors.zinc500,
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 166,
+                      height: 33,
+                    ),
+                    SizedBox(height: 92),
+                    Image.asset(
+                      'assets/images/bro.png',
+                      width: 280,
+                      height: 240,
+                      fit: BoxFit.cover,
+                    ),
+                    SizedBox(height: 64),
+                    Text(
+                      'Seu porto seguro, direto no seu bolso',
+                      style: AppTextStyles.captionMedium.copyWith(
+                        color: TailwindColors.zinc50,
+                      ),
+                    ),
+                    SizedBox(height: 80),
+                    ButtonWidget(
+                      label: "Entrar como aluno",
+                      textStyle: AppTextStyles.buttonHeading.copyWith(
+                        color: TailwindColors.sky700,
+                      ),
+                      icon: LucideIcons.graduationCap,
+                      backgroundColor: TailwindColors.zinc50,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/auth/student');
+                      },
+                    ),
+                    SizedBox(height: 48),
+                    InkWell(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return Container(
+                              constraints: BoxConstraints(
+                                maxHeight: 256,
+                                minWidth: double.infinity,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(24.0),
                                 ),
                               ),
-                              SizedBox(height: 16),
-                              Text(
-                                'Com qual perfil gostaria de acessar?',
-                                style: AppTextStyles.captionMedium.copyWith(
-                                  color: TailwindColors.zinc950,
-                                ),
+                              padding: EdgeInsets.all(24.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      color: TailwindColors.zinc500,
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Com qual perfil gostaria de acessar?',
+                                    style: AppTextStyles.captionMedium.copyWith(
+                                      color: TailwindColors.zinc950,
+                                    ),
+                                  ),
+                                  SizedBox(height: 24),
+                                  ButtonWidget(
+                                    label: "Gestão educacional",
+                                    textStyle: AppTextStyles.buttonHeading
+                                        .copyWith(color: TailwindColors.zinc50),
+                                    icon: LucideIcons.graduationCap,
+                                    backgroundColor: TailwindColors.sky600,
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/auth/psychologist',
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(height: 16),
+                                  ButtonWidget(
+                                    label: "Responsável",
+                                    textStyle: AppTextStyles.buttonHeading
+                                        .copyWith(color: TailwindColors.zinc50),
+                                    icon: LucideIcons.userLock,
+                                    backgroundColor: TailwindColors.sky600,
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/auth/parents',
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 24),
-                              ButtonWidget(
-                                label: "Gestão educacional",
-                                textStyle: AppTextStyles.buttonHeading.copyWith(
-                                  color: TailwindColors.zinc50,
-                                ),
-                                icon: LucideIcons.graduationCap,
-                                backgroundColor: TailwindColors.sky600,
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/auth/psychologist',
-                                  );
-                                },
-                              ),
-                              SizedBox(height: 16),
-                              ButtonWidget(
-                                label: "Responsável",
-                                textStyle: AppTextStyles.buttonHeading.copyWith(
-                                  color: TailwindColors.zinc50,
-                                ),
-                                icon: LucideIcons.userLock,
-                                backgroundColor: TailwindColors.sky600,
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(context, '/auth/parents');
-                                },
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                  child: Text(
-                    'Acessar com outro tipo de perfil',
-                    style: AppTextStyles.captionMedium.copyWith(
-                      color: TailwindColors.zinc50,
+                      child: Text(
+                        'Acessar com outro tipo de perfil',
+                        style: AppTextStyles.captionMedium.copyWith(
+                          color: TailwindColors.zinc50,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],

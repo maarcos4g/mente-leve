@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
 import 'package:mente_leve/modules/student/diary/models/registro_diario.dart';
@@ -49,5 +51,37 @@ void main() {
 
     await repo.clear();
     expect(await repo.getLatest(), isNull);
+  });
+
+  group('dado corrompido', () {
+    test('ignora um registro inválido e mostra os outros', () async {
+      SharedPreferences.setMockInitialValues({
+        PrefsDiaryRepository.storageKey: jsonEncode({
+          '1': registro.toMap(),
+          'quebrado': {'humor': 'nao-existe'},
+          'texto-solto': 'não é um registro',
+        }),
+      });
+      final repo = await openRepository();
+
+      expect(await repo.getAll(), [registro]);
+    });
+
+    test('guarda a chave ilegível como backup e volta a salvar', () async {
+      SharedPreferences.setMockInitialValues({
+        PrefsDiaryRepository.storageKey: '{json quebrado',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final repo = PrefsDiaryRepository(prefs);
+
+      expect(await repo.getAll(), isEmpty);
+      expect(prefs.getString(PrefsDiaryRepository.corruptedKey),
+          '{json quebrado');
+
+      await repo.save(registro);
+      expect(await (await openRepository()).getAll(), [registro]);
+      expect(prefs.getString(PrefsDiaryRepository.corruptedKey),
+          '{json quebrado');
+    });
   });
 }
