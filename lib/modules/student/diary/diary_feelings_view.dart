@@ -353,7 +353,12 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                       top: 328,
                       width: 120,
                       height: 120,
-                      child: GestureDetector(
+                      child: Semantics(
+                        button: true,
+                        label: 'Registrar humor ${_selectedHumor.label}',
+                        excludeSemantics: true,
+                        onTap: _saveAndReturn,
+                        child: GestureDetector(
                         key: const Key('central_emotion_face'),
                         onTap: _saveAndReturn,
                         child: Container(
@@ -379,6 +384,7 @@ class _DiaryFeelingsViewState extends State<DiaryFeelingsView>
                             ),
                           ),
                         ),
+                      ),
                       ),
                     ),
 
