@@ -26,6 +26,30 @@ void main() {
   group('sem internet', () {
     setUp(() => firestore.online = false);
 
+    test('depois de salvar offline, a lista volta sem esperar a leitura '
+        'longa', () async {
+      // Como no emulador: a escrita fica sem resposta e a leitura também.
+      firestore.hangReads = true;
+      final repo = FirestoreFaqRepository(
+        firestore,
+        storage: prefs,
+        writeWait: const Duration(milliseconds: 50),
+        readWait: const Duration(seconds: 30),
+        offlineReadWait: const Duration(milliseconds: 50),
+      );
+
+      final relogio = Stopwatch()..start();
+      final criada = await repo.create(
+        question: 'Rápida',
+        answer: 'Resposta',
+        updatedBy: 'psi',
+      );
+      final lista = await repo.list();
+
+      expect(relogio.elapsed, lessThan(const Duration(seconds: 1)));
+      expect(lista.first.id, criada.id);
+    });
+
     test('criar pergunta termina sem travar e já aparece na lista', () async {
       final repo = openRepository();
 

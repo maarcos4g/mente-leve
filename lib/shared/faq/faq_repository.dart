@@ -187,6 +187,7 @@ class FirestoreFaqRepository implements FaqRepository {
     SharedPreferences? storage,
     this.writeWait = const Duration(seconds: 2),
     this.readWait = const Duration(seconds: 6),
+    this.offlineReadWait = const Duration(seconds: 1),
   }) : _fallback = LocalFaqRepository(storage: storage);
 
   final FirebaseFirestore _firestore;
@@ -199,13 +200,23 @@ class FirestoreFaqRepository implements FaqRepository {
   /// Tempo máximo esperando a leitura da coleção antes de usar o cache.
   final Duration readWait;
 
+  /// Espera da leitura logo depois de uma escrita sem resposta: o aparelho
+  /// provavelmente está sem rede, então não vale esperar [readWait] de novo.
+  final Duration offlineReadWait;
+
+  /// Uma escrita recente ficou sem resposta (provável falta de rede).
+  bool _semRede = false;
+
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('faq');
 
   /// Espera a escrita por até [writeWait]; depois disso ela continua na fila
   /// offline do Firestore e é enviada quando a conexão voltar.
-  Future<void> _write(Future<void> write) =>
-      write.timeout(writeWait, onTimeout: () {});
+  Future<void> _write(Future<void> write) async {
+    var respondeu = true;
+    await write.timeout(writeWait, onTimeout: () => respondeu = false);
+    _semRede = !respondeu;
+  }
 
   @override
   Future<List<FaqModel>> list() async {
@@ -213,7 +224,8 @@ class FirestoreFaqRepository implements FaqRepository {
       final snap = await _collection
           .orderBy('createdAt', descending: true)
           .get()
-          .timeout(readWait);
+          .timeout(_semRede ? offlineReadWait : readWait);
+      _semRede = false;
       if (snap.docs.isNotEmpty) {
         final items = snap.docs
             .map((doc) => FaqModel.fromFirestore(doc, null))
