@@ -171,3 +171,16 @@
 
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
 - Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
+
+## [21/11/2026]
+
+### Adicionado
+
+- Guia e lista de Canais Oficiais de Denúncia e Apoio para o aluno (`OfficialChannelsView`, rota `/faq/canais-oficiais` — RF06 / SCRUM-34): Disque 100, Conselho Tutelar e Ouvidoria Escolar, com o que cada canal faz, quando procurar e como entrar em contato. Só o Disque 100 tem botão "Ligar 100", porque os outros dois não têm número nacional. A lista é fixa no app e funciona offline. A tela traz também um aviso para ligar 190 em perigo imediato.
+- Função de discagem compartilhada `dialPhoneNumber` (`lib/shared/utils/phone_dialer.dart`), que abre o discador nativo com qualquer número.
+- Testes da nova tela, da discagem e da auditoria WCAG AA das cores novas (`test/modules/student/official_channels/`, `test/shared/utils/` e `test/accessibility_wcag_test.dart`).
+
+### Modificado
+
+- Tela "Canais de Apoio & FAQ" (`StudentFaqView`): novo card "Canais oficiais de denúncia" (`#FEF3C7` com ícone `#B45309`) entre o CVV e as denúncias anônimas.
+- Botão "Ajuda (CVV)" (`CvvButton`): passa a usar a discagem compartilhada, sem mudar o comportamento (continua ligando 188).
