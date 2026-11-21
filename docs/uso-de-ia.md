@@ -249,7 +249,21 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Abraão Luiz Ribeiro da Cruz Dantas
 
-*(A preencher pelo integrante)*
+* **Proteção por PIN no Diário Pessoal (19/11 a 21/11):**
+  * **O que foi feito:** O cadeado (`LucideIcons.lockKeyhole`) que já existia na App Bar do `DiaryReflectionView` passou a abrir um fluxo para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, a tela pede o PIN antes de mostrar os registros. Foram criados o `DiaryLockRepository` / `PrefsDiaryLockRepository` (PIN salvo no `SharedPreferences`, chave `diario_pin`, como hash SHA-256 com salt) e o `DiaryLockController`, além dos testes do repositório, do controller e da tela. Depois, a branch recebeu o merge da `main` (FAQ da Sprint 3) e o app foi testado no emulador Android.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompts utilizados:**
+    > 1. "Implementar proteção por senha no Diário Pessoal (Ícone de Cadeado)", com a descrição e os critérios de aceite da task colados: abrir o fluxo de cadastrar, alterar ou remover a senha/PIN ao tocar no cadeado; persistir a senha localmente com `SharedPreferences`, 100% offline; pedir a senha ao abrir o Diário Pessoal quando a proteção estiver ativa. "Faça o que foi pedido nessa task."
+    > 2. "Verifique o projeto e abra o android para eu testar a última task que fiz."
+    > 3. "Por que não consigo entrar no app?"
+    > 4. "Pronto, suba no GitHub. Não esqueça de alterar no docs as minhas atualizações."
+  * **Como a IA ajudou:** Propôs guardar só o hash do PIN com salt, em vez do PIN digitado, e tratar PIN corrompido como "sem PIN" para o aluno não ficar trancado fora do diário. Escreveu os testes (162 passando na branch e 181 depois do merge com a `main`, `flutter analyze` sem avisos), abriu o app no emulador, descobriu por que o login do aluno falhava e resolveu o conflito do merge com a `main` em `main.dart`.
+  * **Dificuldades e ajustes manuais:**
+    1. **Pasta do projeto vazia no OneDrive:** A cópia em `OneDrive\Documentos\...\mente-leve` só tinha pastas vazias e um `.git` quebrado. O trabalho foi feito na cópia de `Documents\...\mente-leve`.
+    2. **SDK do Flutter corrompido pelo OneDrive:** O build Android falhava com `Cannot snapshot ... AgpCommonExtensionWrapper.kt: not a regular file`. O SDK veio de uma cópia do OneDrive e tinha cerca de 16,8 mil arquivos que ainda eram atalhos de nuvem. Os 58 arquivos de `packages/flutter_tools/gradle` foram regravados como arquivos normais, com o mesmo conteúdo. O ideal é reinstalar o Flutter fora do OneDrive.
+    3. **Arquivo duplicado no Android:** Uma cópia solta, `GeneratedPluginRegistrant - Copy.java`, foi tirada do projeto para não quebrar o build.
+    4. **Emulador sem internet:** O emulador travou no primeiro boot e, depois de reiniciado, ficou sem rede. O "Entrar como aluno" mostrava "Sem conexão com a internet", porque o login anônimo do Firebase precisa de rede. Foi resolvido desligando e ligando de novo o Wi-Fi e os dados do emulador.
+    5. **Sem recuperação de PIN:** A task não pedia recuperação. Quem esquecer o PIN não consegue mais abrir o diário, o que precisa ser alinhado com o grupo.
 
 ### Marcos Paulo
 
