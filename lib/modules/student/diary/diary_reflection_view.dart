@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:mente_leve/modules/student/diary/controllers/diary_lock_controller.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_reflection_controller.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
 import 'package:mente_leve/modules/student/diary/models/humor_enum.dart';
 import 'package:mente_leve/modules/student/diary/models/registro_diario.dart';
+import 'package:mente_leve/modules/student/diary/repositories/diary_lock_repository.dart';
 import 'package:mente_leve/modules/student/diary/repositories/diary_repository.dart';
 
 // Cores do Figma ("personal diary"), equivalentes à paleta Tailwind.
@@ -32,11 +35,22 @@ TextStyle _poppins(double size, FontWeight weight, Color color,
 /// Atende o RF02: área de texto livre e checklist de pontos positivos do dia,
 /// salvos só no aparelho. Retorna `true` via `Navigator.pop` se algo mudou,
 /// para a Home atualizar o resumo da semana.
+///
+/// O cadeado da App Bar cria, altera ou remove um PIN; com PIN cadastrado, a
+/// tela pede o PIN antes de mostrar o diário.
 class DiaryReflectionView extends StatefulWidget {
-  const DiaryReflectionView({super.key, this.repository, this.onMoodSaved});
+  const DiaryReflectionView({
+    super.key,
+    this.repository,
+    this.lockRepository,
+    this.onMoodSaved,
+  });
 
   /// Repositório do diário. Nulo usa o padrão do app (shared_preferences).
   final DiaryRepository? repository;
+
+  /// Onde fica o PIN do diário. Nulo usa o padrão do app (shared_preferences).
+  final DiaryLockRepository? lockRepository;
 
   /// Chamado depois de salvar um registro (gatilho de apoio, RN11).
   final Future<String?> Function(BuildContext context)? onMoodSaved;
@@ -47,19 +61,59 @@ class DiaryReflectionView extends StatefulWidget {
 
 class _DiaryReflectionViewState extends State<DiaryReflectionView> {
   late final DiaryReflectionController _controller;
+  late final DiaryLockController _lock;
   bool _changed = false;
+  bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = DiaryReflectionController(repository: widget.repository)
-      ..load();
+    _controller = DiaryReflectionController(repository: widget.repository);
+    _lock = DiaryLockController(repository: widget.lockRepository)
+      ..addListener(_onLockChanged);
+    _lock.init();
+  }
+
+  /// Só lê os registros depois que o diário for liberado.
+  void _onLockChanged() {
+    if (_lock.isUnlocked && !_loaded) {
+      _loaded = true;
+      _controller.load();
+    }
   }
 
   @override
   void dispose() {
+    _lock
+      ..removeListener(_onLockChanged)
+      ..dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  /// Cadeado: escolhe criar, alterar ou remover o PIN e abre o diálogo.
+  Future<void> _openLockSettings() async {
+    final acao = await showModalBottomSheet<_PinAcao>(
+      context: context,
+      backgroundColor: _zinc50,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _PinSettingsSheet(protegido: _lock.isProtected),
+    );
+    if (acao == null || !mounted) return;
+
+    _lock.clearError();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => _PinDialog(acao: acao, controller: _lock),
+    );
+    if (ok != true || !mounted) return;
+    _showMessage(switch (acao) {
+      _PinAcao.criar => 'PIN criado. O diário vai pedir o PIN para abrir.',
+      _PinAcao.alterar => 'PIN alterado.',
+      _PinAcao.remover => 'Proteção por PIN removida.',
+    });
   }
 
   Future<void> _openSheet([RegistroDiario? registro]) async {
@@ -111,29 +165,43 @@ class _DiaryReflectionViewState extends State<DiaryReflectionView> {
       child: Scaffold(
         backgroundColor: _zinc50,
         body: SafeArea(
-          child: Column(
-            children: [
-              _AppBar(onBack: () => Navigator.maybePop(context)),
-              Expanded(
-                child: ListenableBuilder(
-                  listenable: _controller,
-                  builder: (context, _) => ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 42, 24, 32),
-                    children: [
-                      _WeekCalendar(controller: _controller),
-                      const SizedBox(height: 42),
-                      _AnotarButton(onPressed: () => _openSheet()),
-                      const SizedBox(height: 42),
-                      _EntriesHeader(controller: _controller),
-                      const SizedBox(height: 24),
-                      ..._buildEntries(),
-                    ],
-                  ),
+          child: ListenableBuilder(
+            listenable: _lock,
+            builder: (context, _) => Column(
+              children: [
+                _AppBar(
+                  onBack: () => Navigator.maybePop(context),
+                  protegido: _lock.isProtected,
+                  // Na tela de bloqueio o cadeado não abre as opções.
+                  onLock: _lock.isUnlocked ? _openLockSettings : null,
                 ),
-              ),
-            ],
+                Expanded(child: _buildBody()),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_lock.isChecking) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (!_lock.isUnlocked) return _PinGate(controller: _lock);
+    return ListenableBuilder(
+      listenable: _controller,
+      builder: (context, _) => ListView(
+        padding: const EdgeInsets.fromLTRB(24, 42, 24, 32),
+        children: [
+          _WeekCalendar(controller: _controller),
+          const SizedBox(height: 42),
+          _AnotarButton(onPressed: () => _openSheet()),
+          const SizedBox(height: 42),
+          _EntriesHeader(controller: _controller),
+          const SizedBox(height: 24),
+          ..._buildEntries(),
+        ],
       ),
     );
   }
@@ -167,11 +235,19 @@ class _DiaryReflectionViewState extends State<DiaryReflectionView> {
   }
 }
 
-/// App Bar: voltar, título e cadeado (dados só no aparelho).
+/// App Bar: voltar, título e cadeado (proteção por PIN).
 class _AppBar extends StatelessWidget {
-  const _AppBar({required this.onBack});
+  const _AppBar({
+    required this.onBack,
+    required this.protegido,
+    required this.onLock,
+  });
 
   final VoidCallback onBack;
+  final bool protegido;
+
+  /// Nulo desabilita o cadeado (tela de bloqueio).
+  final VoidCallback? onLock;
 
   @override
   Widget build(BuildContext context) {
@@ -198,11 +274,16 @@ class _AppBar extends StatelessWidget {
               style: _poppins(18, FontWeight.w600, Colors.black, height: 2),
             ),
           ),
-          const Tooltip(
-            message: 'Seu diário fica salvo só neste aparelho',
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Icon(LucideIcons.lockKeyhole, size: 24),
+          IconButton(
+            key: const Key('diario_cadeado'),
+            onPressed: onLock,
+            tooltip: protegido
+                ? 'Diário protegido com PIN'
+                : 'Proteger diário com PIN',
+            icon: Icon(
+              LucideIcons.lockKeyhole,
+              size: 24,
+              color: protegido ? _sky700 : null,
             ),
           ),
         ],
@@ -898,6 +979,330 @@ class _NovoPontoDialogState extends State<_NovoPontoDialog> {
           child: const Text('Adicionar'),
         ),
       ],
+    );
+  }
+}
+
+/// O que o aluno escolheu fazer com o PIN no cadeado.
+enum _PinAcao { criar, alterar, remover }
+
+/// Folha aberta pelo cadeado: explica a proteção e oferece criar o PIN ou,
+/// se já existir, alterar ou remover.
+class _PinSettingsSheet extends StatelessWidget {
+  const _PinSettingsSheet({required this.protegido});
+
+  final bool protegido;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              protegido ? 'Diário protegido' : 'Proteger o diário',
+              style: _poppins(16, FontWeight.w600, _zinc900),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              protegido
+                  ? 'Seu diário pede um PIN de 4 números para abrir.'
+                  : 'Crie um PIN de 4 números para que só você abra o seu '
+                      'diário. Ele fica salvo só neste aparelho.',
+              style: _poppins(14, FontWeight.w400, _zinc400, height: 20 / 14),
+            ),
+            const SizedBox(height: 16),
+            if (!protegido)
+              _opcao(context, _PinAcao.criar, LucideIcons.lockKeyhole,
+                  'Criar PIN')
+            else ...[
+              _opcao(context, _PinAcao.alterar, LucideIcons.keyRound,
+                  'Alterar PIN'),
+              _opcao(context, _PinAcao.remover, LucideIcons.lockKeyholeOpen,
+                  'Remover PIN',
+                  cor: _red500),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _opcao(
+    BuildContext context,
+    _PinAcao acao,
+    IconData icone,
+    String texto, {
+    Color cor = _zinc900,
+  }) {
+    return ListTile(
+      key: Key('pin_${acao.name}'),
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icone, color: cor),
+      title: Text(texto, style: _poppins(14, FontWeight.w600, cor)),
+      onTap: () => Navigator.pop(context, acao),
+    );
+  }
+}
+
+/// Campo de PIN: só números, no máximo 4, escondido.
+class _PinField extends StatelessWidget {
+  const _PinField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.autofocus = false,
+    this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final bool autofocus;
+  final ValueChanged<String>? onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      autofocus: autofocus,
+      obscureText: true,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+      maxLength: DiaryLockRepository.pinLength,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      onSubmitted: onSubmitted,
+      style: _poppins(20, FontWeight.w600, _zinc900),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: _poppins(14, FontWeight.w400, _zinc400),
+        counterText: '',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: _sky700, width: 2),
+        ),
+      ),
+    );
+  }
+}
+
+/// Diálogo para criar, alterar ou remover o PIN. Fecha com `true` quando
+/// deu certo; em caso de erro, mostra a mensagem e continua aberto.
+class _PinDialog extends StatefulWidget {
+  const _PinDialog({required this.acao, required this.controller});
+
+  final _PinAcao acao;
+  final DiaryLockController controller;
+
+  @override
+  State<_PinDialog> createState() => _PinDialogState();
+}
+
+class _PinDialogState extends State<_PinDialog> {
+  final _atual = TextEditingController();
+  final _novo = TextEditingController();
+  final _confirmacao = TextEditingController();
+
+  DiaryLockController get _lock => widget.controller;
+
+  bool get _pedeAtual => widget.acao != _PinAcao.criar;
+  bool get _pedeNovo => widget.acao != _PinAcao.remover;
+
+  @override
+  void dispose() {
+    _atual.dispose();
+    _novo.dispose();
+    _confirmacao.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirmar() async {
+    final ok = await switch (widget.acao) {
+      _PinAcao.criar => _lock.createPin(_novo.text, _confirmacao.text),
+      _PinAcao.alterar =>
+        _lock.changePin(_atual.text, _novo.text, _confirmacao.text),
+      _PinAcao.remover => _lock.removePin(_atual.text),
+    };
+    if (ok && mounted) Navigator.pop(context, true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final titulo = switch (widget.acao) {
+      _PinAcao.criar => 'Criar PIN',
+      _PinAcao.alterar => 'Alterar PIN',
+      _PinAcao.remover => 'Remover PIN',
+    };
+    final botao = switch (widget.acao) {
+      _PinAcao.criar => 'Criar',
+      _PinAcao.alterar => 'Salvar',
+      _PinAcao.remover => 'Remover',
+    };
+
+    return ListenableBuilder(
+      listenable: _lock,
+      builder: (context, _) => AlertDialog(
+        backgroundColor: _zinc50,
+        title: Text(titulo, style: _poppins(16, FontWeight.w600, _zinc900)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_pedeAtual) ...[
+                _PinField(
+                  key: const Key('campo_pin_atual'),
+                  controller: _atual,
+                  label: 'PIN atual',
+                  autofocus: true,
+                  onSubmitted: _pedeNovo ? null : (_) => _confirmar(),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (_pedeNovo) ...[
+                _PinField(
+                  key: const Key('campo_pin_novo'),
+                  controller: _novo,
+                  label: 'Novo PIN (4 números)',
+                  autofocus: !_pedeAtual,
+                ),
+                const SizedBox(height: 12),
+                _PinField(
+                  key: const Key('campo_pin_confirmacao'),
+                  controller: _confirmacao,
+                  label: 'Repita o novo PIN',
+                  onSubmitted: (_) => _confirmar(),
+                ),
+              ],
+              if (_lock.errorMessage != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  _lock.errorMessage!,
+                  key: const Key('erro_pin'),
+                  textAlign: TextAlign.center,
+                  style: _poppins(13, FontWeight.w500, _red500),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            key: const Key('confirmar_pin'),
+            onPressed: _lock.isBusy ? null : _confirmar,
+            child: Text(
+              botao,
+              style: TextStyle(
+                color: widget.acao == _PinAcao.remover ? _red500 : _sky700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tela de bloqueio: aparece no lugar do diário quando há PIN cadastrado.
+class _PinGate extends StatefulWidget {
+  const _PinGate({required this.controller});
+
+  final DiaryLockController controller;
+
+  @override
+  State<_PinGate> createState() => _PinGateState();
+}
+
+class _PinGateState extends State<_PinGate> {
+  final _pin = TextEditingController();
+
+  @override
+  void dispose() {
+    _pin.dispose();
+    super.dispose();
+  }
+
+  Future<void> _desbloquear() async {
+    final ok = await widget.controller.unlock(_pin.text);
+    if (!ok && mounted) _pin.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final erro = widget.controller.errorMessage;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 64, 24, 32),
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: _sky600.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child:
+                const Icon(LucideIcons.lockKeyhole, size: 32, color: _sky700),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Diário protegido',
+            style: _poppins(18, FontWeight.w600, _zinc900),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Digite seu PIN para abrir o diário.',
+            textAlign: TextAlign.center,
+            style: _poppins(14, FontWeight.w400, _zinc400, height: 20 / 14),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: 200,
+            child: _PinField(
+              key: const Key('campo_pin_desbloqueio'),
+              controller: _pin,
+              label: 'PIN',
+              autofocus: true,
+              onSubmitted: (_) => _desbloquear(),
+            ),
+          ),
+          if (erro != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              erro,
+              key: const Key('erro_pin'),
+              textAlign: TextAlign.center,
+              style: _poppins(13, FontWeight.w500, _red500),
+            ),
+          ],
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: Material(
+              color: _sky700,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                key: const Key('botao_desbloquear'),
+                borderRadius: BorderRadius.circular(12),
+                onTap: widget.controller.isBusy ? null : _desbloquear,
+                child: Center(
+                  child: Text(
+                    'Desbloquear',
+                    style: _poppins(16, FontWeight.w600, _zinc50),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

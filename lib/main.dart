@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
+import 'package:mente_leve/modules/student/diary/controllers/diary_lock_controller.dart';
+import 'package:mente_leve/modules/student/diary/repositories/diary_lock_repository.dart';
 import 'package:mente_leve/modules/student/diary/repositories/prefs_diary_repository.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/prefs_mood_record_repository.dart';
@@ -42,6 +44,7 @@ class _MyAppState extends State<MyApp> {
       stateStore: SupportTriggerStateStore(storage),
     );
     DiaryController.defaultRepository = PrefsDiaryRepository(storage);
+    DiaryLockController.defaultRepository = PrefsDiaryLockRepository(storage);
     StudentFaqController.defaultRepository = FirestoreFaqRepository(
       FirebaseFirestore.instance,
       storage: storage,
