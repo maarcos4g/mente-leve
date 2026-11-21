@@ -7,12 +7,14 @@ import 'package:mente_leve/modules/student/diary/controllers/diary_controller.da
 import 'package:mente_leve/modules/student/diary/controllers/diary_lock_controller.dart';
 import 'package:mente_leve/modules/student/diary/repositories/diary_lock_repository.dart';
 import 'package:mente_leve/modules/student/diary/repositories/prefs_diary_repository.dart';
+import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/prefs_mood_record_repository.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/support_trigger_state_store.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_trigger_controller.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/auth/auth_repository.dart';
 import 'package:mente_leve/shared/auth/profile_store.dart';
+import 'package:mente_leve/shared/faq/faq_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,6 +45,10 @@ class _MyAppState extends State<MyApp> {
     );
     DiaryController.defaultRepository = PrefsDiaryRepository(storage);
     DiaryLockController.defaultRepository = PrefsDiaryLockRepository(storage);
+    StudentFaqController.defaultRepository = FirestoreFaqRepository(
+      FirebaseFirestore.instance,
+      storage: storage,
+    );
     return AuthNotifier(
       AuthRepository(
         FirebaseAuth.instance,
