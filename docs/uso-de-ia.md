@@ -272,6 +272,29 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     3. **Ping no Android 7:** O emulador API 24 não responde a `ping` mesmo com internet. A volta da rede foi confirmada pela fonte Poppins carregando e pela sessão do Firebase criada.
     4. **Commit pelo PowerShell:** Aspas dentro da mensagem quebravam o `git commit -m` no PowerShell 5.1; a mensagem passou a ir por arquivo (`git commit -F`).
 
+* **Bateria de Testes de Falha de Conexão (modo avião / offline) — EPIC-09 (21/11):**
+  * **O que foi feito:**
+    * Foi mapeado o que cada recurso faz sem internet: o diário é só local, o CVV só abre o discador e o FAQ usa o Firestore com cache.
+    * Foi encontrado e corrigido um defeito: sem rede, salvar ou excluir uma pergunta no painel da psicóloga deixava a tela em "Salvando…" até a internet voltar, porque o `FirestoreFaqRepository` esperava a confirmação do servidor. Agora a espera tem limite e a escrita segue na fila offline do Firestore. Depois, a releitura da lista foi acelerada.
+    * Foram criados 17 testes em `test/offline/`, com um Firestore simulado em que a escrita sem rede fica pendente até "reconectar".
+    * O app foi homologado no emulador Android 7.0 (API 24): aluno em modo avião, e psicóloga criando e excluindo perguntas offline, conferidas no Firestore depois da reconexão.
+    * Os resultados estão em `docs/testes/bateria-offline.md`.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompts utilizados:**
+    > 1. A descrição da task colada ("Bateria de Testes de Falha de Conexão (Modo Avião / Offline)", EPIC-09, 3 SP; DoD: diário e botão CVV operam sem travar em modo offline e a reconexão sincroniza dados pendentes; homologação: analyzer limpo, emulador Android API 24+ e commits em Conventional Commits). "Segue a última task."
+    > 2. Nas perguntas da IA: criar a branch em cima do PR #25 e o próprio Abraão digitar o login da psicóloga no emulador.
+    > 3. "Crie uma conta de psicóloga" e "feche o Opera e abra em uma porta que você tenha acesso".
+  * **Como a IA ajudou:**
+    * Achou o ponto que travava (a espera pela confirmação do Firestore offline) e provou com teste: sem a correção, o salvar não terminava em 3 s; com ela, termina em ~2 s.
+    * Escreveu os fakes do Firestore sem pacote novo.
+    * No emulador, mediu o tempo de salvar (de 5 a 9 s antes da otimização, ~3 s depois) e conferiu a sincronização direto no console do Firestore, pelo Opera conectado via Playwright na porta 9222.
+    * Limpou as perguntas de teste ao final.
+  * **Dificuldades e ajustes manuais:**
+    1. **Conta de psicóloga:** A conta Google do Abraão só tem leitura no projeto Firebase ("solicite a permissão necessária a um proprietário do projeto"), então não foi possível criar um usuário novo. O teste usou a conta de psicólogo do Marcos, e o Abraão digitou a senha no emulador.
+    2. **Extensão do navegador:** A extensão Claude no Opera não respondia ("No group with id"). O Opera foi reaberto com `--remote-debugging-port=9222` e controlado via Playwright.
+    3. **Classes "sealed" do Firestore:** O analyzer avisa ao implementar `Query` e `DocumentReference` num fake. O aviso foi silenciado só no arquivo do fake, como faz o pacote `fake_cloud_firestore`.
+    4. **Observação fora do escopo:** O painel mostra 1 das 2 perguntas do servidor. Provavelmente o outro documento não tem `createdAt`, e a consulta ordenada por esse campo o deixa de fora. Ficou registrado para o grupo.
+
 ### Marcos Paulo
 
 *(A preencher pelo integrante)*
