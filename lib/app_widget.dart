@@ -3,12 +3,14 @@ import 'package:mente_leve/modules/onboarding/onboarding_view.dart';
 import 'package:mente_leve/modules/parents/auth/auth_view.dart';
 import 'package:mente_leve/modules/parents/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/auth/auth_view.dart';
+import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
 import 'package:mente_leve/modules/psychologist/home/home_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
+import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
 import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_modal_view.dart';
@@ -44,8 +46,15 @@ class AppWidget extends StatefulWidget {
     ),
     HomeController.diaryReflectionRoute: (context) =>
         const DiaryReflectionView(onMoodSaved: _offerSupport),
+    HomeController.faqRoute: (context) =>
+        StudentFaqView(availableRoutes: routes.keys.toSet()),
     '/parents/home': (context) => ParentsHomeView(),
-    '/psychologist/home': (context) => PsychologistHomeView(),
+    '/psychologist/home': (context) {
+      final session = context.watch<AuthNotifier>().session;
+      final user = session is InstitutionalSession ? session.user : null;
+      return PsychologistHomeView(user: user);
+    },
+    PsychologistFaqView.routeName: (context) => const PsychologistFaqView(),
   };
 
   /// Avalia o gatilho de apoio (RN11) depois que o humor foi salvo.

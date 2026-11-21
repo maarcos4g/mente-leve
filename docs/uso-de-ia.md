@@ -223,7 +223,48 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ---
 
-## Sprint 3 e 4
+
+## Sprint 3
+
+### Alexandre Pedro de Matos Ferreira
+
+* **Desenvolvimento do FAQ Empático Dinâmico (RF04 / SCRUM-33), Painel de Publicação do FAQ da Psicóloga (RF08 / SCRUM-36) e Auditoria WCAG AA / Testes (SCRUM-41 / SCRUM-44 — 18/11):**
+  * **O que foi feito:** Implementação da entidade `PerguntaFaq` (`lib/shared/models/pergunta_faq.dart`), dos repositórios `FirestoreFaqRepository` e `LocalFaqRepository` com cache offline em `SharedPreferences` (`lib/shared/faq/faq_repository.dart`), do card expansível compartilhado `FaqExpandableCard` (`lib/shared/widgets/faq/faq_expandable_card.dart`), da tela de Canais de Apoio & FAQ do estudante (`StudentFaqView` e `StudentFaqController` na rota `/faq`), do painel administrativo de CRUD de perguntas frequentes da psicóloga (`PsychologistFaqView` e `PsychologistFaqController` na rota `/psychologist/faq`) e da suíte de testes unitários, de widgets e de acessibilidade WCAG AA (`test/shared/faq/`, `test/modules/student/faq/`, `test/modules/psychologist/faq/` e `test/accessibility_wcag_test.dart`).
+  * **Ferramenta utilizada:** Antigravity (Gemini 4 Argon).
+  * **Prompt utilizado:**
+    > `/goal Perfeito, pegue as tarefas que estão atribuidas a mim, Alexandre, e comece a produção delas em uma nova branch.`
+  * **Como a IA ajudou:** Consultou a API do Jira para levantar os critérios de aceite das tarefas `SCRUM-33`, `SCRUM-36`, `SCRUM-41` e `SCRUM-44`, seguiu o modelo `PerguntaFaq` especificado em `docs/modelagem/04-mapeamento-dart-firestore.md` e o layout das telas `Canais de Apoio & FAQ` e `FAQ (Psicóloga)` em `docs/prototipos/prototipoAltaFidelidade.pdf`, implementou o cache offline com `SharedPreferences` e escreveu testes de contraste relativo WCAG 2.1 ($\ge 4,5:1$) e áreas de toque mínimas ($\ge 48\times 48\text{dp}$).
+  * **Dificuldades e ajustes manuais:**
+    1. **Rolagem automática ao editar pergunta no painel da psicóloga:** No teste de edição (`PsychologistFaqView`), ao tocar no botão de editar um card no final da lista, o botão de submissão `"Atualizar"` ficava fora da área visível do `SingleChildScrollView`. Foi adicionado um `ScrollController` que rola suavemente para o formulário no topo ao iniciar a edição de um item.
+    2. **Espaço em disco durante execução paralela de testes:** O comando `flutter test` padrão falhou inicialmente com `errno = 112` (espaço insuficiente no disco `C:`) devido ao acúmulo de artefatos temporários em `build/` e `%TEMP%\flutter_tools.*`. Foi feita a limpeza dos diretórios temporários de build e a execução controlada com `--concurrency=2`.
+
+* **Ajustes de Revisão do PR #18 — FAQ em Inglês no Firestore, Swipe-Left, Cores Figma e Perfil do Psicólogo (20/11):**
+  * **O que foi feito:** Aplicados os 6 ajustes solicitados na revisão do PR #18: remoção do nome mockado na `PsychologistHomeView` (passando a exibir o nome e a foto de perfil `photoUrl` carregados do documento do usuário no Firestore via `UserModel` + `AuthNotifier`), redimensionamento do card `"Editar Perguntas Frequentes (FAQ)"` na Home do psicólogo para as medidas exatas do Figma (`152×142`), restrição dos botões de editar e excluir em `PsychologistFaqView` para aparecerem apenas ao arrastar o card para a esquerda, correção das cores dos cards de `"Canais de Apoio"` e do FAQ expandido em `StudentFaqView`/`FaqExpandableCard` conforme os hexadecimais exatos extraídos de `docs/prototipos/prototipoAltaFidelidade.pdf`, e migração da modelagem e campos da coleção `faq` no Firestore para nomenclatura em inglês (`FaqModel`: `question`, `answer`, `createdAt`, `updatedAt`, `updatedBy`).
+  * **Ferramenta utilizada:** Antigravity (Gemini 4 Argon).
+  * **Prompt utilizado:**
+    > `Fluxo bem estruturado! Solicito pequenos ajustes: Na home do psicólogo, o nome ainda está mockado... Os botões de editar e excluir são mostrados APENAS quando o card da pergunta é arrastado para o lado esquerdo... As cores dos cards de "Canais de Apoio" estão diferentes do que foi proposto no figma... O card de "Editar perguntas frequentes" na home é um pouco menor no figma... Mostrar a foto do psicólogo na app bar... Atualizar os nomes dos termos/variáveis na tabela de FAQ no banco firestore para usar a nomenclatura em inglês.`
+  * **Como a IA ajudou:** Inspecionou diretamente os fluxos vetoriais do PDF do protótipo de alta fidelidade para extrair os hexadecimais e dimensões exatas do Figma (`#FFE2E2`/`#FB2C36`, `#DFF2FE`/`#00A6F4`, `#F4F4F5`/`#D4D4D8`, `152×142`), refatorou `PerguntaFaq` para `FaqModel` com chaves em inglês mantendo compatibilidade no repositório/cache e atualizou os testes de widgets, repositório e contraste WCAG AA.
+  * **Dificuldades e ajustes manuais:**
+    1. **Overflow no card compacto da Home do psicólogo:** Ao reduzir o card de ação para `152×142` (conforme o Figma), o teste de widget acusou `RenderFlex overflowed by 10.0 pixels on the bottom`; o espaçamento interno e o rótulo foram ajustados com `Flexible` mantendo a dimensão fiel ao protótipo.
+    2. **Erro de coeficiente na fórmula de luminância do teste WCAG:** O teste `test/accessibility_wcag_test.dart` continha `0.722 * b` em vez de `0.0722 * b` no cálculo de luminância relativa, distorcendo o contraste de tons azuis (`sky700`); o coeficiente foi corrigido para o padrão oficial WCAG 2.1.
+
+### Abraão Luiz Ribeiro da Cruz Dantas
+
+*(A preencher pelo integrante)*
+
+### Marcos Paulo
+
+*(A preencher pelo integrante)*
+
+### Mateus Henrique de Araújo Santos
+
+*(A preencher pelo integrante)*
+
+### Rayelen de Jesus Oliveira
+
+*(A preencher pelo integrante)*
+
+## Sprint 4
 
 ### Mateus Henrique de Araújo Santos
 
@@ -238,6 +279,22 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     1. **Branch em uso por outro worktree:** `docs/SCRUM-43/pubspec-justificativas` já estava em checkout em outro worktree, então o commit foi feito em uma branch temporária e enviado ao remoto com o nome pedido. A branch local de mesmo nome precisa de um `git pull`.
     2. **Quebra de linha:** o arquivo usa CRLF, e o trecho inserido teve de ser normalizado para não misturar finais de linha.
     3. **Validação:** a análise se baseia em leitura de imports e de diffs. Os testes e o app não foram executados, e a lista de dependências precisa ser revisada pelo grupo.
+
+### Abraão Luiz Ribeiro da Cruz Dantas
+
+*(A preencher pelo integrante)*
+
+### Marcos Paulo
+
+*(A preencher pelo integrante)*
+
+### Rayelen de Jesus Oliveira
+
+*(A preencher pelo integrante)*
+
+### Alexandre Pedro de Matos Ferreira
+
+*(A preencher pelo integrante)*
 
 ## Justificativa de Bibliotecas e Dependências
 
