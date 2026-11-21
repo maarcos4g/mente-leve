@@ -171,3 +171,9 @@
 
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
 - Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
+
+## [20/11/2026]
+
+### Adicionado
+
+- Especificação técnica dos mappers Documento (Firestore e aparelho) ↔ entidade de domínio: `toMap()`, `fromMap()`, conversores do Firestore, serialização JSON e tratamento de nulos (`docs/modelagem/05-especificacao-mappers.md`).
