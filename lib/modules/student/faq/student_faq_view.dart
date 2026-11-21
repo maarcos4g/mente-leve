@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/modules/student/home/home_controller.dart';
+import 'package:mente_leve/modules/student/official_channels/official_channels_view.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/widgets/cvv_button/cvv_button.dart';
 import 'package:mente_leve/shared/widgets/faq/faq_expandable_card.dart';
@@ -26,6 +27,8 @@ class StudentFaqView extends StatefulWidget {
   static const Color cvvIconColor = Color(0xFFFB2C36);
   static const Color reportCardBackground = Color(0xFFDFF2FE);
   static const Color reportIconColor = AppColors.sky500;
+  static const Color officialChannelsCardBackground = Color(0xFFFEF3C7);
+  static const Color officialChannelsIconColor = Color(0xFFB45309);
 
   @override
   State<StudentFaqView> createState() => _StudentFaqViewState();
@@ -69,6 +72,16 @@ class _StudentFaqViewState extends State<StudentFaqView> {
         const SnackBar(content: Text('Não foi possível abrir o discador.')),
       );
     }
+  }
+
+  void _handleOfficialChannelsTap() {
+    if (widget.availableRoutes.contains(OfficialChannelsView.routeName)) {
+      Navigator.of(context).pushNamed(OfficialChannelsView.routeName);
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Disponível em breve.')));
   }
 
   void _handleReportTap() {
@@ -115,6 +128,18 @@ class _StudentFaqViewState extends State<StudentFaqView> {
                       title: 'CVV - Centro de Valorização da vida',
                       subtitle: 'Ligue 188. Atendimento 24h, anônimo e seguro.',
                       onTap: _handleCvvTap,
+                    ),
+                    const SizedBox(height: 12),
+                    _SupportChannelCard(
+                      cardKey: const Key('support_channel_official'),
+                      backgroundColor:
+                          StudentFaqView.officialChannelsCardBackground,
+                      iconColor: StudentFaqView.officialChannelsIconColor,
+                      icon: LucideIcons.landmark,
+                      title: 'Canais oficiais de denúncia',
+                      subtitle:
+                          'Disque 100, Conselho Tutelar e Ouvidoria Escolar.',
+                      onTap: _handleOfficialChannelsTap,
                     ),
                     const SizedBox(height: 12),
                     _SupportChannelCard(
