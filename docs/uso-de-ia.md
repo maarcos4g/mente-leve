@@ -221,7 +221,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
 
----
+
 
 ## Sprint 3
 
@@ -271,8 +271,12 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Mateus Henrique de Araújo Santos
 
-*(A preencher pelo integrante)*
+* **Mascote de acolhimento interativo com escala de humor (RF03 / SCRUM-30) (20/11):**
+  * **O que foi feito:** Os cinco cérebros do "Resumo da semana" da Home do aluno passaram a formar uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz), calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado. Arquivos: `mood_scale.dart` (regra), `HomeController` (`loadScale` e `weekMoods`), `StudentHomeView` (recarrega ao abrir e ao voltar de outra tela), `MoodVisual`/`MoodBubble` (rótulo de semântica) e o botão central da roleta (rótulo "Registrar humor"). Testes novos em `test/modules/student/home/mood_scale_test.dart`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5), em modo de planejamento antes de implementar.
+  * **Prompts utilizados:**
+    > Mascote de Acolhimento Interativo e Resposta de Empatia (RF03). Mascote dinâmico que interpreta o humor registrado e exibe um feedback visual na tela home. Agora com a roleta de sentimentos, os mascotes dinâmicos da tela Home de alunos devem levar em consideração os últimos moods selecionados pelo usuário e sumarizar em uma escala de 1 a 5 a partir dos moods de uma semana, atualizando toda vez que um novo mood for selecionado. Analise a tela principal e a roleta de sentimentos e vamos planejar como agir e executar (essas alterações apenas são pertinentes às telas de roleta de mood e home do perfil de ALUNO).
 
-### Rayelen de Jesus Oliveira
-
-*(A preencher pelo integrante)*
+    > Lembre que o mascote já está na tela principal, é o pequeno Cérebro em cima dos widgets de rotas, é nele que vamos implementar a escala. Perceba que há 5 deles com uma borda esverdeada, a borda será usada para apontar o grau da escala que está no momento.
+  * **Como a IA ajudou:** Mapeou a Home, a roleta e o repositório do diário com um agente de exploração; propôs o plano (regra de pontuação, janela de 7 dias, recarga da Home ao voltar da roleta); implementou a regra e o destaque reaproveitando o brilho e a opacidade do `MoodBubble`; escreveu 8 testes unitários e rodou `flutter analyze` e `flutter test` (150 testes passando).
+  * **Dificuldades e ajustes manuais:** O primeiro plano criava um widget de mascote novo; a correção do usuário (o mascote são os 5 cérebros do resumo) refez o plano. O mapeamento humor→nota foi definido com o usuário: raiva 1, triste 2, confuso 3, neutro 4, feliz 5, e "cansado" (sem cérebro próprio) conta como 2. O destaque é o brilho verde do próprio cérebro, não um contorno desenhado. A conferência visual no aparelho foi feita pelo integrante. Uma suíte e2e com Playwright foi iniciada, mas cancelada por decisão do grupo e mantida só localmente, sem entrar no repositório.
