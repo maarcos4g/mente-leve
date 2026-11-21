@@ -145,9 +145,28 @@
 
 ## [18/11/2026]
 
+### Adicionado
+
+- FAQ Empático Dinâmico e Canais de Apoio para o estudante (`StudentFaqView`, `StudentFaqController`, `FaqExpandableCard`, `FaqModel` e `FirestoreFaqRepository` / `LocalFaqRepository` — RF04 / SCRUM-33), com busca por palavras-chave, cards expansíveis fiéis ao protótipo do Figma, cache em `SharedPreferences` e fallback offline.
+- Painel Institucional de Publicação e Edição do FAQ para a psicóloga (`PsychologistFaqView` e `PsychologistFaqController` — RF08 / SCRUM-36), com CRUD completo (criar, listar, editar e excluir perguntas e orientações no Firestore/cache local) e atalho no `PsychologistHomeView`.
+- Suíte de testes automatizados de unidade, widgets e auditoria de acessibilidade WCAG AA (contraste $\ge 4,5:1$ e áreas mínimas de toque $\ge 48\times 48\text{dp}$ — SCRUM-41 / SCRUM-44) em `test/shared/faq/`, `test/modules/student/faq/`, `test/modules/psychologist/faq/` e `test/accessibility_wcag_test.dart`.
+
+### Modificado
+
+- Rotas `/faq` (`HomeController.faqRoute`) e `/psychologist/faq` (`PsychologistFaqView.routeName`) registradas em `AppWidget.routes` e repositório do FAQ injetado no bootstrap (`main.dart`).
+
 ### Corrigido
 
 - Roleta do Diário de Sentimentos (`DiaryFeelingsView` — RF01 / SCRUM-28): restaurado o emoji central (`EmotionFacePainter`) fiel ao protótipo do Figma e corrigida a área de captura de gestos (`Positioned` e física do `SingleChildScrollView`) para permitir girar a roleta livremente em qualquer posição do dedo (topo, laterais ou centro).
+
+## [20/11/2026]
+
+### Modificado
+
+- Home do psicólogo (`PsychologistHomeView` e `UserModel`): removido nome mockado, passando a exibir o nome e a foto (`photoUrl`) vindos do documento `users/{uid}` no Firestore na AppBar, e redimensionado o card "Editar Perguntas Frequentes (FAQ)" para o formato compacto do Figma (`152x142`, fundo `#F4F4F5`).
+- Painel de FAQ da psicóloga (`PsychologistFaqView`): botões de editar e excluir agora são revelados exclusivamente ao arrastar o card da pergunta para o lado esquerdo.
+- Tela de Canais de Apoio & FAQ do aluno (`StudentFaqView`): cores dos cards de Canais de Apoio ajustadas aos valores exatos do Figma (`#FFE2E2` com ícone `#FB2C36` para CVV e `#DFF2FE` com ícone `#00A6F4` para Denúncias anônimas).
+- Coleção `faq` no Firestore (`FaqModel` e `FirestoreFaqRepository`): campos padronizados em inglês (`question`, `answer`, `createdAt`, `updatedAt`, `updatedBy`), seguindo a mesma convenção da coleção `users`.
 ### Modificado
 
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.

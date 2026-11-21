@@ -8,12 +8,14 @@ class UserModel {
   final String name;
   final Role role;
   final DateTime createdAt;
+  final String? photoUrl;
 
   UserModel({
     required this.uid,
     required this.name,
     required this.role,
     required this.createdAt,
+    this.photoUrl,
   });
 
   bool get isInstitutional => role != Role.student;
@@ -35,6 +37,7 @@ class UserModel {
       name: data['name'] as String,
       role: role,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      photoUrl: (data['photoUrl'] as String?) ?? (data['photo'] as String?),
     );
   }
 }

@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/repositories/prefs_diary_repository.dart';
+import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/prefs_mood_record_repository.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/support_trigger_state_store.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_trigger_controller.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/auth/auth_repository.dart';
 import 'package:mente_leve/shared/auth/profile_store.dart';
+import 'package:mente_leve/shared/faq/faq_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
