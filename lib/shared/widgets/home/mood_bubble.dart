@@ -12,11 +12,16 @@ class MoodVisual {
     required this.asset,
     required this.glowColor,
     this.opacity = 0.3,
+    this.label,
   });
 
   final String asset;
   final Color glowColor;
   final double opacity;
+
+  /// Descrição para leitores de tela (e testes e2e); sem ela a bolha é só
+  /// decorativa.
+  final String? label;
 }
 
 /// Bolha de 40x40. O SVG tem 60x60 porque inclui a área do brilho.
@@ -31,7 +36,7 @@ class MoodBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final art = SvgPicture.asset(mood.asset, width: _size, height: _size);
-    return SizedBox(
+    final bubble = SizedBox(
       width: 40,
       height: 40,
       child: OverflowBox(
@@ -65,6 +70,14 @@ class MoodBubble extends StatelessWidget {
           ),
         ),
       ),
+    );
+    final label = mood.label;
+    if (label == null) return bubble;
+    return Semantics(
+      container: true,
+      label: label,
+      excludeSemantics: true,
+      child: bubble,
     );
   }
 }
