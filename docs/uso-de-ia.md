@@ -221,7 +221,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
 
----
+
 
 ## Sprint 3
 
@@ -255,10 +255,17 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 *(A preencher pelo integrante)*
 
+
 ### Mateus Henrique de Araújo Santos
 
-*(A preencher pelo integrante)*
-
-### Rayelen de Jesus Oliveira
-
-*(A preencher pelo integrante)*
+* **Perfil do usuário e logout com confirmação — SCRUM-51 (20/11):**
+  * **O que foi feito:** Criação do painel de perfil (`ProfileSheet`, `lib/shared/widgets/profile/profile_sheet.dart`), aberto pelo avatar da Home do aluno e por um ícone de perfil nas Homes de psicóloga e responsável. O aluno vê só codinome e avatar; os perfis institucionais veem nome, e-mail e papel. O botão "Sair da conta" abre um diálogo de confirmação, chama `AuthNotifier.signOut()` e leva para `/onboarding` limpando a pilha. O `InstitutionalSession` passou a carregar o e-mail (lido do Firebase Auth), o `AuthRepository` ganhou o parâmetro `clearStudentData` (ligado no `main.dart`) e o diálogo do aluno avisa a perda dos registros do diário. Teste de widget em `test/profile_sheet_test.dart`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompts utilizados:**
+    > 1. "Adicionar seção de perfil do usuário e opção para deslogar da conta (Logout) [...] Tendo em mente o escopo do projeto, vamos tratar de criar um plano para a execução dessa task, lembrando das restrições de cada perfil de usuário" (com os três critérios de aceite da task).
+    > 2. "Aprovo com as suas sugestões inclusas, Os commits não devem ser efetuados ainda porque usaremos um branch que ainda não foi criada"
+    > 3. "Gostaria de mudar o modal de logout do aluno, indicando o aviso de perda dos registros em caso de logout que seria o caso de um logout correto?"
+  * **Como a IA ajudou:** Leu o fluxo de autenticação e propôs o plano respeitando as restrições de cada perfil (o aluno é anônimo e não expõe dados pessoais; os institucionais mostram nome e e-mail). Sugeriu guardar o e-mail na sessão, em vez de criar um campo no Firestore, e escreveu o painel, o diálogo e os testes. Ao revisar o pedido do aviso, percebeu que o logout só apagava o perfil e deixava o diário e o estado do gatilho de apoio no aparelho, o que tornaria o aviso falso e deixaria o diário visível para o próximo aluno. Ajustou o logout para apagar também esses dados e conferiu que as três chaves locais (`profile`, `diario` e `support_trigger_state`) são limpas. `flutter analyze` sem problemas e 146 testes passando.
+  * **Dificuldades e ajustes manuais:**
+    1. **Arquivo do Firebase:** o worktree isolado não tinha o `android/app/google-services.json` (ignorado pelo git), e o build falhou até o arquivo ser copiado do checkout principal.
+    2. **Pendências:** não há teste automatizado de `AuthRepository.signOut`, porque ele depende do `FirebaseAuth`; o fluxo foi conferido manualmente no emulador. As Homes de psicóloga e responsável ainda são placeholders no momento de execução da task.

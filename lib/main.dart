@@ -41,16 +41,18 @@ class _MyAppState extends State<MyApp> {
       records: PrefsMoodRecordRepository(storage),
       stateStore: SupportTriggerStateStore(storage),
     );
-    DiaryController.defaultRepository = PrefsDiaryRepository(storage);
-    StudentFaqController.defaultRepository = FirestoreFaqRepository(
-      FirebaseFirestore.instance,
-      storage: storage,
-    );
+    final diary = PrefsDiaryRepository(storage);
+    final triggerState = SupportTriggerStateStore(storage);
+    DiaryController.defaultRepository = diary;
     return AuthNotifier(
       AuthRepository(
         FirebaseAuth.instance,
         FirebaseFirestore.instance,
         ProfileStore(storage),
+        clearStudentData: () async {
+          await diary.clear();
+          await triggerState.clear();
+        },
       ),
     );
   }
