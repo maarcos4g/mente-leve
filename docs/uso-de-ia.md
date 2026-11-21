@@ -249,7 +249,28 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Abraão Luiz Ribeiro da Cruz Dantas
 
-*(A preencher pelo integrante)*
+* **Persistência Offline e Cache Local do diário — EPIC-03 (21/11):**
+  * **O que foi feito:**
+    * O diário já gravava no `SharedPreferences`, mas o aluno só entrava no app com internet, porque o login anônimo do Firebase falha sem rede.
+    * Agora, sem rede, o aluno entra com uma sessão local (id `local-<hex>` guardado pelo `ProfileStore`), e o login anônimo é refeito quando a internet volta.
+    * O `PrefsDiaryRepository` passou a ignorar registros inválidos e a guardar um backup (`diario_corrompido`) se a chave inteira estiver ilegível.
+    * O onboarding passou a rolar em telas baixas.
+    * Foram criados os testes do `AuthRepository` com Firebase simulado, da leitura tolerante do diário e do onboarding.
+    * O app foi homologado num emulador Android 7.0 (API 24) em modo avião.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompts utilizados:**
+    > 1. A descrição da task colada ("Configuração de Persistência Offline e Cache Local (Hive / SharedPreferences)", EPIC-03, 5 SP; DoD: escrita e leitura do diário de sentimentos sem conectividade; homologação: analyzer limpo, emulador Android API 24+ e commits em Conventional Commits). "Seguiremos agora com essa task."
+    > 2. Nas perguntas da IA: incluir a entrada do aluno sem internet e "baixe um API 24, mas no disco D:".
+  * **Como a IA ajudou:**
+    * Viu que a persistência do diário já existia e que a lacuna real era o login anônimo, que bloqueava o uso offline.
+    * Testou o `AuthRepository` sem pacote novo, com fakes do Firebase.
+    * Criou o emulador API 24 no disco D: e conduziu o teste completo em modo avião. O roteiro foi: dados apagados, entrar, registrar o humor, escrever no diário, fechar e reabrir offline, depois ligar a rede. A IA conferiu os dados gravados direto no `SharedPreferences` do aparelho.
+    * Fez um commit por assunto, em Conventional Commits.
+  * **Dificuldades e ajustes manuais:**
+    1. **Onboarding no Android 7:** No emulador API 24 (731 dp de altura), o botão "Entrar como aluno" ficava fora da área de toque, porque o layout tem alturas fixas que somam cerca de 890 dp. O conteúdo passou a rolar, e um teste prova que antes falhava e agora passa.
+    2. **Fonte de teste:** Nos testes de widget, a fonte padrão do Flutter desenha cada letra como um quadrado e estoura o botão na horizontal. Isso não acontece no aparelho, então o teste do onboarding descarta esse aviso e confere só a navegação.
+    3. **Ping no Android 7:** O emulador API 24 não responde a `ping` mesmo com internet. A volta da rede foi confirmada pela fonte Poppins carregando e pela sessão do Firebase criada.
+    4. **Commit pelo PowerShell:** Aspas dentro da mensagem quebravam o `git commit -m` no PowerShell 5.1; a mensagem passou a ir por arquivo (`git commit -F`).
 
 ### Marcos Paulo
 
