@@ -188,12 +188,15 @@
 
 - Entrada do aluno sem internet (RNF02, EPIC-03): se o login anônimo do Firebase falhar por falta de rede, o aluno entra com uma sessão local (`ProfileStore.localUid()`, id `local-<hex>` guardado no aparelho) e usa o diário normalmente. O login anônimo é refeito sozinho na próxima abertura do app com internet.
 - Testes do `AuthRepository` com Firebase simulado (`test/shared/auth/auth_repository_test.dart`) e do onboarding em telas baixas (`test/modules/onboarding/onboarding_view_test.dart`).
+- Bateria de testes de falha de conexão (EPIC-09) em `test/offline/`: FAQ, painel da psicóloga, diário e botão CVV sem internet e na reconexão, com um Firestore simulado em que a escrita fica pendente até a rede voltar.
+- Roteiro e resultados da bateria offline no emulador Android 7.0 (`docs/testes/bateria-offline.md`).
 
 ### Corrigido
 
 - Diário Pessoal (`PrefsDiaryRepository`): um registro em formato inesperado não derruba mais a leitura do diário inteiro. Se a chave `diario` estiver ilegível, o conteúdo é copiado para `diario_corrompido` e o diário volta a funcionar.
 - Sair da conta numa sessão offline agora também apaga o perfil local, para o app não entrar de novo sozinho.
 - Onboarding (`OnboardingView`): o conteúdo passa a rolar. No Android 7 (731 dp de altura) ele estourava 194 px e o botão "Entrar como aluno" ficava fora da área de toque.
+- Painel de FAQ da psicóloga (`FirestoreFaqRepository`): salvar ou excluir uma pergunta sem internet deixava a tela em "Salvando…" até a rede voltar. Agora a escrita é esperada por no máximo 2 s e segue na fila offline do Firestore, que a envia na reconexão. A leitura da lista ganhou limite de 6 s, e de 1 s logo depois de uma escrita sem resposta.
 - Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
 
 ### Adicionado
