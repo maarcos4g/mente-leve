@@ -181,6 +181,19 @@
 - Coleção `faq` no Firestore (`FaqModel` e `FirestoreFaqRepository`): campos padronizados em inglês (`question`, `answer`, `createdAt`, `updatedAt`, `updatedBy`), seguindo a mesma convenção da coleção `users`.0
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
 - Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
+
+## [21/11/2026]
+
+### Adicionado
+
+- Entrada do aluno sem internet (RNF02, EPIC-03): se o login anônimo do Firebase falhar por falta de rede, o aluno entra com uma sessão local (`ProfileStore.localUid()`, id `local-<hex>` guardado no aparelho) e usa o diário normalmente. O login anônimo é refeito sozinho na próxima abertura do app com internet.
+- Testes do `AuthRepository` com Firebase simulado (`test/shared/auth/auth_repository_test.dart`) e do onboarding em telas baixas (`test/modules/onboarding/onboarding_view_test.dart`).
+
+### Corrigido
+
+- Diário Pessoal (`PrefsDiaryRepository`): um registro em formato inesperado não derruba mais a leitura do diário inteiro. Se a chave `diario` estiver ilegível, o conteúdo é copiado para `diario_corrompido` e o diário volta a funcionar.
+- Sair da conta numa sessão offline agora também apaga o perfil local, para o app não entrar de novo sozinho.
+- Onboarding (`OnboardingView`): o conteúdo passa a rolar. No Android 7 (731 dp de altura) ele estourava 194 px e o botão "Entrar como aluno" ficava fora da área de toque.
 - Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
 
 ### Adicionado
