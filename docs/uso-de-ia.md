@@ -339,7 +339,18 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Rayelen de Jesus Oliveira
 
-*(A preencher pelo integrante)*
+* **Guia e Lista de Canais Oficiais de Denúncia e Apoio (RF06 / SCRUM-34) (19/11 a 21/11):**
+  * **O que foi feito:** A IA consultou o ticket no Jira e verificou o que já existia no código. Depois, rebaseou a branch sobre a `main` já com o FAQ da SCRUM-33/36 e implementou a tela "Canais Oficiais" (`OfficialChannelsView`, rota `/faq/canais-oficiais`). A tela traz Disque 100, Conselho Tutelar e Ouvidoria Escolar, cada um com o que é, quando procurar e como entrar em contato. A IA também criou o card de acesso na tela "Canais de Apoio & FAQ", a função de discagem compartilhada (`dialPhoneNumber`), os testes e os textos da documentação (`CHANGELOG.md`, `README.md` e este registro).
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5), com o conector do Jira (Atlassian MCP).
+  * **Prompts utilizados:**
+    * > verfique agora no jira o SCRUM-34 DO JIRA
+    * > faça uma branch nova a partir da main e verifique se tudo que tem na scrum-34 tem no projeto.
+    * > verfique a main, faça rebase e verifique se tem tudo que precisa para finalizar esse ticket
+  * **Como a IA ajudou:** Comparou o critério de aceite do ticket com o código e com uma branch ainda não mergeada. Assim, apontou que a tela de canais nascia na SCRUM-33/36 e que o rebase deveria esperar o merge dela. Reaproveitou o padrão visual da `StudentFaqView` e colocou a rota nova sob `/faq`, para o botão "Ajuda (CVV)" continuar visível. Escreveu 13 testes novos, que cobrem a lista de canais, a discagem do 100, a falha do discador. Ao final, `flutter analyze` não acusou nenhum problema e os 174 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Números sem alcance nacional:** só o Disque 100 tem número nacional. O Conselho Tutelar é municipal e a ouvidoria depende de cada escola, então os dois aparecem como guia de como encontrá-los, sem botão de ligar. Se a escola informar os números locais, eles podem ser incluídos.
+    2. **Arquivos regenerados pelo Flutter:** rodar `flutter analyze` e `flutter test` no Windows reescreveu os registros de plugins de `linux/`, `macos/` e `windows/`, mudando só a quebra de linha (LF para CRLF). Essas alterações foram descartadas para não entrarem no commit.
+    3. **Rótulo de acessibilidade:** o primeiro teste do leitor de tela falhou porque o botão estava envolto em outro `Semantics`. O rótulo passou para o `semanticsLabel` do texto do botão.
 
 ### Alexandre Pedro de Matos Ferreira
 
