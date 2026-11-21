@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mente_leve/modules/student/diary/repositories/diary_repository.dart';
 import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/themes/app_text_styles.dart';
@@ -15,10 +16,14 @@ class StudentHomeView extends StatefulWidget {
     this.nickname,
     this.avatar,
     this.availableRoutes = const {},
+    this.repository,
   });
 
   final String? nickname;
   final String? avatar;
+
+  /// Repositório do diário; por padrão `DiaryController.defaultRepository`.
+  final DiaryRepository? repository;
 
   /// Rotas já registradas no app (ver `AppWidget.routes`).
   final Set<String> availableRoutes;
@@ -31,10 +36,30 @@ class _StudentHomeViewState extends State<StudentHomeView> {
   late final HomeController controller = HomeController(
     nickname: widget.nickname,
     avatar: widget.avatar,
+    repository: widget.repository,
   );
 
-  void _open(String route) =>
-      controller.open(context, route, availableRoutes: widget.availableRoutes);
+  @override
+  void initState() {
+    super.initState();
+    _refreshScale();
+  }
+
+  /// Recalcula a escala da semana (ao abrir a Home e ao voltar de outra tela,
+  /// como a roleta, que acabou de salvar um novo humor).
+  Future<void> _refreshScale() async {
+    await controller.loadScale();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _open(String route) async {
+    await controller.open(
+      context,
+      route,
+      availableRoutes: widget.availableRoutes,
+    );
+    if (mounted) await _refreshScale();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -249,7 +249,21 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Abraão Luiz Ribeiro da Cruz Dantas
 
-*(A preencher pelo integrante)*
+* **Proteção por PIN no Diário Pessoal (19/11 a 21/11):**
+  * **O que foi feito:** O cadeado (`LucideIcons.lockKeyhole`) que já existia na App Bar do `DiaryReflectionView` passou a abrir um fluxo para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, a tela pede o PIN antes de mostrar os registros. Foram criados o `DiaryLockRepository` / `PrefsDiaryLockRepository` (PIN salvo no `SharedPreferences`, chave `diario_pin`, como hash SHA-256 com salt) e o `DiaryLockController`, além dos testes do repositório, do controller e da tela. Depois, a branch recebeu o merge da `main` (FAQ da Sprint 3) e o app foi testado no emulador Android.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompts utilizados:**
+    > 1. "Implementar proteção por senha no Diário Pessoal (Ícone de Cadeado)", com a descrição e os critérios de aceite da task colados: abrir o fluxo de cadastrar, alterar ou remover a senha/PIN ao tocar no cadeado; persistir a senha localmente com `SharedPreferences`, 100% offline; pedir a senha ao abrir o Diário Pessoal quando a proteção estiver ativa. "Faça o que foi pedido nessa task."
+    > 2. "Verifique o projeto e abra o android para eu testar a última task que fiz."
+    > 3. "Por que não consigo entrar no app?"
+    > 4. "Pronto, suba no GitHub. Não esqueça de alterar no docs as minhas atualizações."
+  * **Como a IA ajudou:** Propôs guardar só o hash do PIN com salt, em vez do PIN digitado, e tratar PIN corrompido como "sem PIN" para o aluno não ficar trancado fora do diário. Escreveu os testes (162 passando na branch e 181 depois do merge com a `main`, `flutter analyze` sem avisos), abriu o app no emulador, descobriu por que o login do aluno falhava e resolveu o conflito do merge com a `main` em `main.dart`.
+  * **Dificuldades e ajustes manuais:**
+    1. **Pasta do projeto vazia no OneDrive:** A cópia em `OneDrive\Documentos\...\mente-leve` só tinha pastas vazias e um `.git` quebrado. O trabalho foi feito na cópia de `Documents\...\mente-leve`.
+    2. **SDK do Flutter corrompido pelo OneDrive:** O build Android falhava com `Cannot snapshot ... AgpCommonExtensionWrapper.kt: not a regular file`. O SDK veio de uma cópia do OneDrive e tinha cerca de 16,8 mil arquivos que ainda eram atalhos de nuvem. Os 58 arquivos de `packages/flutter_tools/gradle` foram regravados como arquivos normais, com o mesmo conteúdo. O ideal é reinstalar o Flutter fora do OneDrive.
+    3. **Arquivo duplicado no Android:** Uma cópia solta, `GeneratedPluginRegistrant - Copy.java`, foi tirada do projeto para não quebrar o build.
+    4. **Emulador sem internet:** O emulador travou no primeiro boot e, depois de reiniciado, ficou sem rede. O "Entrar como aluno" mostrava "Sem conexão com a internet", porque o login anônimo do Firebase precisa de rede. Foi resolvido desligando e ligando de novo o Wi-Fi e os dados do emulador.
+    5. **Sem recuperação de PIN:** A task não pedia recuperação. Quem esquecer o PIN não consegue mais abrir o diário, o que precisa ser alinhado com o grupo.
 
 ### Marcos Paulo
 
@@ -269,3 +283,13 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Dificuldades e ajustes manuais:**
     1. **Arquivo do Firebase:** o worktree isolado não tinha o `android/app/google-services.json` (ignorado pelo git), e o build falhou até o arquivo ser copiado do checkout principal.
     2. **Pendências:** não há teste automatizado de `AuthRepository.signOut`, porque ele depende do `FirebaseAuth`; o fluxo foi conferido manualmente no emulador. As Homes de psicóloga e responsável ainda são placeholders no momento de execução da task.
+
+* **Mascote de acolhimento interativo com escala de humor (RF03 / SCRUM-30) (20/11):**
+  * **O que foi feito:** Os cinco cérebros do "Resumo da semana" da Home do aluno passaram a formar uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz), calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado. Arquivos: `mood_scale.dart` (regra), `HomeController` (`loadScale` e `weekMoods`), `StudentHomeView` (recarrega ao abrir e ao voltar de outra tela), `MoodVisual`/`MoodBubble` (rótulo de semântica) e o botão central da roleta (rótulo "Registrar humor"). Testes novos em `test/modules/student/home/mood_scale_test.dart`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5), em modo de planejamento antes de implementar.
+  * **Prompts utilizados:**
+    > Mascote de Acolhimento Interativo e Resposta de Empatia (RF03). Mascote dinâmico que interpreta o humor registrado e exibe um feedback visual na tela home. Agora com a roleta de sentimentos, os mascotes dinâmicos da tela Home de alunos devem levar em consideração os últimos moods selecionados pelo usuário e sumarizar em uma escala de 1 a 5 a partir dos moods de uma semana, atualizando toda vez que um novo mood for selecionado. Analise a tela principal e a roleta de sentimentos e vamos planejar como agir e executar (essas alterações apenas são pertinentes às telas de roleta de mood e home do perfil de ALUNO).
+
+    > Lembre que o mascote já está na tela principal, é o pequeno Cérebro em cima dos widgets de rotas, é nele que vamos implementar a escala. Perceba que há 5 deles com uma borda esverdeada, a borda será usada para apontar o grau da escala que está no momento.
+  * **Como a IA ajudou:** Mapeou a Home, a roleta e o repositório do diário com um agente de exploração; propôs o plano (regra de pontuação, janela de 7 dias, recarga da Home ao voltar da roleta); implementou a regra e o destaque reaproveitando o brilho e a opacidade do `MoodBubble`; escreveu 8 testes unitários e rodou `flutter analyze` e `flutter test` (150 testes passando).
+  * **Dificuldades e ajustes manuais:** O primeiro plano criava um widget de mascote novo; a correção do usuário (o mascote são os 5 cérebros do resumo) refez o plano. O mapeamento humor→nota foi definido com o usuário: raiva 1, triste 2, confuso 3, neutro 4, feliz 5, e "cansado" (sem cérebro próprio) conta como 2. O destaque é o brilho verde do próprio cérebro, não um contorno desenhado. A conferência visual no aparelho foi feita pelo integrante. Uma suíte e2e com Playwright foi iniciada, mas cancelada por decisão do grupo e mantida só localmente, sem entrar no repositório.

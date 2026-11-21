@@ -159,6 +159,18 @@
 
 - Roleta do Diário de Sentimentos (`DiaryFeelingsView` — RF01 / SCRUM-28): restaurado o emoji central (`EmotionFacePainter`) fiel ao protótipo do Figma e corrigida a área de captura de gestos (`Positioned` e física do `SingleChildScrollView`) para permitir girar a roleta livremente em qualquer posição do dedo (topo, laterais ou centro).
 
+## [19/11/2026]
+
+### Adicionado
+
+- Proteção por PIN no Diário Pessoal (`DiaryReflectionView`): o cadeado da App Bar abre opções para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, o ícone fica azul e a tela pede o PIN antes de mostrar os registros ("PIN incorreto" limpa o campo). Alterar e remover exigem o PIN atual.
+- `DiaryLockRepository` / `PrefsDiaryLockRepository` e `DiaryLockController`: o PIN fica só no aparelho (`SharedPreferences`, chave `diario_pin`), guardado como hash SHA-256 com salt, nunca em texto puro, e funciona offline. PIN salvo corrompido é tratado como "sem PIN", para o aluno não ficar trancado fora do diário.
+- Testes do repositório, do controller e da tela do PIN (`test/modules/student/diary/`).
+
+### Modificado
+
+- Pacote `crypto` adicionado ao `pubspec.yaml` (já vinha como dependência indireta) e repositório do PIN injetado no bootstrap (`main.dart`).
+
 ## [20/11/2026]
 
 ### Modificado
@@ -183,3 +195,8 @@
 
 - Logout do aluno (SCRUM-51, `AuthRepository.signOut`): além do perfil, apaga o diário e o estado do gatilho de apoio guardados no aparelho, por meio do novo parâmetro opcional `clearStudentData` (ligado no `main.dart`). Logout de psicóloga e responsável não apaga nada local.
 - Homes de psicóloga e responsável (SCRUM-51): o botão "Sair" sem confirmação foi trocado por um ícone de perfil na barra superior, que abre o mesmo painel de perfil.
+- Mascote de acolhimento (RF03 / SCRUM-30): o resumo da semana da Home do aluno passa a ser uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz) calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado.
+
+### Modificado
+
+- Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
