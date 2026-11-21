@@ -222,6 +222,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
 
 
+---
 
 ## Sprint 3
 
@@ -271,6 +272,13 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Mateus Henrique de Araújo Santos
 
+* **Especificação dos mappers Documento ↔ Entidade de domínio (20/11):**
+  * **O que foi feito:** Criação de `docs/modelagem/05-especificacao-mappers.md`, com a especificação técnica de `toMap()`, `fromMap()`, conversores do Firestore (`fromFirestore`/`toFirestore`), serialização JSON e tratamento de nulos, por entidade (`UserModel`, `LocalUserModel`, `RegistroDiario`, `SupportTriggerState`, `MoodRecord` e as entidades planejadas `Denuncia`, `PerguntaFaq`, `Guia` e `CanalApoio`). Também foi acrescentada a entrada no `CHANGELOG.md`. Nenhum código foi alterado.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > New task, Leia a documentação do repositório e com base nisso vamos estruturar a documentação de Objeto - Documento entre Firebase Mappers <-> Domain entites. Critério de Aceite / Definition of Done (DoD): Especificação técnica de métodos toMap(), fromMap(), serialização JSON e tratamento de nulos.
+  * **Como a IA ajudou:** Leu os documentos de modelagem (`02`, `03`, `04`) e o código dos models e repositórios para descrever o contrato real de cada mapper: tipos convertidos, política de nulos (campo omitido no Firestore, lista nula virando vazia, fallback de `DateTime.now()` em timestamp pendente) e comportamento em caso de dado corrompido em cada leitura. Também propôs os critérios de teste dos mappers e apontou divergências entre código e documentação.
+  * **Dificuldades e ajustes manuais:** O código usa nomes em inglês (`users`, `role`, `name`, `createdAt`, `parent`/`psychologist`) e a modelagem usa português (`usuarios`, `papel`, `nome`, `criadoEm`, `responsavel`/`psicologa`); a decisão de qual vale ficou como ponto em aberto no documento. As entidades de FAQ, guias, canais e denúncias ainda não existem no código, então foram especificadas a partir do `04`. O documento foi validado pelo integrante antes do commit.
 * **Mascote de acolhimento interativo com escala de humor (RF03 / SCRUM-30) (20/11):**
   * **O que foi feito:** Os cinco cérebros do "Resumo da semana" da Home do aluno passaram a formar uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz), calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado. Arquivos: `mood_scale.dart` (regra), `HomeController` (`loadScale` e `weekMoods`), `StudentHomeView` (recarrega ao abrir e ao voltar de outra tela), `MoodVisual`/`MoodBubble` (rótulo de semântica) e o botão central da roleta (rótulo "Registrar humor"). Testes novos em `test/modules/student/home/mood_scale_test.dart`.
   * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5), em modo de planejamento antes de implementar.
