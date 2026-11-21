@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/themes/app_text_styles.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:mente_leve/shared/utils/phone_dialer.dart';
 
 /// Pílula "Ajuda (CVV)" que disca 188 pelo discador nativo.
 ///
@@ -11,20 +11,15 @@ import 'package:url_launcher/url_launcher.dart';
 class CvvButton extends StatelessWidget {
   const CvvButton({super.key, this.onPressed});
 
-  static final Uri cvvUri = Uri(scheme: 'tel', path: '188');
+  static const String cvvNumber = '188';
+  static final Uri cvvUri = phoneUri(cvvNumber);
 
   /// Permite trocar a ação (testes). Por padrão abre o discador.
   final VoidCallback? onPressed;
 
   /// Abre o discador nativo com o 188. Devolve `false` quando o aparelho não
   /// tem discador (ou ele não abre), sem lançar erro.
-  static Future<bool> dial() async {
-    try {
-      return await launchUrl(cvvUri);
-    } catch (_) {
-      return false;
-    }
-  }
+  static Future<bool> dial() => dialPhoneNumber(cvvNumber);
 
   Future<void> _dial(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
+import 'package:mente_leve/modules/student/official_channels/official_channels_view.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
 
 void main() {
@@ -142,6 +143,43 @@ void main() {
 
       await tester.tap(find.byKey(const Key('support_channel_report')));
       await tester.pump();
+      expect(find.text('Disponível em breve.'), findsOneWidget);
+    });
+
+    testWidgets('card de canais oficiais abre a tela da SCRUM-34', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          routes: {
+            OfficialChannelsView.routeName:
+                (_) => OfficialChannelsView(onDial: (_) async => true),
+          },
+          home: StudentFaqView(
+            controller: controller,
+            availableRoutes: const {OfficialChannelsView.routeName},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Canais oficiais de denúncia'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('support_channel_official')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OfficialChannelsView), findsOneWidget);
+    });
+
+    testWidgets('card de canais oficiais avisa quando a rota não existe', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('support_channel_official')));
+      await tester.pump();
+
       expect(find.text('Disponível em breve.'), findsOneWidget);
     });
 

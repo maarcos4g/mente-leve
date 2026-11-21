@@ -13,6 +13,7 @@ import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
 import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
+import 'package:mente_leve/modules/student/official_channels/official_channels_view.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_modal_view.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
@@ -48,6 +49,7 @@ class AppWidget extends StatefulWidget {
         const DiaryReflectionView(onMoodSaved: _offerSupport),
     HomeController.faqRoute: (context) =>
         StudentFaqView(availableRoutes: routes.keys.toSet()),
+    OfficialChannelsView.routeName: (context) => const OfficialChannelsView(),
     '/parents/home': (context) => ParentsHomeView(),
     '/psychologist/home': (context) {
       final session = context.watch<AuthNotifier>().session;
