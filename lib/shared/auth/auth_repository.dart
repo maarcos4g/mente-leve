@@ -20,9 +20,7 @@ class AuthRepository {
 
     if (user == null) {
       if (profile == null) return null;
-
-      final anonymous = (await _auth.signInAnonymously()).user!;
-      return StudentSessionModel(uid: anonymous.uid, user: profile);
+      return StudentSessionModel(uid: await _studentUid(), user: profile);
     }
 
     if (user.isAnonymous) {
@@ -46,13 +44,25 @@ class AuthRepository {
       (error.code == 'unavailable' || error.code == 'deadline-exceeded');
 
   Future<StudentSessionModel> signInAsStudent(LocalUserModel profile) async {
-    var user = _auth.currentUser;
+    final user = _auth.currentUser;
+    final uid = user != null && user.isAnonymous
+        ? user.uid
+        : await _studentUid();
 
-    if (user == null || !user.isAnonymous) {
-      user = (await _auth.signInAnonymously()).user!;
-    }
     await _store.save(profile);
-    return StudentSessionModel(uid: user.uid, user: profile);
+    return StudentSessionModel(uid: uid, user: profile);
+  }
+
+  /// Login anônimo do aluno. Sem internet, devolve o id local do aparelho
+  /// para o aluno usar o diário offline (RNF02); o login anônimo é tentado
+  /// de novo na próxima vez que o app abrir.
+  Future<String> _studentUid() async {
+    try {
+      return (await _auth.signInAnonymously()).user!.uid;
+    } on FirebaseAuthException catch (error) {
+      if (error.code != 'network-request-failed') rethrow;
+      return _store.localUid();
+    }
   }
 
   Future<InstitutionalSession> signInAsInstitutional({
@@ -76,7 +86,9 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    if (_auth.currentUser?.isAnonymous ?? false) await _store.clear();
+    // Sem usuário no Firebase, a sessão era a do aluno offline: o perfil
+    // também precisa sair, senão o app entra de novo sozinho.
+    if (_auth.currentUser?.isAnonymous ?? true) await _store.clear();
     await _auth.signOut();
   }
 

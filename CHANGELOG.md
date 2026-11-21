@@ -159,6 +159,18 @@
 
 - Roleta do Diário de Sentimentos (`DiaryFeelingsView` — RF01 / SCRUM-28): restaurado o emoji central (`EmotionFacePainter`) fiel ao protótipo do Figma e corrigida a área de captura de gestos (`Positioned` e física do `SingleChildScrollView`) para permitir girar a roleta livremente em qualquer posição do dedo (topo, laterais ou centro).
 
+## [19/11/2026]
+
+### Adicionado
+
+- Proteção por PIN no Diário Pessoal (`DiaryReflectionView`): o cadeado da App Bar abre opções para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, o ícone fica azul e a tela pede o PIN antes de mostrar os registros ("PIN incorreto" limpa o campo). Alterar e remover exigem o PIN atual.
+- `DiaryLockRepository` / `PrefsDiaryLockRepository` e `DiaryLockController`: o PIN fica só no aparelho (`SharedPreferences`, chave `diario_pin`), guardado como hash SHA-256 com salt, nunca em texto puro, e funciona offline. PIN salvo corrompido é tratado como "sem PIN", para o aluno não ficar trancado fora do diário.
+- Testes do repositório, do controller e da tela do PIN (`test/modules/student/diary/`).
+
+### Modificado
+
+- Pacote `crypto` adicionado ao `pubspec.yaml` (já vinha como dependência indireta) e repositório do PIN injetado no bootstrap (`main.dart`).
+
 ## [20/11/2026]
 
 ### Modificado
@@ -166,9 +178,7 @@
 - Home do psicólogo (`PsychologistHomeView` e `UserModel`): removido nome mockado, passando a exibir o nome e a foto (`photoUrl`) vindos do documento `users/{uid}` no Firestore na AppBar, e redimensionado o card "Editar Perguntas Frequentes (FAQ)" para o formato compacto do Figma (`152x142`, fundo `#F4F4F5`).
 - Painel de FAQ da psicóloga (`PsychologistFaqView`): botões de editar e excluir agora são revelados exclusivamente ao arrastar o card da pergunta para o lado esquerdo.
 - Tela de Canais de Apoio & FAQ do aluno (`StudentFaqView`): cores dos cards de Canais de Apoio ajustadas aos valores exatos do Figma (`#FFE2E2` com ícone `#FB2C36` para CVV e `#DFF2FE` com ícone `#00A6F4` para Denúncias anônimas).
-- Coleção `faq` no Firestore (`FaqModel` e `FirestoreFaqRepository`): campos padronizados em inglês (`question`, `answer`, `createdAt`, `updatedAt`, `updatedBy`), seguindo a mesma convenção da coleção `users`.
-### Modificado
-
+- Coleção `faq` no Firestore (`FaqModel` e `FirestoreFaqRepository`): campos padronizados em inglês (`question`, `answer`, `createdAt`, `updatedAt`, `updatedBy`), seguindo a mesma convenção da coleção `users`.0
 - Gatilho de apoio emergencial (SCRUM-31, UC20, RN11) ligado ao diário: o modal é avaliado depois de salvar o humor na roda de sentimentos (`DiaryFeelingsView`) e no Diário Pessoal (`DiaryReflectionView`), sem passos a mais no registro.
 - Nomes das imagens de humor alinhados ao `Humor.brenoAsset` na regra do gatilho (`confused` corresponde a `ansioso` e `tired` a `cansado`).
 
@@ -179,8 +189,19 @@
 - Guia e lista de Canais Oficiais de Denúncia e Apoio para o aluno (`OfficialChannelsView`, rota `/faq/canais-oficiais` — RF06 / SCRUM-34): Disque 100, Conselho Tutelar e Ouvidoria Escolar, com o que cada canal faz, quando procurar e como entrar em contato. Só o Disque 100 tem botão "Ligar 100", porque os outros dois não têm número nacional. A lista é fixa no app e funciona offline. A tela traz também um aviso para ligar 190 em perigo imediato.
 - Função de discagem compartilhada `dialPhoneNumber` (`lib/shared/utils/phone_dialer.dart`), que abre o discador nativo com qualquer número.
 - Testes da nova tela, da discagem e da auditoria WCAG AA das cores novas (`test/modules/student/official_channels/`, `test/shared/utils/` e `test/accessibility_wcag_test.dart`).
+- Entrada do aluno sem internet (RNF02, EPIC-03): se o login anônimo do Firebase falhar por falta de rede, o aluno entra com uma sessão local (`ProfileStore.localUid()`, id `local-<hex>` guardado no aparelho) e usa o diário normalmente. O login anônimo é refeito sozinho na próxima abertura do app com internet.
+- Testes do `AuthRepository` com Firebase simulado (`test/shared/auth/auth_repository_test.dart`) e do onboarding em telas baixas (`test/modules/onboarding/onboarding_view_test.dart`).
+- Especificação técnica dos mappers Documento (Firestore e aparelho) ↔ entidade de domínio: `toMap()`, `fromMap()`, conversores do Firestore, serialização JSON e tratamento de nulos (`docs/modelagem/05-especificacao-mappers.md`).
+- Mascote de acolhimento (RF03 / SCRUM-30): o resumo da semana da Home do aluno passa a ser uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz) calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado.
 
 ### Modificado
 
 - Tela "Canais de Apoio & FAQ" (`StudentFaqView`): novo card "Canais oficiais de denúncia" (`#FEF3C7` com ícone `#B45309`) entre o CVV e as denúncias anônimas.
 - Botão "Ajuda (CVV)" (`CvvButton`): passa a usar a discagem compartilhada, sem mudar o comportamento (continua ligando 188).
+
+### Corrigido
+
+- Diário Pessoal (`PrefsDiaryRepository`): um registro em formato inesperado não derruba mais a leitura do diário inteiro. Se a chave `diario` estiver ilegível, o conteúdo é copiado para `diario_corrompido` e o diário volta a funcionar.
+- Sair da conta numa sessão offline agora também apaga o perfil local, para o app não entrar de novo sozinho.
+- Onboarding (`OnboardingView`): o conteúdo passa a rolar. No Android 7 (731 dp de altura) ele estourava 194 px e o botão "Entrar como aluno" ficava fora da área de toque.
+- Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
