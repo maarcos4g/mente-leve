@@ -221,7 +221,9 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 - Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
 - Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
 
+
 ---
+
 
 ## Sprint 3
 
@@ -271,6 +273,21 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     2. **Fonte de teste:** Nos testes de widget, a fonte padrão do Flutter desenha cada letra como um quadrado e estoura o botão na horizontal. Isso não acontece no aparelho, então o teste do onboarding descarta esse aviso e confere só a navegação.
     3. **Ping no Android 7:** O emulador API 24 não responde a `ping` mesmo com internet. A volta da rede foi confirmada pela fonte Poppins carregando e pela sessão do Firebase criada.
     4. **Commit pelo PowerShell:** Aspas dentro da mensagem quebravam o `git commit -m` no PowerShell 5.1; a mensagem passou a ir por arquivo (`git commit -F`).
+* **Proteção por PIN no Diário Pessoal (19/11 a 21/11):**
+  * **O que foi feito:** O cadeado (`LucideIcons.lockKeyhole`) que já existia na App Bar do `DiaryReflectionView` passou a abrir um fluxo para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, a tela pede o PIN antes de mostrar os registros. Foram criados o `DiaryLockRepository` / `PrefsDiaryLockRepository` (PIN salvo no `SharedPreferences`, chave `diario_pin`, como hash SHA-256 com salt) e o `DiaryLockController`, além dos testes do repositório, do controller e da tela. Depois, a branch recebeu o merge da `main` (FAQ da Sprint 3) e o app foi testado no emulador Android.
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5).
+  * **Prompts utilizados:**
+    > 1. "Implementar proteção por senha no Diário Pessoal (Ícone de Cadeado)", com a descrição e os critérios de aceite da task colados: abrir o fluxo de cadastrar, alterar ou remover a senha/PIN ao tocar no cadeado; persistir a senha localmente com `SharedPreferences`, 100% offline; pedir a senha ao abrir o Diário Pessoal quando a proteção estiver ativa. "Faça o que foi pedido nessa task."
+    > 2. "Verifique o projeto e abra o android para eu testar a última task que fiz."
+    > 3. "Por que não consigo entrar no app?"
+    > 4. "Pronto, suba no GitHub. Não esqueça de alterar no docs as minhas atualizações."
+  * **Como a IA ajudou:** Propôs guardar só o hash do PIN com salt, em vez do PIN digitado, e tratar PIN corrompido como "sem PIN" para o aluno não ficar trancado fora do diário. Escreveu os testes (162 passando na branch e 181 depois do merge com a `main`, `flutter analyze` sem avisos), abriu o app no emulador, descobriu por que o login do aluno falhava e resolveu o conflito do merge com a `main` em `main.dart`.
+  * **Dificuldades e ajustes manuais:**
+    1. **Pasta do projeto vazia no OneDrive:** A cópia em `OneDrive\Documentos\...\mente-leve` só tinha pastas vazias e um `.git` quebrado. O trabalho foi feito na cópia de `Documents\...\mente-leve`.
+    2. **SDK do Flutter corrompido pelo OneDrive:** O build Android falhava com `Cannot snapshot ... AgpCommonExtensionWrapper.kt: not a regular file`. O SDK veio de uma cópia do OneDrive e tinha cerca de 16,8 mil arquivos que ainda eram atalhos de nuvem. Os 58 arquivos de `packages/flutter_tools/gradle` foram regravados como arquivos normais, com o mesmo conteúdo. O ideal é reinstalar o Flutter fora do OneDrive.
+    3. **Arquivo duplicado no Android:** Uma cópia solta, `GeneratedPluginRegistrant - Copy.java`, foi tirada do projeto para não quebrar o build.
+    4. **Emulador sem internet:** O emulador travou no primeiro boot e, depois de reiniciado, ficou sem rede. O "Entrar como aluno" mostrava "Sem conexão com a internet", porque o login anônimo do Firebase precisa de rede. Foi resolvido desligando e ligando de novo o Wi-Fi e os dados do emulador.
+    5. **Sem recuperação de PIN:** A task não pedia recuperação. Quem esquecer o PIN não consegue mais abrir o diário, o que precisa ser alinhado com o grupo.
 
 * **Bateria de Testes de Falha de Conexão (modo avião / offline) — EPIC-09 (21/11):**
   * **O que foi feito:**
@@ -301,8 +318,93 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Mateus Henrique de Araújo Santos
 
+* **Especificação dos mappers Documento ↔ Entidade de domínio (20/11):**
+  * **O que foi feito:** Criação de `docs/modelagem/05-especificacao-mappers.md`, com a especificação técnica de `toMap()`, `fromMap()`, conversores do Firestore (`fromFirestore`/`toFirestore`), serialização JSON e tratamento de nulos, por entidade (`UserModel`, `LocalUserModel`, `RegistroDiario`, `SupportTriggerState`, `MoodRecord` e as entidades planejadas `Denuncia`, `PerguntaFaq`, `Guia` e `CanalApoio`). Também foi acrescentada a entrada no `CHANGELOG.md`. Nenhum código foi alterado.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > New task, Leia a documentação do repositório e com base nisso vamos estruturar a documentação de Objeto - Documento entre Firebase Mappers <-> Domain entites. Critério de Aceite / Definition of Done (DoD): Especificação técnica de métodos toMap(), fromMap(), serialização JSON e tratamento de nulos.
+  * **Como a IA ajudou:** Leu os documentos de modelagem (`02`, `03`, `04`) e o código dos models e repositórios para descrever o contrato real de cada mapper: tipos convertidos, política de nulos (campo omitido no Firestore, lista nula virando vazia, fallback de `DateTime.now()` em timestamp pendente) e comportamento em caso de dado corrompido em cada leitura. Também propôs os critérios de teste dos mappers e apontou divergências entre código e documentação.
+  * **Dificuldades e ajustes manuais:** O código usa nomes em inglês (`users`, `role`, `name`, `createdAt`, `parent`/`psychologist`) e a modelagem usa português (`usuarios`, `papel`, `nome`, `criadoEm`, `responsavel`/`psicologa`); a decisão de qual vale ficou como ponto em aberto no documento. As entidades de FAQ, guias, canais e denúncias ainda não existem no código, então foram especificadas a partir do `04`. O documento foi validado pelo integrante antes do commit.
+* **Mascote de acolhimento interativo com escala de humor (RF03 / SCRUM-30) (20/11):**
+  * **O que foi feito:** Os cinco cérebros do "Resumo da semana" da Home do aluno passaram a formar uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz), calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado. Arquivos: `mood_scale.dart` (regra), `HomeController` (`loadScale` e `weekMoods`), `StudentHomeView` (recarrega ao abrir e ao voltar de outra tela), `MoodVisual`/`MoodBubble` (rótulo de semântica) e o botão central da roleta (rótulo "Registrar humor"). Testes novos em `test/modules/student/home/mood_scale_test.dart`.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5), em modo de planejamento antes de implementar.
+  * **Prompts utilizados:**
+    > Mascote de Acolhimento Interativo e Resposta de Empatia (RF03). Mascote dinâmico que interpreta o humor registrado e exibe um feedback visual na tela home. Agora com a roleta de sentimentos, os mascotes dinâmicos da tela Home de alunos devem levar em consideração os últimos moods selecionados pelo usuário e sumarizar em uma escala de 1 a 5 a partir dos moods de uma semana, atualizando toda vez que um novo mood for selecionado. Analise a tela principal e a roleta de sentimentos e vamos planejar como agir e executar (essas alterações apenas são pertinentes às telas de roleta de mood e home do perfil de ALUNO).
+    > Lembre que o mascote já está na tela principal, é o pequeno Cérebro em cima dos widgets de rotas, é nele que vamos implementar a escala. Perceba que há 5 deles com uma borda esverdeada, a borda será usada para apontar o grau da escala que está no momento.
+  * **Como a IA ajudou:** Mapeou a Home, a roleta e o repositório do diário com um agente de exploração; propôs o plano (regra de pontuação, janela de 7 dias, recarga da Home ao voltar da roleta); implementou a regra e o destaque reaproveitando o brilho e a opacidade do `MoodBubble`; escreveu 8 testes unitários e rodou `flutter analyze` e `flutter test` (150 testes passando).
+  * **Dificuldades e ajustes manuais:** O primeiro plano criava um widget de mascote novo; a correção do usuário (o mascote são os 5 cérebros do resumo) refez o plano. O mapeamento humor→nota foi definido com o usuário: raiva 1, triste 2, confuso 3, neutro 4, feliz 5, e "cansado" (sem cérebro próprio) conta como 2. O destaque é o brilho verde do próprio cérebro, não um contorno desenhado. A conferência visual no aparelho foi feita pelo integrante. Uma suíte e2e com Playwright foi iniciada, mas cancelada por decisão do grupo e mantida só localmente, sem entrar no repositório.
+
+*(A preencher pelo integrante)*
+
+## Sprint 4
+
+### Mateus Henrique de Araújo Santos
+
+* **Justificativa técnica das bibliotecas e dependências do `pubspec.yaml` (SCRUM-43 — 20/11):**
+  * **O que foi feito:** Criação da seção "Justificativa de Bibliotecas e Dependências" neste documento, com uma tabela que descreve a finalidade de cada pacote declarado no `pubspec.yaml` (dependências, `dev_dependencies`, assets e configuração) e os arquivos de `lib/` em que cada um é usado. Também foram registradas observações para o grupo: `cupertino_icons` sem uso direto, Firebase configurado só para Android e a divergência entre Hive (modelagem) e `shared_preferences` (código).
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompts utilizados:**
+    * > Justificativa Técnica das Bibliotecas e Dependências Adotadas. Documentação em `docs/uso-de-ia.md` explicando o motivo de cada pacote no `pubspec.yaml`. Crie uma nova subcategoria `## Justificativa de Bibliotecas e Dependências`. Analise todos os pacotes utilizados no projeto, veja o pubspec de todos os commits mais recentes de cada usuário do repositório e descreva a análise de forma objetiva e profissional. As alterações serão commitadas em `docs/SCRUM-43/pubspec-justificativas`.
+    * > Você vai registrar essa atividade no uso de IA de Mateus na seção `## Sprint 3 e 4` após a seção `## Sprint 2`.
+  * **Como a IA ajudou:** Levantou o autor e o último commit de cada integrante e comparou o `pubspec.yaml` de cada um com o da `main`, concluindo que o conjunto de pacotes é idêntico. Depois cruzou cada pacote com os imports em `lib/` para indicar onde é usado e identificou o `cupertino_icons` como o único sem uso direto. Redigiu a seção e fez o commit e o push.
+  * **Dificuldades e ajustes manuais:**
+    1. **Branch em uso por outro worktree:** `docs/SCRUM-43/pubspec-justificativas` já estava em checkout em outro worktree, então o commit foi feito em uma branch temporária e enviado ao remoto com o nome pedido. A branch local de mesmo nome precisa de um `git pull`.
+    2. **Quebra de linha:** o arquivo usa CRLF, e o trecho inserido teve de ser normalizado para não misturar finais de linha.
+    3. **Validação:** a análise se baseia em leitura de imports e de diffs. Os testes e o app não foram executados, e a lista de dependências precisa ser revisada pelo grupo.
+
+### Abraão Luiz Ribeiro da Cruz Dantas
+
+*(A preencher pelo integrante)*
+
+### Marcos Paulo
+
 *(A preencher pelo integrante)*
 
 ### Rayelen de Jesus Oliveira
 
 *(A preencher pelo integrante)*
+
+### Alexandre Pedro de Matos Ferreira
+
+*(A preencher pelo integrante)*
+
+## Justificativa de Bibliotecas e Dependências
+
+Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.yaml` do MenteLeve.
+
+**Escopo da análise:** foi lido o `pubspec.yaml` do commit mais recente de cada integrante (Abraão, Alexandre, Marcos, Mateus e Rayelen) e o da `main`. Em todos eles o conjunto de pacotes é idêntico. Só a branch antiga `scrum-25-27/integrate-firebase` diverge, por ser anterior à inclusão do `url_launcher` e da pasta `assets/home/`. O uso de cada pacote foi conferido nos imports de `lib/`.
+
+### Dependências de execução (`dependencies`)
+
+| Pacote | Versão | Finalidade | Onde é usado |
+|---|---|---|---|
+| `flutter` (SDK) | — | Framework de UI multiplataforma, base do app. | Todo o projeto |
+| `firebase_core` | ^5.1.0 | Inicializa o Firebase, pré-requisito dos demais pacotes `firebase_*`. | `main.dart` |
+| `firebase_auth` | ^7.0.1 | Autenticação: login anônimo do aluno (`signInAnonymously`) e login por e-mail/senha da psicóloga e do responsável. Dispensa backend próprio de credenciais. | `auth_repository.dart`, `auth_notifier.dart` |
+| `cloud_firestore` | ^7.1.0 | Banco NoSQL gerenciado, usado para o papel institucional do usuário e para conteúdos institucionais (FAQ, guias, canais, denúncias). Dados do aluno não são gravados nele. | `auth_repository.dart`, `user_model.dart` |
+| `provider` | ^6.1.5+1 | Gerência de estado e injeção de dependência (`ChangeNotifierProvider`). Solução oficialmente recomendada, simples e suficiente para o porte do projeto. | `app_widget.dart`, `main.dart` e views de todos os perfis |
+| `shared_preferences` | ^2.5.6 | Armazenamento local chave-valor. Mantém no aparelho o perfil do aluno (codinome e avatar), o diário e o estado do gatilho de apoio, preservando o anonimato. | `profile_store.dart`, `prefs_diary_repository.dart`, `prefs_mood_record_repository.dart`, `support_trigger_state_store.dart` |
+| `google_fonts` | ^8.2.1 | Carrega a família Poppins definida no padrão visual, sem empacotar arquivos de fonte manualmente. | `app_text_styles.dart` e telas do diário |
+| `flutter_svg` | ^2.3.2 | Renderiza SVG. Avatares, mascote e ilustrações da home são vetoriais, o que mantém nitidez em qualquer densidade de tela e reduz o tamanho dos assets. | Seleção de avatar, diário, modal de apoio e widgets da home |
+| `lucide_icons_flutter` | ^4.0.2 | Conjunto de ícones Lucide, de traço leve e consistente, que complementa os ícones nativos do Material. | Onboarding, telas de autenticação, diário, home e botão CVV |
+| `url_launcher` | ^6.3.2 | Abre aplicativos externos a partir do app. Faz a ligação para o CVV (188), um canal de apoio emergencial. | `cvv_button.dart` |
+| `cupertino_icons` | ^1.0.8 | Fonte de ícones estilo iOS, incluída pelo template do Flutter. **Não há uso direto em `lib/` hoje**; pode ser removida sem impacto se a equipe preferir enxugar o `pubspec.yaml`. | — |
+
+### Dependências de desenvolvimento (`dev_dependencies`)
+
+| Pacote | Versão | Finalidade |
+|---|---|---|
+| `flutter_test` (SDK) | — | Framework de testes de unidade e de widget. Ainda não há pasta `test/` no repositório. |
+| `flutter_lints` | ^6.0.0 | Conjunto de regras de lint recomendado, ativado em `analysis_options.yaml`. Padroniza o código e é executado por `flutter analyze`. |
+
+### Assets e configuração
+
+- **`assets/images/`, `assets/avatars/`, `assets/home/`:** imagens gerais, avatares SVG do aluno e ilustrações da home.
+- **`uses-material-design: true`:** inclui a fonte de ícones do Material.
+- **`publish_to: 'none'`:** impede publicação acidental no pub.dev, pois o app é privado.
+- **`sdk: ^3.12.0`:** versão mínima do Dart exigida pelo projeto.
+
+### Observações
+
+1. **Firebase só está configurado para Android** (`google-services.json`, fora do controle de versão). Os pacotes `firebase_*` estão declarados para todas as plataformas, mas só inicializam no Android.
+2. **Sem pacote de roteamento ou de injeção de dependência extra:** a navegação usa rotas nomeadas do próprio `MaterialApp`, e a injeção é manual no bootstrap. É uma escolha deliberada para manter poucas dependências.
