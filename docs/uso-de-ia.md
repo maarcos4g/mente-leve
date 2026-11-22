@@ -475,7 +475,14 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Alexandre Pedro de Matos Ferreira
 
-*(A preencher pelo integrante)*
+* **Revisão Técnica do PR #28 e Consolidação da Documentação Final (21/11):**
+  * **O que foi feito:** Revisão técnica do PR #28 (verificação de mergeability com `git merge-tree`, checagem de conflitos com outros PRs abertos, análise da distribuição de sprints em `docs/uso-de-ia.md` e conferência de referências no repositório) e atualização das responsabilidades de Alexandre no `README.md`, no `CHANGELOG.md` e na seção da Sprint 4 de `docs/uso-de-ia.md`.
+  * **Ferramenta utilizada:** Antigravity (Gemini 4 Argon).
+  * **Prompts utilizados:**
+    * > `analise esse pull request e me retorne um feedback profissional sobre bugs ou conflitos. https://github.com/maarcos4g/mente-leve/pull/28`
+    * > `agora preciso q atualize o readme com minhas responsabilidades. também atualize o changelog e o uso de IA. primeiro faça um pull da main`
+  * **Como a IA ajudou:** Inspecionou o diff completo do PR #28 via Git e API do GitHub, simulou o merge sem alterar o workspace (`git merge-tree`) contra a `main` e contra o PR #20, apontou ajustes de consistência documental (separação das entradas por sprint, referência a `firebase.rules` sem arquivo versionado e padronização de cabeçalhos no `CHANGELOG.md`) e cruzou o `git log` da `main` para atualizar o `README.md` com base apenas nas entregas versionadas.
+  * **Dificuldades e ajustes manuais:** A CLI `gh` não estava disponível no ambiente local, sendo substituída por consultas diretas à API REST do GitHub via PowerShell combinadas com `git fetch origin pull/<N>/head` para leitura do diff e simulação de merge.
 
 ## Justificativa de Bibliotecas e Dependências
 
