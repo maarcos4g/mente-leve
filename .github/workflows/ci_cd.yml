@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/update-in-app-github-releases
     # Tag vX.Y.Z publica também uma GitHub Release com o APK, que o app
     # consulta para a atualização in-app.
     tags:
