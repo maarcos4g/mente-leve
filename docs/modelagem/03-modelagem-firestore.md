@@ -139,7 +139,7 @@ A mensagem não guarda nome nem nenhum dado do aluno. O app lê a subcoleção c
 
 | Consulta | Índice |
 |---|---|
-| Painel de triagem (RF09): todos os relatos, do mais recente para o mais antigo | `createdAt` decrescente (índice simples, automático). Os filtros de gravidade e de status são aplicados no app |
+| Painel de triagem (RF09): todos os relatos, do mais recente para o mais antigo | `createdAt` decrescente (índice simples, automático). A ordem de triagem (gravidade e antiguidade) é aplicada no app |
 | Triagem da psicóloga: relatos pendentes do mais antigo para o mais novo | `status` crescente, `createdAt` crescente |
 | Chat do aluno: mensagens da conversa em ordem de envio | `createdAt` crescente (índice simples, automático) |
 
@@ -240,14 +240,14 @@ service cloud.firestore {
 
 A descrição do relato tem limite de 2000 caracteres.
 
-O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentUid`. Na regra de `update`, a psicóloga pode mudar `status` (inclusive para `inMediation`) e `severity`, e o aluno só pode devolver o relato para `pending` ao escrever de novo. A regra de `create` das mensagens aceita `psychologist` para a resposta da psicóloga (RF10). O repositório não versiona o arquivo `firestore.rules`, então as regras precisam ser publicadas no console do Firebase.
+O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentUid`. Na regra de `update`, a psicóloga pode mudar `status` e `severity` (o app só grava `status`, ao responder) e o aluno só pode devolver o relato para `pending` ao escrever de novo. Nenhuma tela do app grava `inMediation` ou `severity`: são valores que a equipe pode definir pelo console. A regra de `create` das mensagens aceita `psychologist` para a resposta da psicóloga (RF10). O repositório não versiona o arquivo `firestore.rules`, então as regras precisam ser publicadas no console do Firebase.
 
 ## Comportamento sem internet
 
 - Leituras do FAQ, dos canais e dos guias usam o cache do Firestore depois da primeira carga.
 - A mensagem escrita sem internet entra na fila do Firestore e é enviada quando a conexão volta. Enquanto isso, o balão mostra "Enviando…".
 - Com internet, o chat funciona em tempo real: a resposta da psicóloga aparece na tela do aluno assim que é gravada, sem recarregar, e a mensagem do aluno aparece na tela da psicóloga do mesmo jeito. O painel de triagem também acompanha `reports` em tempo real.
-- A resposta da psicóloga grava a mensagem (`senderRole: psychologist`) e, no mesmo lote, muda o `status` do relato para `answered` se ele estava `pending`. Mudar o status ou a gravidade grava só `status` ou `severity`, o que a regra de `update` da psicóloga já permite.
+- A resposta da psicóloga grava a mensagem (`senderRole: psychologist`) e, no mesmo lote, muda o `status` do relato para `answered` se ele estava `pending`.
 - Sem internet e sem cache, o aluno não vê respostas novas, que chegam quando a conexão volta.
 - O aluno que entrou só com a sessão local (sem login anônimo no Firebase) não consegue enviar; o chat avisa para conectar à internet.
 

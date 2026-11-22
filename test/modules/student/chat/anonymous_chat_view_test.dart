@@ -38,6 +38,41 @@ void main() {
       expect(find.byKey(const Key('chat_type_other')), findsOneWidget);
       expect(find.text('Digite sua mensagem'), findsOneWidget);
       expect(find.byKey(const Key('chat_unavailable_banner')), findsNothing);
+      // Nenhum assunto vem pré-selecionado: o aluno precisa escolher.
+      for (final type in ReportType.values) {
+        final chip = tester.widget<ChoiceChip>(
+          find.byKey(Key('chat_type_${type.name}')),
+        );
+        expect(chip.selected, isFalse, reason: type.name);
+      }
+    });
+
+    testWidgets('sem escolher o assunto, não envia e avisa o aluno', (
+      tester,
+    ) async {
+      final scripted = ScriptedChatRepository();
+      await tester.pumpWidget(app(scripted));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('chat_message_input')),
+        'Quero contar uma coisa',
+      );
+      await tester.tap(find.byKey(const Key('chat_send_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Escolha o assunto'), findsWidgets);
+      expect(scripted.sent, isEmpty);
+      final field = tester.widget<TextField>(
+        find.byKey(const Key('chat_message_input')),
+      );
+      expect(field.controller!.text, 'Quero contar uma coisa');
+
+      await tester.tap(find.byKey(const Key('chat_type_bullying')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('chat_send_button')));
+      await tester.pumpAndSettle();
+      expect(scripted.sent.single.type, ReportType.bullying);
     });
 
     testWidgets('envia a mensagem, limpa o campo e some com a apresentação', (
@@ -46,6 +81,8 @@ void main() {
       await tester.pumpWidget(app(repository));
       await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(const Key('chat_type_bullying')));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('chat_message_input')),
         'Gostaria de conversar sobre o que aconteceu',
@@ -71,6 +108,8 @@ void main() {
       await tester.pumpWidget(app(repository));
       await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(const Key('chat_type_bullying')));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('chat_message_input')),
         'Posso conversar com a psicóloga?',
@@ -184,6 +223,8 @@ void main() {
       await tester.pumpWidget(app(scripted));
       await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(const Key('chat_type_bullying')));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('chat_message_input')),
         'Minha mensagem',

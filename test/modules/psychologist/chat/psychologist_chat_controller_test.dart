@@ -43,15 +43,6 @@ class ScriptedPsychologistChatRepository
     replies.add(text);
   }
 
-  @override
-  Future<void> setStatus(String reportId, ReportStatus status) async {
-    if (writeError != null) throw writeError!;
-  }
-
-  @override
-  Future<void> setSeverity(String reportId, ReportSeverity severity) async {
-    if (writeError != null) throw writeError!;
-  }
 }
 
 void main() {
@@ -100,11 +91,19 @@ void main() {
     });
 
     test('responder um relato em mediação mantém a mediação', () async {
-      await controller.setStatus(ReportStatus.inMediation);
-      await controller.send('Vamos conversar com a turma');
+      final inMediation = PsychologistChatController(
+        reportId: 'r1',
+        repository: InMemoryPsychologistChatRepository(
+          buildReport(status: ReportStatus.inMediation),
+        ),
+      )..start();
       await pumpEventQueue();
 
-      expect(controller.report?.status, ReportStatus.inMediation);
+      await inMediation.send('Vamos conversar com a turma');
+      await pumpEventQueue();
+
+      expect(inMediation.report?.status, ReportStatus.inMediation);
+      inMediation.dispose();
     });
 
     test('mensagem nova do aluno chega em tempo real e reabre o relato', () async {
@@ -118,15 +117,6 @@ void main() {
       expect(controller.messages.last.isFromStudent, isTrue);
       expect(controller.messages.last.text, contains('continuou hoje'));
       expect(controller.report?.status, ReportStatus.pending);
-    });
-
-    test('muda o status e a gravidade do relato', () async {
-      expect(await controller.setStatus(ReportStatus.inMediation), isTrue);
-      expect(await controller.setSeverity(ReportSeverity.high), isTrue);
-      await pumpEventQueue();
-
-      expect(controller.report?.status, ReportStatus.inMediation);
-      expect(controller.report?.severity, ReportSeverity.high);
     });
 
     test('mensagem vazia não é enviada e acima de 2000 caracteres é recusada', () async {
@@ -189,8 +179,6 @@ void main() {
       expect(await c.send('oi'), isFalse);
       expect(c.errorMessage, contains('Tente novamente'));
       expect(c.isSending, isFalse);
-      expect(await c.setStatus(ReportStatus.answered), isFalse);
-      expect(c.errorMessage, contains('status'));
       c.clearError();
       expect(c.errorMessage, isNull);
       c.dispose();

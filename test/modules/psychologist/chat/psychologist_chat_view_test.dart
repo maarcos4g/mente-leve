@@ -57,14 +57,16 @@ void main() {
       expect(find.text('Hoje'), findsOneWidget);
       expect(find.text('09:05'), findsOneWidget);
       expect(find.text('Digite sua mensagem'), findsOneWidget);
+      // A tela é só o chat: sem seletores de status, gravidade ou filtros.
+      expect(find.byKey(const Key('psychologist_chat_manage')), findsNothing);
+      expect(find.byType(ChoiceChip), findsNothing);
     });
 
-    testWidgets('responde ao aluno: balão à direita e status vira Respondida', (
+    testWidgets('responde ao aluno e o balão da psicóloga fica à direita', (
       tester,
     ) async {
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
-      expect(find.text('Pendente'), findsOneWidget);
 
       await tester.enterText(
         find.byKey(const Key('chat_message_input')),
@@ -77,7 +79,6 @@ void main() {
       expect(reply, findsOneWidget);
       // A resposta da psicóloga fica no lado direito da tela.
       expect(tester.getCenter(reply).dx, greaterThan(400));
-      expect(find.text('Respondida'), findsOneWidget);
       final field = tester.widget<TextField>(
         find.byKey(const Key('chat_message_input')),
       );
@@ -92,31 +93,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Aconteceu de novo hoje'), findsOneWidget);
-    });
-
-    testWidgets('gerencia status de mediação e gravidade do relato', (
-      tester,
-    ) async {
-      await tester.pumpWidget(app());
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const Key('psychologist_chat_status_inMediation')),
-        findsNothing,
-      );
-
-      await tester.tap(find.byKey(const Key('psychologist_chat_manage')));
-      await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const Key('psychologist_chat_status_inMediation')),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Em mediação'), findsWidgets);
-
-      await tester.tap(
-        find.byKey(const Key('psychologist_chat_severity_low')),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Gravidade baixa'), findsOneWidget);
     });
 
     testWidgets('mostra o texto do relato quando não há mensagens', (

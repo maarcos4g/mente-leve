@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 
@@ -164,25 +165,37 @@ class ReportCard extends StatelessWidget {
           ],
           const SizedBox(height: 10),
           SizedBox(
-            height: 48,
-            child: ElevatedButton(
+            width: double.infinity,
+            child: ElevatedButton.icon(
               key: Key('report_open_${report.id}'),
               onPressed: onOpen,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.sky700,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-              child: Text(
+              icon: const Icon(LucideIcons.undo, size: 16),
+              label: Text(
                 'Responder',
                 style: GoogleFonts.poppins(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.sky500,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                // Medidas do Figma: 16 na horizontal, 4 na vertical e 8 entre
+                // o ícone e o texto. A área de toque continua com 48dp.
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                minimumSize: Size.zero,
+                iconSize: 16,
+                tapTargetSize: MaterialTapTargetSize.padded,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ).copyWith(
+                iconAlignment: IconAlignment.start,
               ),
             ),
           ),

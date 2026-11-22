@@ -25,7 +25,7 @@ class AnonymousChatController extends ChangeNotifier {
   StreamSubscription<ChatThread>? _subscription;
 
   ChatThread _thread = ChatThread.empty;
-  ReportType _selectedType = ReportType.bullying;
+  ReportType? _selectedType;
   bool _isLoading = true;
   bool _isSending = false;
   String? _errorMessage;
@@ -34,7 +34,10 @@ class AnonymousChatController extends ChangeNotifier {
 
   List<ChatMessage> get messages => _thread.messages;
   ReportStatus? get status => _thread.status;
-  ReportType get selectedType => _selectedType;
+
+  /// Assunto escolhido pelo aluno (`null` até ele escolher). Não há assunto
+  /// pré-selecionado: o aluno precisa apontar sobre o que quer falar.
+  ReportType? get selectedType => _selectedType;
 
   /// `true` até a primeira resposta do repositório.
   bool get isLoading => _isLoading;
@@ -49,8 +52,11 @@ class AnonymousChatController extends ChangeNotifier {
   /// Sem login no Firebase não há como enviar.
   bool get canSend => _repository.isAvailable;
 
-  /// O tipo do relato só é escolhido antes da primeira mensagem.
+  /// O assunto do relato só é escolhido antes da primeira mensagem.
   bool get canChooseType => messages.isEmpty;
+
+  /// `true` enquanto falta o aluno escolher o assunto para poder enviar.
+  bool get needsSubject => canChooseType && _selectedType == null;
 
   /// Começa (ou recomeça, após um erro) a acompanhar a conversa.
   void start() {
@@ -97,11 +103,21 @@ class AnonymousChatController extends ChangeNotifier {
       return false;
     }
 
+    if (needsSubject) {
+      _errorMessage = 'Escolha o assunto da conversa antes de enviar.';
+      notifyListeners();
+      return false;
+    }
+
     _isSending = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      await _repository.send(text: text, type: _selectedType);
+      // Depois da primeira mensagem o assunto já está no relato.
+      await _repository.send(
+        text: text,
+        type: _selectedType ?? ReportType.other,
+      );
       return true;
     } on ChatUnavailableException {
       _errorMessage =

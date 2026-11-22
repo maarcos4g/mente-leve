@@ -22,10 +22,6 @@ abstract class PsychologistChatRepository {
   /// Responde ao aluno. A primeira resposta de um relato pendente muda o
   /// status para `answered`; um relato em mediação continua em mediação.
   Future<void> reply({required String reportId, required String text});
-
-  Future<void> setStatus(String reportId, ReportStatus status);
-
-  Future<void> setSeverity(String reportId, ReportSeverity severity);
 }
 
 /// Repositório em memória, usado nos testes e quando o Firestore não foi
@@ -71,25 +67,13 @@ class InMemoryPsychologistChatRepository implements PsychologistChatRepository {
     _controller.add(_conversation);
   }
 
-  @override
-  Future<void> setStatus(String reportId, ReportStatus status) async {
-    _report = _copy(status: status);
-    _controller.add(_conversation);
-  }
-
-  @override
-  Future<void> setSeverity(String reportId, ReportSeverity severity) async {
-    _report = _copy(severity: severity);
-    _controller.add(_conversation);
-  }
-
-  Report _copy({ReportStatus? status, ReportSeverity? severity}) => Report(
+  Report _copy({required ReportStatus status}) => Report(
     id: _report.id,
     type: _report.type,
     description: _report.description,
-    status: status ?? _report.status,
+    status: status,
     createdAt: _report.createdAt,
-    severity: severity ?? _report.severity,
+    severity: _report.severity,
   );
 
   void _add(ChatSender sender, String text) {
@@ -193,20 +177,6 @@ class FirestorePsychologistChatRepository
     if (_statuses[reportId] == ReportStatus.pending) {
       batch.update(report, {'status': ReportStatus.answered.name});
     }
-    return _commit(batch);
-  }
-
-  @override
-  Future<void> setStatus(String reportId, ReportStatus status) {
-    final batch = _firestore.batch()
-      ..update(_report(reportId), {'status': status.name});
-    return _commit(batch);
-  }
-
-  @override
-  Future<void> setSeverity(String reportId, ReportSeverity severity) {
-    final batch = _firestore.batch()
-      ..update(_report(reportId), {'severity': severity.name});
     return _commit(batch);
   }
 

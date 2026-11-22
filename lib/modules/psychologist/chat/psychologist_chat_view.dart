@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_controller.dart';
-import 'package:mente_leve/modules/psychologist/reports/widgets/report_card.dart';
-import 'package:mente_leve/shared/models/report_model.dart';
-import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/widgets/chat/chat_widgets.dart';
 
 /// Argumentos da rota do chat da psicóloga.
@@ -19,8 +15,8 @@ class ReportChatArgs {
 
 /// Chat da psicóloga com o aluno de um relato anônimo (RF10), em tempo real.
 ///
-/// Mostra a conversa inteira, deixa responder e gerenciar o status de
-/// mediação e a gravidade do relato. Nada na tela identifica o aluno.
+/// Mostra a conversa inteira e deixa responder. Nada na tela identifica o
+/// aluno.
 class PsychologistChatView extends StatefulWidget {
   const PsychologistChatView({
     super.key,
@@ -119,16 +115,6 @@ class _PsychologistChatViewState extends State<PsychologistChatView> {
     }
   }
 
-  Future<void> _changeStatus(ReportStatus status) async {
-    final ok = await _controller.setStatus(status);
-    if (mounted && !ok) _showError();
-  }
-
-  Future<void> _changeSeverity(ReportSeverity severity) async {
-    final ok = await _controller.setSeverity(severity);
-    if (mounted && !ok) _showError();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,12 +130,6 @@ class _PsychologistChatViewState extends State<PsychologistChatView> {
               onBack: () => Navigator.of(context).maybePop(),
             ),
             const Divider(height: 1, color: Color(0xFFE4E4E7)),
-            if (_controller.report != null)
-              _ManagePanel(
-                report: _controller.report!,
-                onStatus: _changeStatus,
-                onSeverity: _changeSeverity,
-              ),
             Expanded(child: _buildBody()),
             if (!_controller.isLoading &&
                 _controller.loadError == null &&
@@ -203,144 +183,6 @@ class _PsychologistChatViewState extends State<PsychologistChatView> {
         isOwn: (message) => !message.isFromStudent,
         otherLabel: 'Aluno anônimo',
       ),
-    );
-  }
-}
-
-/// Resumo do relato e controles de status de mediação e gravidade.
-class _ManagePanel extends StatelessWidget {
-  const _ManagePanel({
-    required this.report,
-    required this.onStatus,
-    required this.onSeverity,
-  });
-
-  final Report report;
-  final ValueChanged<ReportStatus> onStatus;
-  final ValueChanged<ReportSeverity> onSeverity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        key: const Key('psychologist_chat_manage'),
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        title: Wrap(
-          spacing: 6,
-          runSpacing: 4,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            ReportBadge(
-              label: report.status.label,
-              colors: BadgeColors.forStatus(report.status),
-              semanticsPrefix: 'Status',
-            ),
-            ReportBadge(
-              label: 'Gravidade ${report.severity.label.toLowerCase()}',
-              colors: BadgeColors.forSeverity(report.severity),
-            ),
-            ReportBadge(
-              label: report.type.label,
-              colors: const BadgeColors(Color(0xFFF4F4F5), AppColors.zinc900),
-              semanticsPrefix: 'Tipo',
-            ),
-          ],
-        ),
-        subtitle: Text(
-          'Gerenciar relato',
-          style: GoogleFonts.poppins(fontSize: 12, color: AppColors.slate600),
-        ),
-        children: [
-          _ChipGroup<ReportStatus>(
-            keyPrefix: 'psychologist_chat_status',
-            title: 'Status de mediação',
-            values: ReportStatus.values,
-            labelOf: (s) => s.label,
-            selected: report.status,
-            onSelected: onStatus,
-          ),
-          const SizedBox(height: 8),
-          _ChipGroup<ReportSeverity>(
-            keyPrefix: 'psychologist_chat_severity',
-            title: 'Gravidade',
-            values: ReportSeverity.values.reversed.toList(),
-            labelOf: (s) => s.label,
-            selected: report.severity,
-            onSelected: onSeverity,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChipGroup<T extends Enum> extends StatelessWidget {
-  const _ChipGroup({
-    required this.keyPrefix,
-    required this.title,
-    required this.values,
-    required this.labelOf,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final String keyPrefix;
-  final String title;
-  final List<T> values;
-  final String Function(T) labelOf;
-  final T selected;
-  final ValueChanged<T> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: AppColors.zinc950,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Wrap(
-          spacing: 8,
-          children: [
-            for (final value in values)
-              ChoiceChip(
-                key: Key('${keyPrefix}_${value.name}'),
-                label: Text(
-                  labelOf(value),
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color:
-                        selected == value ? Colors.white : AppColors.zinc950,
-                  ),
-                ),
-                selected: selected == value,
-                onSelected: (_) => onSelected(value),
-                showCheckmark: false,
-                selectedColor: AppColors.sky700,
-                backgroundColor: Colors.white,
-                side: BorderSide(
-                  color:
-                      selected == value
-                          ? AppColors.sky700
-                          : const Color(0xFFD4D4D8),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-          ],
-        ),
-      ],
     );
   }
 }

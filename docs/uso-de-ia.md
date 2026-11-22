@@ -401,7 +401,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     4. **Ajuste em um PR:** na revisão do PR #12, o integrante pediu para remover do card "Diário Pessoal" da Home a navegação para a roleta de sentimentos. A IA mudou o destino para `/diary/reflection`, que ainda não estava registrada, então o card passou a mostrar "Disponível em breve".
 
 * **Painel de Gestão e Triagem de Relatos Anônimos (RF09 / EPIC-06) (21/11):**
-  * **O que foi feito:** Criação do painel de triagem da psicóloga (`ReportsView`, rota `/psychologist/reports`, com `ReportsController`) e do card "Triagem das denúncias" na Home. A tela lista as denúncias anônimas com filtros de gravidade e de status de mediação, "Ver relato" com o texto completo e estados de carregamento, vazio, sem resultado e erro. Também foram criados a entidade `Report` (`lib/shared/models/report_model.dart`), o `ReportRepository` (Firestore e em memória), a injeção no `main.dart` e os testes de modelo, controller, tela, Home e contraste WCAG. O `CHANGELOG.md`, o `README.md` e este registro foram atualizados na mesma tarefa.
+  * **O que foi feito:** Criação do painel de triagem da psicóloga (`ReportsView`, rota `/psychologist/reports`, com `ReportsController`) e do card "Triagem das denúncias" na Home. A tela lista as denúncias anônimas com selos de status, gravidade e tipo, ordem de triagem e estados de carregamento, vazio e erro (a primeira versão tinha filtros de gravidade e de status e "Ver relato", ambos removidos depois, conforme o registro do ajuste de revisão abaixo). Também foram criados a entidade `Report` (`lib/shared/models/report_model.dart`), o `ReportRepository` (Firestore e em memória), a injeção no `main.dart` e os testes de modelo, controller, tela, Home e contraste WCAG. O `CHANGELOG.md`, o `README.md` e este registro foram atualizados na mesma tarefa.
   * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
   * **Prompt utilizado:**
     > **Atue como** um engenheiro de software sênior com experiência em Flutter.
@@ -426,7 +426,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Dificuldades e ajustes manuais:**
     1. **Gravidade não existe no documento do aluno:** a regra de criação da denúncia aceita só `studentUid`, `type`, `description`, `status` e `createdAt`. Sem o campo, a gravidade é estimada pelo tipo e por palavras de risco no texto. É uma regra provisória que precisa ser validada pela psicóloga da escola.
     2. **Status "em mediação" e regras do Firestore:** a regra de `update` da modelagem só aceitava `pending` e `answered`. A modelagem foi atualizada para aceitar também `inMediation` e a chave `severity`, mas o `firestore.rules` não é versionado e a regra precisa ser publicada no console do Firebase.
-    3. **Botão "Responder" do Figma:** não foi criado, porque a resposta e o chat são o RF10. O card tem "Ver relato", que abre o texto completo.
+    3. **Botão "Responder" do Figma:** não foi criado nesta tarefa, porque a resposta e o chat são o RF10. O card tinha "Ver relato", que abria o texto completo. O botão foi feito na tarefa do chat da psicóloga e ajustado ao Figma no registro do ajuste de revisão abaixo.
     4. **Sem denúncias no app ainda:** nesta tarefa o envio pelo aluno (RF05) não existia no código, e a coleção `reports` só tinha dados se fosse preenchida pelo console do Firebase. O envio foi feito na tarefa seguinte, registrada abaixo.
     5. **Teste no emulador:** o emulador `Pixel_6_API_34` existe, mas o login da psicóloga usa credenciais reais do Firebase que a IA não tem. A homologação visual no aparelho (e em API 24) ficou para o integrante; a IA validou analyzer, testes e o build do APK.
     6. **Testes com lista longa:** o `ListView` constrói os cards sob demanda, e três testes falharam por procurar cards fora da área visível. Os testes passaram a rolar até o card.
@@ -467,7 +467,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     8. **Chat com erro no emulador:** ao abrir o chat, a tela mostrou "Não foi possível acompanhar a conversa" mesmo com internet. O `adb logcat` do emulador mostrou `PERMISSION_DENIED` nas duas escutas do Firestore (`reports/{uid}` e `reports/{uid}/messages`): as regras de segurança da modelagem ainda não estavam publicadas no projeto do Firebase. A causa não era de rede. A IA passou a diferenciar os erros na mensagem (rede, permissão e genérico) e a registrar o erro real no log; publicar as regras no console do Firebase continua sendo ação do integrante.
 
 * **Telas da Psicóloga: Chat em Tempo Real e Gestão dos Relatos (RF10 / EPIC-06) (22/11):**
-  * **O que foi feito:** Criação do chat da psicóloga com o aluno (`PsychologistChatView`, rota `/psychologist/chat`, com `PsychologistChatController`), em tempo real. A psicóloga abre a conversa pelo botão "Responder" dos cards da triagem (tela de triagem e Home), responde ao aluno e, em "Gerenciar relato", muda o status de mediação e a gravidade. O painel de triagem passou a acompanhar os relatos em tempo real (`ReportRepository.watch()`). Também foram criados o `PsychologistChatRepository` (Firestore e em memória), os widgets de chat compartilhados com o aluno, a injeção no `main.dart`, o registro da rota no `AppWidget` e os testes. O `CHANGELOG.md`, o `README.md`, a modelagem do Firestore e este registro foram atualizados na mesma tarefa.
+  * **O que foi feito:** Criação do chat da psicóloga com o aluno (`PsychologistChatView`, rota `/psychologist/chat`, com `PsychologistChatController`), em tempo real. A psicóloga abre a conversa pelo botão "Responder" dos cards da triagem (tela de triagem e Home), e responde ao aluno (a primeira versão tinha o painel "Gerenciar relato", com seletores de status e de gravidade, removido depois conforme o registro do ajuste de revisão abaixo). O painel de triagem passou a acompanhar os relatos em tempo real (`ReportRepository.watch()`). Também foram criados o `PsychologistChatRepository` (Firestore e em memória), os widgets de chat compartilhados com o aluno, a injeção no `main.dart`, o registro da rota no `AppWidget` e os testes. O `CHANGELOG.md`, o `README.md`, a modelagem do Firestore e este registro foram atualizados na mesma tarefa.
   * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
   * **Prompt utilizado:**
     > **Atue como** um engenheiro de software sênior com experiência em Flutter e Cloud Firestore.
@@ -493,13 +493,63 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
   * **Como a IA ajudou:** Reaproveitou o chat do aluno: moveu `ChatMessage` para `lib/shared/models/` e extraiu balões, separador de dia, campo de mensagem e barra superior para `lib/shared/widgets/chat/`, mantendo o comportamento e os testes do aluno. Como o id do relato é o `uid` do aluno, a tela da psicóloga trabalha só com o conteúdo e o protocolo. Trocou a leitura única do painel por `snapshots()`, de modo que `load()` continua servindo ao "puxar para atualizar". Escreveu os testes de status (primeira resposta, mediação mantida, aluno que volta a escrever) e de tempo real. `flutter analyze` ficou sem problemas e os 282 testes passaram.
   * **Dificuldades e ajustes manuais:**
-    1. **Regras do Firestore:** as ações da psicóloga dependem das regras da modelagem (leitura de `reports` e de `messages`, criação de mensagem com `senderRole: psychologist` e `update` de `status` e `severity`). Elas precisam estar publicadas no console do Firebase, e a conta usada precisa ter `role: psychologist` em `users/{uid}`.
+    1. **Regras do Firestore:** as ações da psicóloga dependem das regras da modelagem (leitura de `reports` e de `messages`, criação de mensagem com `senderRole: psychologist` e `update` de `status`). Elas precisam estar publicadas no console do Firebase, e a conta usada precisa ter `role: psychologist` em `users/{uid}`.
     2. **Resposta e status:** a decisão de negócio ficou assim: a primeira resposta a um relato pendente muda para "respondida"; relato em mediação continua em mediação; se o aluno volta a escrever, o relato volta para pendente. A equipe de psicologia precisa validar esse fluxo.
     3. **Botão "Ver relato" removido:** a folha de detalhe da tarefa anterior deixou de existir, porque o chat mostra o relato inteiro. O botão virou "Responder", como no Figma.
     4. **Relatos sem mensagens:** um relato criado direto no console não tem mensagens, então a tela mostra o texto do relato como a primeira mensagem do aluno.
     5. **Identificação do aluno:** o id do documento é o `uid` anônimo do aluno. Ele não aparece em nenhuma tela, mas quem abre o console do Firebase consegue vê-lo.
     6. **Teste no emulador:** a IA validou analyzer, testes e o build do APK, mas não abriu o app logada como psicóloga. A homologação no emulador (API 24+) e a conferência do chat entre dois aparelhos ficam para o integrante.
     7. **Telas "guias" e "pais" do Figma:** a edição de guias e o chat do responsável com a psicóloga aparecem nas capturas, mas são outros requisitos e não foram feitos nesta tarefa.
+
+* **Ajustes de Revisão das Telas da Psicóloga: Remoção dos Filtros da Triagem e Botão "Responder" (22/11):**
+  * **O que foi feito:** Remoção dos filtros de gravidade e de status de mediação da tela de triagem (`ReportsView`) e do código que os sustentava no `ReportsController`, mantendo o restante da tela (selos, contador, ordem de triagem, estados de carregamento, vazio e erro). Ajuste do botão "Responder" dos cards da triagem (`ReportCard`, na tela de triagem e na Home) às medidas do Figma. Os testes foram atualizados, e `CHANGELOG.md`, `README.md`, `docs/modelagem/03-modelagem-firestore.md`, `docs/levantamento/escopo.md` e este registro foram corrigidos para não citar mais os filtros.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter.
+    >
+    > **Tarefa:** aplicar ajustes de revisão de fidelidade ao Figma nas telas da psicóloga (Painel de Triagem, RF09, e Chat, RF10), sem alterar o restante das telas aprovadas.
+    >
+    > **Requisitos:**
+    > 1. Remover da tela de triagem os filtros de Gravidade e de Status da mediação, que não estavam previstos no Figma e não têm necessidade, mantendo o restante da tela.
+    > 2. Ajustar o botão "Responder" dos cards da triagem às medidas do Figma: ícone `lucide/undo`, padding de 16 na horizontal e 4 na vertical, espaçamento de 8 entre os itens e cor `sky500`.
+    > 3. Atualizar os testes automatizados para refletir as mudanças.
+    > 4. Documentar o que for necessário e remover ou ajustar, no `CHANGELOG.md`, no `docs/uso-de-ia.md`, no `README.md` e na documentação de modelagem e escopo, tudo o que citar os filtros removidos.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Localizou o código dos filtros na tela, no controller e nos testes e tirou tudo, inclusive o estado "sem resultado". Montou o botão com `ElevatedButton.icon` e verificou as medidas num teste: cor `sky500`, ícone `undo`, padding 16x4 e gap de 8. Varreu a documentação procurando as menções aos filtros (README, CHANGELOG, modelagem do Firestore, escopo e este registro). `flutter analyze` ficou sem problemas e os 277 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Contraste do botão:** o texto branco sobre `sky500` (`#00A6F4`) tem contraste de cerca de 2,7:1, abaixo dos 4,5:1 do WCAG AA para texto pequeno. A cor foi mantida como o Figma define; se a acessibilidade for prioridade, vale o grupo avaliar `sky700` (que passa) ou texto escuro.
+    2. **Altura do botão:** com padding vertical de 4, o botão fica baixo (cerca de 28 dp). A área de toque continua com 48 dp, com o botão visível centralizado nela, e o raio da borda (4) foi estimado, porque o Figma não traz esse valor nas capturas.
+    3. **Ordem de triagem:** sem os filtros, a lista continua mostrando primeiro os relatos mais graves e, na mesma gravidade, os mais antigos. A gravidade segue sendo estimada pelo texto do relato.
+    4. **Critério de aceite original:** o critério da tarefa RF09 citava "filtros de gravidade e status de mediação". A remoção foi decisão do integrante, e o critério do Jira pode precisar ser atualizado.
+    5. **Quebra de linha dos arquivos:** vários arquivos do projeto usam CRLF, e o primeiro script de remoção, escrito para LF, falhou no meio e foi refeito normalizando as quebras de linha.
+
+* **Ajustes de Revisão: Chat da Psicóloga sem Filtros e Assunto Obrigatório no Chat do Aluno (22/11):**
+  * **O que foi feito:** Remoção do painel "Gerenciar relato" (seletores de status de mediação e de gravidade) do chat da psicóloga (`PsychologistChatView`) e de todo o código que o sustentava (`setStatus` e `setSeverity` no controller e no repositório). No chat do aluno (`AnonymousChatView`), o assunto da conversa deixou de vir pré-selecionado: o aluno precisa escolher bullying, cyberbullying ou outros antes de enviar a primeira mensagem. Os testes foram atualizados, e `CHANGELOG.md`, `README.md` e `docs/modelagem/03-modelagem-firestore.md` foram corrigidos.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter.
+    >
+    > **Tarefa:** aplicar ajustes de revisão nos chats do aluno e da psicóloga (RF05 e RF10), mantendo o restante das telas aprovadas.
+    >
+    > **Requisitos:**
+    > 1. Remover do chat da psicóloga os filtros de gravidade e de status. No módulo da psicóloga, nenhuma ideia de filtro deve existir, porque ela não faz parte da proposta inicial do Figma.
+    > 2. Manter no chat do aluno a escolha do assunto antes do envio da mensagem, porque é importante o aluno apontar o assunto que quer abordar.
+    > 3. Atualizar os testes automatizados para refletir as mudanças.
+    > 4. Documentar o que for necessário e remover ou ajustar, no `CHANGELOG.md`, no `docs/uso-de-ia.md`, no `README.md` e na modelagem do Firestore, tudo o que citar o que foi removido.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Removeu o painel, os dois métodos de escrita e os testes ligados a ele, e deixou um teste que garante que a tela da psicóloga não tem seletores. No aluno, percebeu que "Bullying" já vinha marcado e o aluno poderia enviar sem escolher de verdade; então o assunto passou a ser obrigatório, sem seleção prévia, com aviso quando falta. Varreu a documentação atrás das menções ao que foi removido. `flutter analyze` ficou sem problemas e os testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Status "em mediação" sem tela:** sem o painel, nenhuma tela grava `inMediation` nem `severity`. Os valores continuam existindo no modelo (a equipe pode defini-los pelo console, e o app os lê), e o status só muda pelo fluxo da conversa: a primeira resposta marca "respondida" e a volta do aluno marca "pendente". O grupo precisa decidir se mantém esses valores.
+    2. **Assunto obrigatório:** é uma decisão de interface tomada pela IA a partir do pedido ("é importante apontar o assunto"). O assunto só é pedido antes da primeira mensagem; nas seguintes, a conversa já tem o assunto.
+    3. **Teste no emulador:** a IA validou analyzer e testes, mas não abriu o app em aparelho. A conferência visual no emulador (API 24+) fica para o integrante.
 
 ### Mateus Henrique de Araújo Santos
 

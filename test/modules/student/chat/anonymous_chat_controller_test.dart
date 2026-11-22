@@ -20,14 +20,28 @@ void main() {
 
     tearDown(() => controller.dispose());
 
-    test('começa sem mensagens e deixa escolher o tipo do relato', () {
+    test('começa sem mensagens e sem assunto escolhido', () {
       expect(controller.isLoading, isFalse);
       expect(controller.messages, isEmpty);
       expect(controller.canChooseType, isTrue);
-      expect(controller.selectedType, ReportType.bullying);
+      expect(controller.selectedType, isNull);
+      expect(controller.needsSubject, isTrue);
+    });
+
+    test('não envia sem o aluno escolher o assunto', () async {
+      expect(await controller.send('Estão me zoando'), isFalse);
+      await pumpEventQueue();
+
+      expect(controller.errorMessage, contains('Escolha o assunto'));
+      expect(controller.messages, isEmpty);
+
+      controller.selectType(ReportType.bullying);
+      expect(controller.needsSubject, isFalse);
+      expect(await controller.send('Estão me zoando'), isTrue);
     });
 
     test('envia a mensagem sem espaços nas pontas e a mostra na conversa', () async {
+      controller.selectType(ReportType.cyberbullying);
       final accepted = await controller.send('  Estão me zoando no grupo  ');
       await pumpEventQueue();
 
@@ -65,11 +79,13 @@ void main() {
       expect(controller.errorMessage, contains('2000'));
       expect(controller.messages, isEmpty);
 
+      controller.selectType(ReportType.other);
       final exact = 'a' * AnonymousChatController.maxMessageLength;
       expect(await controller.send(exact), isTrue);
     });
 
     test('resposta da psicóloga chega em tempo real, sem recarregar', () async {
+      controller.selectType(ReportType.bullying);
       await controller.send('Não consigo me concentrar nas aulas');
       await pumpEventQueue();
       expect(controller.messages, hasLength(1));
@@ -90,6 +106,7 @@ void main() {
       await pumpEventQueue();
 
       expect(offline.canSend, isFalse);
+      offline.selectType(ReportType.other);
       expect(await offline.send('oi'), isFalse);
       expect(offline.errorMessage, contains('Conecte-se à internet'));
       offline.dispose();
@@ -100,6 +117,7 @@ void main() {
       final failing = AnonymousChatController(repository: scripted)..start();
       await pumpEventQueue();
 
+      failing.selectType(ReportType.other);
       expect(await failing.send('oi'), isFalse);
       expect(failing.errorMessage, contains('Tente novamente'));
       expect(failing.isSending, isFalse);

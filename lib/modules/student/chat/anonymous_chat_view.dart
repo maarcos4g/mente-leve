@@ -158,7 +158,7 @@ class _AnonymousChatViewState extends State<AnonymousChatView> {
 class _IntroCard extends StatelessWidget {
   const _IntroCard({required this.selected, required this.onSelected});
 
-  final ReportType selected;
+  final ReportType? selected;
   final ValueChanged<ReportType> onSelected;
 
   @override
@@ -206,7 +206,7 @@ class _IntroCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Sobre o que você quer falar?',
+            'Sobre o que você quer falar? Escolha um assunto para enviar.',
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w500,

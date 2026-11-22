@@ -9,8 +9,7 @@ import 'package:mente_leve/shared/widgets/chat/chat_widgets.dart';
 
 /// Controlador do chat da psicóloga com o aluno de um relato (RF10).
 ///
-/// Acompanha a conversa em tempo real, envia respostas e deixa a psicóloga
-/// gerenciar o status de mediação e a gravidade do relato.
+/// Acompanha a conversa em tempo real e envia as respostas.
 class PsychologistChatController extends ChangeNotifier {
   PsychologistChatController({
     required this.reportId,
@@ -106,46 +105,18 @@ class PsychologistChatController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-    return _run(
-      () => _repo.reply(reportId: reportId, text: text),
-      'Não foi possível enviar a resposta. Tente novamente.',
-      tracksSending: true,
-    );
-  }
-
-  Future<bool> setStatus(ReportStatus status) {
-    if (report?.status == status) return Future.value(true);
-    return _run(
-      () => _repo.setStatus(reportId, status),
-      'Não foi possível mudar o status. Tente novamente.',
-    );
-  }
-
-  Future<bool> setSeverity(ReportSeverity severity) {
-    if (report?.severity == severity) return Future.value(true);
-    return _run(
-      () => _repo.setSeverity(reportId, severity),
-      'Não foi possível mudar a gravidade. Tente novamente.',
-    );
-  }
-
-  Future<bool> _run(
-    Future<void> Function() action,
-    String failureMessage, {
-    bool tracksSending = false,
-  }) async {
-    if (tracksSending) _isSending = true;
+    _isSending = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      await action();
+      await _repo.reply(reportId: reportId, text: text);
       return true;
     } catch (error) {
-      debugPrint('Chat da psicóloga: falha na escrita: $error');
-      _errorMessage = failureMessage;
+      debugPrint('Chat da psicóloga: falha ao enviar: $error');
+      _errorMessage = 'Não foi possível enviar a resposta. Tente novamente.';
       return false;
     } finally {
-      if (tracksSending) _isSending = false;
+      _isSending = false;
       if (!_disposed) notifyListeners();
     }
   }

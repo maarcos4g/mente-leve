@@ -45,7 +45,7 @@ class _ReportsViewState extends State<ReportsView> {
 
   @override
   Widget build(BuildContext context) {
-    final visible = _controller.visible;
+    final reports = _controller.sorted;
 
     return Scaffold(
       backgroundColor: AppColors.zinc50,
@@ -79,27 +79,7 @@ class _ReportsViewState extends State<ReportsView> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _FilterGroup<ReportSeverity>(
-                      keyPrefix: 'reports_filter_severity',
-                      title: 'Gravidade',
-                      allLabel: 'Todas',
-                      values: ReportSeverity.values.reversed.toList(),
-                      labelOf: (g) => g.label,
-                      selected: _controller.severityFilter,
-                      onSelected: _controller.filterBySeverity,
-                    ),
-                    const SizedBox(height: 12),
-                    _FilterGroup<ReportStatus>(
-                      keyPrefix: 'reports_filter_status',
-                      title: 'Status de mediação',
-                      allLabel: 'Todos',
-                      values: ReportStatus.values,
-                      labelOf: (s) => s.label,
-                      selected: _controller.statusFilter,
-                      onSelected: _controller.filterByStatus,
-                    ),
-                    const SizedBox(height: 16),
-                    ..._buildBody(visible),
+                    ..._buildBody(reports),
                   ],
                 ),
               ),
@@ -110,7 +90,7 @@ class _ReportsViewState extends State<ReportsView> {
     );
   }
 
-  List<Widget> _buildBody(List<Report> visible) {
+  List<Widget> _buildBody(List<Report> reports) {
     if (_controller.isLoading && !_controller.hasLoaded) {
       return const [
         Padding(
@@ -140,31 +120,17 @@ class _ReportsViewState extends State<ReportsView> {
         ),
       ];
     }
-    if (visible.isEmpty) {
-      return [
-        _StateMessage(
-          key: const Key('reports_no_results'),
-          icon: LucideIcons.listFilter,
-          message: 'Nenhuma denúncia com esses filtros.',
-          actionKey: const Key('reports_clear_filters_button'),
-          actionLabel: 'Limpar filtros',
-          onAction: _controller.clearFilters,
-        ),
-      ];
-    }
     return [
       Text(
         key: const Key('reports_counter'),
-        _controller.hasActiveFilters
-            ? '${visible.length} de ${_controller.total} relatos'
-            : '${_controller.total} '
-                '${_controller.total == 1 ? 'relato' : 'relatos'} '
-                '(${_controller.pendingCount} '
-                '${_controller.pendingCount == 1 ? 'pendente' : 'pendentes'})',
+        '${_controller.total} '
+        '${_controller.total == 1 ? 'relato' : 'relatos'} '
+        '(${_controller.pendingCount} '
+        '${_controller.pendingCount == 1 ? 'pendente' : 'pendentes'})',
         style: GoogleFonts.poppins(fontSize: 12, color: AppColors.slate600),
       ),
       const SizedBox(height: 10),
-      for (final report in visible) ...[
+      for (final report in reports) ...[
         ReportCard(
           report: report,
           protocol: _controller.protocol(report),
@@ -178,100 +144,6 @@ class _ReportsViewState extends State<ReportsView> {
         const SizedBox(height: 12),
       ],
     ];
-  }
-}
-
-class _FilterGroup<T extends Enum> extends StatelessWidget {
-  const _FilterGroup({
-    required this.keyPrefix,
-    required this.title,
-    required this.allLabel,
-    required this.values,
-    required this.labelOf,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final String keyPrefix;
-  final String title;
-  final String allLabel;
-  final List<T> values;
-  final String Function(T) labelOf;
-  final T? selected;
-  final ValueChanged<T?> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: AppColors.zinc950,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Wrap(
-          spacing: 8,
-          children: [
-            _FilterChip(
-              chipKey: Key('${keyPrefix}_todos'),
-              label: allLabel,
-              selected: selected == null,
-              onTap: () => onSelected(null),
-            ),
-            for (final value in values)
-              _FilterChip(
-                chipKey: Key('${keyPrefix}_${value.name}'),
-                label: labelOf(value),
-                selected: selected == value,
-                onTap: () => onSelected(value),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.chipKey,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final Key chipKey;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      key: chipKey,
-      label: Text(
-        label,
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: selected ? Colors.white : AppColors.zinc950,
-        ),
-      ),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      showCheckmark: false,
-      selectedColor: AppColors.sky700,
-      backgroundColor: Colors.white,
-      side: BorderSide(
-        color: selected ? AppColors.sky700 : const Color(0xFFD4D4D8),
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-    );
   }
 }
 

@@ -216,7 +216,7 @@ void main() {
           reason: 'status ${status.name}',
         );
       }
-      // Texto branco do chip de filtro selecionado e dos botões da triagem.
+      // Texto branco sobre sky700 (botões primários).
       expect(
         wcagContrastRatio(Colors.white, AppColors.sky700),
         greaterThanOrEqualTo(4.5),

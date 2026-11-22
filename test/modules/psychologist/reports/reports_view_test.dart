@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_controller.dart';
 import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_view.dart';
 import 'package:mente_leve/modules/psychologist/chat/repositories/psychologist_chat_repository.dart';
@@ -10,6 +11,7 @@ import 'package:mente_leve/shared/models/enums/user_role.dart';
 import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/models/user_model.dart';
 import 'package:mente_leve/shared/reports/report_repository.dart';
+import 'package:mente_leve/shared/themes/app_colors.dart';
 
 import 'reports_test_support.dart';
 
@@ -48,42 +50,6 @@ void main() {
       final first = tester.getTopLeft(find.byKey(const Key('report_card_d2')));
       final second = tester.getTopLeft(find.byKey(const Key('report_card_d4')));
       expect(first.dy, lessThan(second.dy));
-    });
-
-    testWidgets('filtros de gravidade e status reduzem a lista', (
-      tester,
-    ) async {
-      await tester.pumpWidget(app(withSamples()));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('reports_filter_severity_high')));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('report_card_d2')), findsOneWidget);
-      expect(find.byKey(const Key('report_card_d4')), findsOneWidget);
-      expect(find.byKey(const Key('report_card_d1')), findsNothing);
-      expect(find.text('2 de 4 relatos'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('reports_filter_status_pending')));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('report_card_d4')), findsOneWidget);
-      expect(find.byKey(const Key('report_card_d2')), findsNothing);
-      expect(find.text('1 de 4 relatos'), findsOneWidget);
-    });
-
-    testWidgets('sem resultado oferece limpar os filtros', (tester) async {
-      await tester.pumpWidget(app(withSamples()));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('reports_filter_severity_low')));
-      await tester.tap(find.byKey(const Key('reports_filter_status_pending')));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('reports_no_results')), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('reports_clear_filters_button')));
-      await tester.pumpAndSettle();
-      expect(find.byKey(const Key('reports_no_results')), findsNothing);
-      await scrollTo(tester, find.byKey(const Key('report_card_d1')));
-      expect(find.byKey(const Key('report_card_d1')), findsOneWidget);
     });
 
     testWidgets('estado vazio quando não há denúncias', (tester) async {
@@ -152,6 +118,44 @@ void main() {
       expect(find.text('Ameaçaram me bater na saída'), findsOneWidget);
     });
 
+    testWidgets('botão "Responder" segue o Figma: sky500, ícone undo, 16x4 e gap 8', (
+      tester,
+    ) async {
+      await tester.pumpWidget(app(withSamples()));
+      await tester.pumpAndSettle();
+
+      final button = find.byKey(const Key('report_open_d2'));
+      await scrollTo(tester, button);
+      final surface =
+          find.descendant(of: button, matching: find.byType(Material)).first;
+      final icon = find.descendant(
+        of: button,
+        matching: find.byIcon(LucideIcons.undo),
+      );
+      final label = find.descendant(of: button, matching: find.text('Responder'));
+      expect(icon, findsOneWidget);
+      expect(label, findsOneWidget);
+
+      expect(tester.widget<Material>(surface).color, AppColors.sky500);
+
+      // Padding de 16 na horizontal e 4 na vertical, como no Figma.
+      final style = tester.widget<ElevatedButton>(button).style!;
+      expect(
+        style.padding!.resolve(<WidgetState>{}),
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      );
+
+      // Gap de 8 entre o ícone e o texto.
+      final surfaceRect = tester.getRect(surface);
+      final iconRect = tester.getRect(icon);
+      final labelRect = tester.getRect(label);
+      expect(labelRect.left - iconRect.right, 8);
+      // Padding vertical de 4: o botão tem a altura do conteúdo mais 8.
+      expect(surfaceRect.height, lessThan(36));
+      // A área de toque continua com pelo menos 48dp.
+      expect(tester.getSize(button).height, greaterThanOrEqualTo(48));
+    });
+
     testWidgets('relato novo aparece em tempo real, sem recarregar', (
       tester,
     ) async {
@@ -183,8 +187,6 @@ void main() {
 
       for (final key in [
         'reports_back_button',
-        'reports_filter_severity_high',
-        'reports_filter_status_inMediation',
         'report_open_d2',
       ]) {
         final finder = find.byKey(Key(key));

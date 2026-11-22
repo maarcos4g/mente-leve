@@ -8,9 +8,8 @@ import 'package:mente_leve/shared/utils/firestore_error_messages.dart';
 /// Controlador do Painel de Gestão e Triagem de Relatos Anônimos (RF09).
 ///
 /// Acompanha as denúncias em tempo real (novos relatos, respostas e mudanças
-/// de status aparecem sozinhos), aplica os filtros de gravidade e de status de
-/// mediação e entrega a lista na ordem de triagem: mais grave primeiro e,
-/// na mesma gravidade, o relato mais antigo primeiro.
+/// de status aparecem sozinhos) e entrega a lista na ordem de triagem: mais
+/// grave primeiro e, na mesma gravidade, o relato mais antigo primeiro.
 class ReportsController extends ChangeNotifier {
   ReportsController({ReportRepository? repository})
     : _repository =
@@ -23,8 +22,6 @@ class ReportsController extends ChangeNotifier {
 
   List<Report> _all = const [];
   Map<String, int> _numbers = const {};
-  ReportSeverity? _severityFilter;
-  ReportStatus? _statusFilter;
   bool _isLoading = false;
   bool _hasLoaded = false;
   bool _disposed = false;
@@ -36,30 +33,16 @@ class ReportsController extends ChangeNotifier {
   /// `true` depois da primeira carga concluída (com sucesso ou erro).
   bool get hasLoaded => _hasLoaded;
   String? get errorMessage => _errorMessage;
-  ReportSeverity? get severityFilter => _severityFilter;
-  ReportStatus? get statusFilter => _statusFilter;
-  bool get hasActiveFilters =>
-      _severityFilter != null || _statusFilter != null;
 
-  /// Total de denúncias recebidas, sem filtro.
+  /// Total de denúncias recebidas.
   int get total => _all.length;
 
   int get pendingCount => _all.where((d) => d.isPending).length;
 
-  /// Denúncias que passam pelos filtros atuais, na ordem de triagem.
-  List<Report> get visible {
-    final filtered =
-        _all.where((d) {
-          if (_severityFilter != null && d.severity != _severityFilter) {
-            return false;
-          }
-          if (_statusFilter != null && d.status != _statusFilter) {
-            return false;
-          }
-          return true;
-        }).toList();
-    filtered.sort(_byTriage);
-    return List.unmodifiable(filtered);
+  /// Todas as denúncias na ordem de triagem.
+  List<Report> get sorted {
+    final list = List<Report>.from(_all)..sort(_byTriage);
+    return List.unmodifiable(list);
   }
 
   /// Pendentes na ordem de triagem, para o resumo da Home.
@@ -127,24 +110,5 @@ class ReportsController extends ChangeNotifier {
     _disposed = true;
     _subscription?.cancel();
     super.dispose();
-  }
-
-  void filterBySeverity(ReportSeverity? severity) {
-    if (_severityFilter == severity) return;
-    _severityFilter = severity;
-    notifyListeners();
-  }
-
-  void filterByStatus(ReportStatus? status) {
-    if (_statusFilter == status) return;
-    _statusFilter = status;
-    notifyListeners();
-  }
-
-  void clearFilters() {
-    if (!hasActiveFilters) return;
-    _severityFilter = null;
-    _statusFilter = null;
-    notifyListeners();
   }
 }
