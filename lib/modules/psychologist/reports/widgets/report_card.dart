@@ -78,7 +78,8 @@ class ReportBadge extends StatelessWidget {
   }
 }
 
-/// Card de um relato anônimo na triagem (protótipo: "Mensagem anônima #010").
+/// Card de um relato anônimo na triagem (protótipo: "Mensagem anônima #010"),
+/// com o botão "Responder" que abre o chat com o aluno.
 class ReportCard extends StatelessWidget {
   const ReportCard({
     super.key,
@@ -176,7 +177,7 @@ class ReportCard extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Ver relato',
+                'Responder',
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -189,111 +190,4 @@ class ReportCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Folha com o relato completo (sem nenhum dado que identifique o aluno).
-Future<void> showReportDetail(
-  BuildContext context, {
-  required Report report,
-  required String protocol,
-}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder:
-        (sheetContext) => SafeArea(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(sheetContext).size.height * 0.85,
-            ),
-            child: SingleChildScrollView(
-              key: const Key('report_detail_sheet'),
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Mensagem anônima $protocol',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.zinc950,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Recebida em ${formatReportDate(report.createdAt)}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: AppColors.slate600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      ReportBadge(
-                        label: report.status.label,
-                        colors: BadgeColors.forStatus(report.status),
-                        semanticsPrefix: 'Status',
-                      ),
-                      ReportBadge(
-                        label:
-                            'Gravidade ${report.severity.label.toLowerCase()}',
-                        colors: BadgeColors.forSeverity(report.severity),
-                      ),
-                      ReportBadge(
-                        label: report.type.label,
-                        colors: const BadgeColors(
-                          Color(0xFFF4F4F5),
-                          AppColors.zinc900,
-                        ),
-                        semanticsPrefix: 'Tipo',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SelectableText(
-                    report.description,
-                    key: const Key('report_detail_text'),
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      height: 1.5,
-                      color: AppColors.zinc950,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 48,
-                    child: OutlinedButton(
-                      key: const Key('report_detail_close'),
-                      onPressed: () => Navigator.of(sheetContext).pop(),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.sky700,
-                        side: const BorderSide(color: AppColors.sky700),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
-                      child: Text(
-                        'Fechar',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-  );
 }

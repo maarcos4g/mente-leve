@@ -64,4 +64,11 @@ class FailingReportRepository implements ReportRepository {
     if (shouldFail) throw Exception('sem rede');
     return items;
   }
+
+  @override
+  Stream<List<Report>> watch() async* {
+    calls++;
+    if (shouldFail) throw Exception('sem rede');
+    yield items;
+  }
 }

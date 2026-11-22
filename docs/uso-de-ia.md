@@ -422,14 +422,84 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
     > 2. Teste no emulador Android (API 24+ / Android 7.0+).
     > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
-  * **Como a IA ajudou:** Leu `docs/modelagem/` e viu que a `Denuncia` já estava especificada, mas sem gravidade e sem o estado de mediação, então estendeu o modelo. Depois, a pedido do integrante, renomeou os arquivos para inglês e passou a coleção e os campos do Firestore para inglês (coleção `reports`; campos `studentUid`, `type`, `description`, `status`, `severity`, `createdAt` e `reply`), atualizando também `docs/modelagem/03-modelagem-firestore.md`. Reaproveitou o padrão de controller, tela e repositório injetado do FAQ da psicóloga e as cores do `AppColors`. Escreveu 24 testes novos, e `flutter analyze` e `flutter test` ficaram sem problemas (240 testes passando). Validou o build Android com `flutter build apk --debug`.
+  * **Como a IA ajudou:** Leu `docs/modelagem/` e viu que a `Denuncia` já estava especificada, mas sem gravidade e sem o estado de mediação, então estendeu o modelo. Depois, a pedido do integrante, renomeou os arquivos para inglês e passou a coleção e os campos do Firestore para inglês (coleção `reports`; campos `studentUid`, `type`, `description`, `status`, `severity` e `createdAt`), atualizando também `docs/modelagem/03-modelagem-firestore.md`. Reaproveitou o padrão de controller, tela e repositório injetado do FAQ da psicóloga e as cores do `AppColors`. Escreveu 24 testes novos, e `flutter analyze` e `flutter test` ficaram sem problemas (240 testes passando). Validou o build Android com `flutter build apk --debug`.
   * **Dificuldades e ajustes manuais:**
     1. **Gravidade não existe no documento do aluno:** a regra de criação da denúncia aceita só `studentUid`, `type`, `description`, `status` e `createdAt`. Sem o campo, a gravidade é estimada pelo tipo e por palavras de risco no texto. É uma regra provisória que precisa ser validada pela psicóloga da escola.
     2. **Status "em mediação" e regras do Firestore:** a regra de `update` da modelagem só aceitava `pending` e `answered`. A modelagem foi atualizada para aceitar também `inMediation` e a chave `severity`, mas o `firestore.rules` não é versionado e a regra precisa ser publicada no console do Firebase.
     3. **Botão "Responder" do Figma:** não foi criado, porque a resposta e o chat são o RF10. O card tem "Ver relato", que abre o texto completo.
-    4. **Sem denúncias no app ainda:** o envio pelo aluno (RF05) não existe no código, então a coleção `reports` só tem dados se for preenchida pelo console do Firebase.
+    4. **Sem denúncias no app ainda:** nesta tarefa o envio pelo aluno (RF05) não existia no código, e a coleção `reports` só tinha dados se fosse preenchida pelo console do Firebase. O envio foi feito na tarefa seguinte, registrada abaixo.
     5. **Teste no emulador:** o emulador `Pixel_6_API_34` existe, mas o login da psicóloga usa credenciais reais do Firebase que a IA não tem. A homologação visual no aparelho (e em API 24) ficou para o integrante; a IA validou analyzer, testes e o build do APK.
     6. **Testes com lista longa:** o `ListView` constrói os cards sob demanda, e três testes falharam por procurar cards fora da área visível. Os testes passaram a rolar até o card.
+
+* **Chat Anônimo do Aluno em Tempo Real e Envio de Relatos (RF05 / EPIC-06) (21/11):**
+  * **O que foi feito:** Criação do chat anônimo do aluno com a escola (`AnonymousChatView`, rota `/report`, com `AnonymousChatController`). O aluno escolhe o tipo do relato, escreve a mensagem e acompanha a conversa em tempo real, e as respostas da psicóloga aparecem sem recarregar a tela. Também foram criados o modelo `ChatMessage` e o `ChatRepository` (`FirestoreChatRepository` sobre `snapshots()` do Firestore e `InMemoryChatRepository`), a injeção no `main.dart`, o registro da rota no `AppWidget` e os testes do controller, da tela e do contraste WCAG. A modelagem do Firestore foi atualizada (mensagens na subcoleção `reports/{uid}/messages` e regras de segurança), e o `CHANGELOG.md`, o `README.md` e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter e Cloud Firestore.
+    >
+    > **Tarefa:** implementar a parte do aluno do Chat Anônimo e Envio de Relatos (RF05), vinculado ao EPIC-06, de modo que as denúncias enviadas apareçam no Painel de Triagem da psicóloga (RF09) já implementado. O bate-papo deve funcionar em tempo real, com base na tela de chat do aluno do Figma.
+    >
+    > **Critério de Aceite / DoD:** o aluno envia relatos anonimamente, escolhendo o tipo do relato, e acompanha a conversa com a escola em tempo real, vendo as respostas da psicóloga assim que elas chegam.
+    >
+    > **Requisitos:**
+    > 1. Seguir a arquitetura, o padrão visual e as cores já usados no projeto, e consultar a modelagem em `docs/` antes de implementar.
+    > 2. Manter o anonimato do aluno: a mensagem não pode carregar nome nem qualquer dado que o identifique.
+    > 3. Atualizar o chat em tempo real com `snapshots()` do Firestore, sem exigir que o aluno recarregue a tela.
+    > 4. Funcionar sem internet: a mensagem entra na fila do Firestore e a tela mostra "Enviando…" até sincronizar.
+    > 5. Tratar os estados de carregamento, erro de conexão, mensagem vazia, limite de 2000 caracteres e aluno sem login no Firebase.
+    > 6. Nomear todos os arquivos novos apenas em inglês e usar nomes em inglês em todas as coleções e campos do Firestore.
+    > 7. Criar testes automatizados do controller, da tela e do contraste de acessibilidade (WCAG AA).
+    > 8. Atualizar o `CHANGELOG.md`, o `docs/uso-de-ia.md`, o `README.md` e a modelagem do Firestore (estrutura e regras de segurança).
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Viu que os cards "Chat Anônimo", "Denúncias anônimas à escola" e o modal de apoio já apontavam para `/report`, rota que não estava registrada. Propôs usar o `uid` do aluno como id do relato, o que dispensa consulta e índice extra e torna a conversa única e estável, e guardar as mensagens numa subcoleção para o tempo real. Escreveu as regras de segurança do chat, o repositório com `snapshots(includeMetadataChanges: true)` e `hasPendingWrites` para o estado "Enviando…", e 22 testes novos. `flutter analyze` ficou sem problemas e os 262 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Escrita offline no Firestore:** sem rede, o `commit()` só termina quando o servidor responde. O envio passou a considerar a mensagem "na fila" depois de 3 segundos, para a tela não travar, e o balão fica como "Enviando…" até sincronizar.
+    2. **Botão CVV sobre o campo de mensagem:** o botão "Ajuda (CVV)" fica no canto inferior direito das telas do aluno, inclusive em `/report`, e cobria o botão de enviar. O campo de mensagem sobe 96 dp para ficar acima dele.
+    3. **Regras do Firestore:** a regra de leitura do relato falharia para um aluno sem relato ainda (o documento não existe), então a leitura aceita `resource == null` quando o id é o próprio `uid`. As regras não são versionadas no repositório e precisam ser publicadas no console do Firebase.
+    4. **Resposta da psicóloga:** a tela do aluno já mostra as mensagens da psicóloga em tempo real, mas escrever a resposta (RF10) ainda não existe no app da psicóloga, e o painel de triagem mostra só a primeira mensagem do relato.
+    5. **Campo `reply` removido:** o campo de resposta único do relato, criado na tarefa anterior, foi trocado pela subcoleção de mensagens, e a modelagem foi atualizada.
+    6. **Teste no emulador:** o chat usa o login anônimo e o Firestore reais e não foi aberto em aparelho pela IA. A homologação no emulador (API 24+) e a conferência em tempo real entre dois aparelhos ficam para o integrante.
+    7. **Testes com tempo real:** o repositório de teste precisou emitir uma conversa vazia logo na assinatura, como o Firestore faz; sem isso o indicador de carregamento nunca terminava e os testes de tela travavam.
+    8. **Chat com erro no emulador:** ao abrir o chat, a tela mostrou "Não foi possível acompanhar a conversa" mesmo com internet. O `adb logcat` do emulador mostrou `PERMISSION_DENIED` nas duas escutas do Firestore (`reports/{uid}` e `reports/{uid}/messages`): as regras de segurança da modelagem ainda não estavam publicadas no projeto do Firebase. A causa não era de rede. A IA passou a diferenciar os erros na mensagem (rede, permissão e genérico) e a registrar o erro real no log; publicar as regras no console do Firebase continua sendo ação do integrante.
+
+* **Telas da Psicóloga: Chat em Tempo Real e Gestão dos Relatos (RF10 / EPIC-06) (22/11):**
+  * **O que foi feito:** Criação do chat da psicóloga com o aluno (`PsychologistChatView`, rota `/psychologist/chat`, com `PsychologistChatController`), em tempo real. A psicóloga abre a conversa pelo botão "Responder" dos cards da triagem (tela de triagem e Home), responde ao aluno e, em "Gerenciar relato", muda o status de mediação e a gravidade. O painel de triagem passou a acompanhar os relatos em tempo real (`ReportRepository.watch()`). Também foram criados o `PsychologistChatRepository` (Firestore e em memória), os widgets de chat compartilhados com o aluno, a injeção no `main.dart`, o registro da rota no `AppWidget` e os testes. O `CHANGELOG.md`, o `README.md`, a modelagem do Firestore e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter e Cloud Firestore.
+    >
+    > **Tarefa:** implementar as telas da psicóloga do Chat e Resposta aos Relatos Anônimos (RF10), vinculado ao EPIC-06, completando o ciclo entre o relato do aluno (RF05) e o Painel de Triagem (RF09) já implementados. O bate-papo deve funcionar em tempo real, com base nas telas de Home/Painel e de Chat da psicóloga do Figma.
+    >
+    > **Critério de Aceite / DoD:** a psicóloga abre um relato pela triagem, conversa com o aluno anônimo em tempo real, vê as mensagens novas assim que chegam e gerencia o status de mediação e a gravidade do relato.
+    >
+    > **Requisitos:**
+    > 1. Seguir a arquitetura, o padrão visual e as cores já usados no projeto, reaproveitando os componentes do chat do aluno em vez de duplicá-los.
+    > 2. Manter o anonimato do aluno: nenhuma tela pode mostrar dado que o identifique, apenas o número do protocolo.
+    > 3. Atualizar o chat e o painel de triagem em tempo real com `snapshots()` do Firestore, sem exigir recarregar a tela.
+    > 4. Incluir o botão "Responder" nos cards da triagem, abrindo o chat do relato.
+    > 5. Permitir mudar o status de mediação e a gravidade dentro do chat, respeitando as regras de segurança do Firestore.
+    > 6. Tratar os estados de carregamento, erro de conexão e de permissão, relato inexistente, mensagem vazia e limite de 2000 caracteres.
+    > 7. Nomear todos os arquivos novos apenas em inglês e usar nomes em inglês em todas as coleções e campos do Firestore.
+    > 8. Criar testes automatizados do controller, das telas e do tempo real.
+    > 9. Atualizar o `CHANGELOG.md`, o `docs/uso-de-ia.md`, o `README.md` e a modelagem do Firestore.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Reaproveitou o chat do aluno: moveu `ChatMessage` para `lib/shared/models/` e extraiu balões, separador de dia, campo de mensagem e barra superior para `lib/shared/widgets/chat/`, mantendo o comportamento e os testes do aluno. Como o id do relato é o `uid` do aluno, a tela da psicóloga trabalha só com o conteúdo e o protocolo. Trocou a leitura única do painel por `snapshots()`, de modo que `load()` continua servindo ao "puxar para atualizar". Escreveu os testes de status (primeira resposta, mediação mantida, aluno que volta a escrever) e de tempo real. `flutter analyze` ficou sem problemas e os 282 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Regras do Firestore:** as ações da psicóloga dependem das regras da modelagem (leitura de `reports` e de `messages`, criação de mensagem com `senderRole: psychologist` e `update` de `status` e `severity`). Elas precisam estar publicadas no console do Firebase, e a conta usada precisa ter `role: psychologist` em `users/{uid}`.
+    2. **Resposta e status:** a decisão de negócio ficou assim: a primeira resposta a um relato pendente muda para "respondida"; relato em mediação continua em mediação; se o aluno volta a escrever, o relato volta para pendente. A equipe de psicologia precisa validar esse fluxo.
+    3. **Botão "Ver relato" removido:** a folha de detalhe da tarefa anterior deixou de existir, porque o chat mostra o relato inteiro. O botão virou "Responder", como no Figma.
+    4. **Relatos sem mensagens:** um relato criado direto no console não tem mensagens, então a tela mostra o texto do relato como a primeira mensagem do aluno.
+    5. **Identificação do aluno:** o id do documento é o `uid` anônimo do aluno. Ele não aparece em nenhuma tela, mas quem abre o console do Firebase consegue vê-lo.
+    6. **Teste no emulador:** a IA validou analyzer, testes e o build do APK, mas não abriu o app logada como psicóloga. A homologação no emulador (API 24+) e a conferência do chat entre dois aparelhos ficam para o integrante.
+    7. **Telas "guias" e "pais" do Figma:** a edição de guias e o chat do responsável com a psicóloga aparecem nas capturas, mas são outros requisitos e não foram feitos nesta tarefa.
 
 ### Mateus Henrique de Araújo Santos
 

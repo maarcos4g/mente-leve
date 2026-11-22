@@ -3,12 +3,14 @@ import 'package:mente_leve/modules/onboarding/onboarding_view.dart';
 import 'package:mente_leve/modules/parents/auth/auth_view.dart';
 import 'package:mente_leve/modules/parents/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/auth/auth_view.dart';
+import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_view.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
 import 'package:mente_leve/modules/psychologist/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/reports/reports_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
+import 'package:mente_leve/modules/student/chat/anonymous_chat_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
@@ -51,6 +53,7 @@ class AppWidget extends StatefulWidget {
     HomeController.faqRoute: (context) =>
         StudentFaqView(availableRoutes: routes.keys.toSet()),
     OfficialChannelsView.routeName: (context) => const OfficialChannelsView(),
+    HomeController.reportRoute: (context) => const AnonymousChatView(),
     '/parents/home': (context) => ParentsHomeView(),
     '/psychologist/home': (context) {
       final session = context.watch<AuthNotifier>().session;
@@ -59,6 +62,10 @@ class AppWidget extends StatefulWidget {
     },
     PsychologistFaqView.routeName: (context) => const PsychologistFaqView(),
     ReportsView.routeName: (context) => const ReportsView(),
+    PsychologistChatView.routeName: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as ReportChatArgs;
+      return PsychologistChatView(args: args);
+    },
   };
 
   /// Avalia o gatilho de apoio (RN11) depois que o humor foi salvo.

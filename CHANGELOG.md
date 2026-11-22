@@ -221,8 +221,13 @@
 - Painel de Gestão e Triagem de Relatos Anônimos da psicóloga (RF09 / EPIC-06): nova tela `ReportsView` (rota `/psychologist/reports`) que lista as denúncias recebidas como "Mensagem anônima #NNN", com selos de status, gravidade e tipo, filtros de **gravidade** (alta, média, baixa) e de **status de mediação** (pendente, em mediação, respondida), contador de relatos, "Ver relato" com o texto completo, puxar para atualizar e estados de carregamento, vazio, sem resultado (com "Limpar filtros") e erro (com "Tentar novamente"). A lista segue a ordem de triagem: mais grave primeiro e, na mesma gravidade, o relato mais antigo.
 - Card "Triagem das denúncias" na Home da psicóloga (`ReportsSummaryCard`), com as duas denúncias pendentes mais urgentes e o botão "Ver todas as denúncias".
 - Entidade `Report` (`ReportType`, `ReportStatus`, `ReportSeverity`) em `lib/shared/models/report_model.dart` e `ReportRepository` em `lib/shared/reports/report_repository.dart` (`FirestoreReportRepository`, que lê a coleção `reports`, e `LocalReportRepository`, em memória). O `studentUid` do documento nunca é lido, para manter o anonimato. Quando o documento não traz `severity`, ela é estimada pelo tipo e por sinais de risco no texto (regra provisória, a validar com a equipe de psicologia).
-- Nomes de arquivos, coleções e campos do Firestore em inglês no painel de triagem: coleção `reports` com `studentUid`, `type`, `description`, `status` (`pending`, `inMediation`, `answered`), `severity` (`low`, `medium`, `high`), `createdAt` e `reply`.
+- Nomes de arquivos, coleções e campos do Firestore em inglês no painel de triagem: coleção `reports` com `studentUid`, `type`, `description`, `status` (`pending`, `inMediation`, `answered`), `severity` (`low`, `medium`, `high`), e `createdAt`.
 - Testes do modelo, do controller, da tela, do card da Home e do contraste WCAG AA dos novos selos (`test/shared/models/`, `test/modules/psychologist/reports/` e `test/accessibility_wcag_test.dart`).
+- Chat anônimo do aluno com a escola em tempo real (RF05): nova tela `AnonymousChatView` (rota `/report`, aberta pelos cards "Chat Anônimo" da Home e "Denúncias anônimas à escola" do FAQ e pelo modal de apoio). O aluno escolhe o tipo do relato (bullying, cyberbullying ou outros), escreve a mensagem e acompanha a conversa, com balões do aluno e da psicóloga, separação por dia ("Hoje" e "Ontem"), horário e rolagem automática até a última mensagem. As respostas da psicóloga aparecem na hora, sem recarregar a tela.
+- `AnonymousChatController` e `ChatRepository` (`FirestoreChatRepository` e `InMemoryChatRepository`): a conversa é o documento `reports/{uid do aluno}` e as mensagens ficam em `reports/{uid}/messages` (`senderRole`, `text` e `createdAt`), acompanhadas com `snapshots(includeMetadataChanges: true)`. A primeira mensagem cria o relato que aparece no painel de triagem da psicóloga; se o aluno voltar a escrever depois de respondido, o relato volta para pendente.
+- Chat sem internet: a mensagem entra na fila do Firestore e aparece como "Enviando…" até sincronizar. Sem login no Firebase (sessão local), o campo fica desativado com aviso. Limite de 2000 caracteres por mensagem, com mensagem vazia ignorada.
+- Modelagem do Firestore (`docs/modelagem/03-modelagem-firestore.md`): subcoleção `messages`, relato com id igual ao `uid` do aluno (sem índice extra), campo `reply` removido e regras de segurança do chat e do status do relato.
+- Testes do controller (inclusive resposta em tempo real e falhas), da tela, do modelo de mensagem e do contraste WCAG AA dos balões (`test/modules/student/chat/` e `test/accessibility_wcag_test.dart`).
 
 ### Modificado
 
@@ -236,3 +241,24 @@
 - Sair da conta numa sessão offline agora também apaga o perfil local, para o app não entrar de novo sozinho.
 - Onboarding (`OnboardingView`): o conteúdo passa a rolar. No Android 7 (731 dp de altura) ele estourava 194 px e o botão "Entrar como aluno" ficava fora da área de toque.
 - Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
+
+## [22/11/2026]
+
+### Corrigido
+
+- Chat anônimo do aluno (`AnonymousChatController`): a falha ao acompanhar a conversa não culpa mais a internet por qualquer erro. Agora há mensagem própria para falta de rede (`unavailable`), para regra de segurança que nega o acesso (`permission-denied`) e para os demais erros, e o erro real passa a ser registrado no log (`debugPrint`). Testes em `test/modules/student/chat/`.
+
+### Adicionado
+
+- Chat da psicóloga com o aluno em tempo real (RF10): nova tela `PsychologistChatView` (rota `/psychologist/chat`, com `ReportChatArgs`), que mostra a conversa inteira do relato com o aluno identificado só como "Aluno anônimo" e pelo número do protocolo. A psicóloga responde por ali, e as mensagens novas do aluno aparecem sozinhas. Sem mensagens gravadas (relato criado direto no console), o texto do relato aparece como a primeira mensagem.
+- Gestão do relato dentro do chat ("Gerenciar relato"): a psicóloga muda o **status de mediação** (pendente, em mediação, respondida) e a **gravidade** (alta, média, baixa). A primeira resposta a um relato pendente muda o status para respondido; um relato em mediação continua em mediação.
+- `PsychologistChatController` e `PsychologistChatRepository` (`FirestorePsychologistChatRepository` e `InMemoryPsychologistChatRepository`): a resposta grava a mensagem com `senderRole: psychologist` e atualiza o status no mesmo lote, sem gravar nenhum dado da psicóloga na mensagem.
+- Painel de triagem em tempo real: `ReportRepository.watch()` (`snapshots()` do Firestore) no lugar da leitura única. Relatos novos, mensagens e mudanças de status aparecem na lista e no resumo da Home sem recarregar.
+- Widgets de chat compartilhados entre aluno e psicóloga (`lib/shared/widgets/chat/chat_widgets.dart`: balões, separador de dia, campo de mensagem e barra superior) e `ChatMessage` em `lib/shared/models/`.
+- Testes do controller e da tela do chat da psicóloga, do painel em tempo real e do botão "Responder" (`test/modules/psychologist/chat/` e `test/modules/psychologist/reports/`).
+
+### Modificado
+
+- Cards da triagem (`ReportCard`, na tela de triagem e na Home): o botão "Ver relato" e a folha com o texto completo foram substituídos pelo botão "Responder", que abre o chat do relato, como no protótipo do Figma.
+- Tela do chat do aluno (`AnonymousChatView`): passou a usar os widgets de chat compartilhados, sem mudar o comportamento.
+- Mensagem de erro do painel de triagem: separa falta de rede, permissão negada e demais falhas, e registra o erro real no log.

@@ -3,7 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
+import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_controller.dart';
+import 'package:mente_leve/modules/psychologist/chat/repositories/psychologist_chat_repository.dart';
 import 'package:mente_leve/modules/psychologist/reports/reports_controller.dart';
+import 'package:mente_leve/modules/student/chat/anonymous_chat_controller.dart';
+import 'package:mente_leve/modules/student/chat/repositories/chat_repository.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_controller.dart';
 import 'package:mente_leve/modules/student/diary/controllers/diary_lock_controller.dart';
 import 'package:mente_leve/modules/student/diary/repositories/diary_lock_repository.dart';
@@ -51,6 +55,12 @@ class _MyAppState extends State<MyApp> {
       FirebaseFirestore.instance,
       storage: storage,
     );
+    AnonymousChatController.defaultRepository = FirestoreChatRepository(
+      FirebaseFirestore.instance,
+      FirebaseAuth.instance,
+    );
+    PsychologistChatController.defaultRepository =
+        FirestorePsychologistChatRepository(FirebaseFirestore.instance);
     ReportsController.defaultRepository = FirestoreReportRepository(
       FirebaseFirestore.instance,
     );

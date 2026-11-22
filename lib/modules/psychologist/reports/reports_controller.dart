@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/reports/report_repository.dart';
+import 'package:mente_leve/shared/utils/firestore_error_messages.dart';
 
 /// Controlador do Painel de Gestão e Triagem de Relatos Anônimos (RF09).
 ///
-/// Carrega as denúncias, aplica os filtros de gravidade e de status de
+/// Acompanha as denúncias em tempo real (novos relatos, respostas e mudanças
+/// de status aparecem sozinhos), aplica os filtros de gravidade e de status de
 /// mediação e entrega a lista na ordem de triagem: mais grave primeiro e,
 /// na mesma gravidade, o relato mais antigo primeiro.
 class ReportsController extends ChangeNotifier {
@@ -23,7 +27,9 @@ class ReportsController extends ChangeNotifier {
   ReportStatus? _statusFilter;
   bool _isLoading = false;
   bool _hasLoaded = false;
+  bool _disposed = false;
   String? _errorMessage;
+  StreamSubscription<List<Report>>? _subscription;
 
   bool get isLoading => _isLoading;
 
@@ -76,27 +82,51 @@ class ReportsController extends ChangeNotifier {
     return a.createdAt.compareTo(b.createdAt);
   }
 
-  Future<void> load() async {
+  /// (Re)começa a acompanhar os relatos. Completa na primeira emissão do
+  /// repositório (dados ou erro), o que serve ao "puxar para atualizar".
+  Future<void> load() {
+    _subscription?.cancel();
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    try {
-      _all = await _repository.list();
-      final chronological = List<Report>.from(_all)
-        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      _numbers = {
-        for (var i = 0; i < chronological.length; i++)
-          chronological[i].id: i + 1,
-      };
-    } catch (_) {
-      _errorMessage =
-          'Não foi possível carregar as denúncias. Verifique a conexão e '
-          'tente novamente.';
-    } finally {
+
+    final first = Completer<void>();
+    void finish() {
       _isLoading = false;
       _hasLoaded = true;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
+      if (!first.isCompleted) first.complete();
     }
+
+    _subscription = _repository.watch().listen(
+      (reports) {
+        _setReports(reports);
+        _errorMessage = null;
+        finish();
+      },
+      onError: (Object error) {
+        debugPrint('Triagem: falha ao acompanhar as denúncias: $error');
+        _errorMessage = reportsLoadErrorMessage(error);
+        finish();
+      },
+    );
+    return first.future;
+  }
+
+  void _setReports(List<Report> reports) {
+    _all = reports;
+    final chronological = List<Report>.from(reports)
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    _numbers = {
+      for (var i = 0; i < chronological.length; i++) chronological[i].id: i + 1,
+    };
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _subscription?.cancel();
+    super.dispose();
   }
 
   void filterBySeverity(ReportSeverity? severity) {

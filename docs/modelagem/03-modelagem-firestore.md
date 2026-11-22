@@ -47,11 +47,16 @@ erDiagram
     string status "pending, inMediation ou answered"
     string severity "low, medium ou high (opcional)"
     timestamp createdAt
-    map reply "text, answeredAt, psychologistUid (opcional)"
+  }
+  MESSAGES {
+    string id PK
+    string senderRole "student ou psychologist"
+    string text
+    timestamp createdAt
   }
   USERS ||--o{ FAQ : "updatedBy"
   USERS ||--o{ GUIDES : "authorUid"
-  USERS ||--o{ REPORTS : "reply.psychologistUid"
+  REPORTS ||--o{ MESSAGES : "subcoleção messages"
 ```
 
 Todos os nomes de coleções e de campos do Firestore ficam em inglês, como já fazem `users` e `faq` no código. Só o texto exibido na tela é em português.
@@ -63,10 +68,11 @@ users/{uid}          perfil de psicóloga e responsável (criado pela escola, fo
 faq/{faqId}          perguntas e respostas (leitura pública)
 guides/{guideId}     guias para responsáveis
 channels/{channelId} canais de apoio externos (cadastro pelo console)
-reports/{reportId}   relatos anônimos, com a resposta da psicóloga dentro do documento
+reports/{studentUid} relato anônimo do aluno; o id é o uid da autenticação anônima
+reports/{studentUid}/messages/{messageId}   mensagens do chat entre o aluno e a psicóloga
 ```
 
-Obs: A resposta é um campo do tipo map dentro do relato, porque cada relato tem no máximo uma resposta.
+Obs: Cada aluno tem uma única conversa, no documento `reports/{uid}`. A primeira mensagem cria o relato e as seguintes entram na subcoleção `messages`, que o app acompanha em tempo real. O id do relato ser o `uid` evita consulta e índice para achar a conversa do aluno.
 
 ## Campos
 
@@ -116,7 +122,18 @@ O id do documento é o `uid` do Firebase Auth. Aluno anônimo não tem documento
 | status | string | `pending` ao criar, `inMediation` enquanto a equipe acompanha o relato e `answered` depois da resposta |
 | severity | string, opcional | `low`, `medium` ou `high`. O aluno não envia: o painel de triagem estima pelo tipo e pelo texto quando o campo falta |
 | createdAt | timestamp | Gravado com o horário do servidor |
-| reply | map, opcional | `text`, `answeredAt`, `psychologistUid` |
+
+O id do documento é o `studentUid`. `description` guarda a primeira mensagem da conversa, que é o que o painel de triagem mostra. Quando o aluno escreve de novo num relato `answered`, o app devolve o `status` para `pending`.
+
+**reports/{studentUid}/messages/{messageId}**
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| senderRole | string | `student` ou `psychologist` |
+| text | string | De 1 a 2000 caracteres |
+| createdAt | timestamp | Gravado com o horário do servidor |
+
+A mensagem não guarda nome nem nenhum dado do aluno. O app lê a subcoleção com `orderBy('createdAt')` e `snapshots(includeMetadataChanges: true)`, e usa `metadata.hasPendingWrites` para mostrar "Enviando…".
 
 ## Índices compostos
 
@@ -124,7 +141,7 @@ O id do documento é o `uid` do Firebase Auth. Aluno anônimo não tem documento
 |---|---|
 | Painel de triagem (RF09): todos os relatos, do mais recente para o mais antigo | `createdAt` decrescente (índice simples, automático). Os filtros de gravidade e de status são aplicados no app |
 | Triagem da psicóloga: relatos pendentes do mais antigo para o mais novo | `status` crescente, `createdAt` crescente |
-| Lista do aluno: os próprios relatos, do mais recente para o mais antigo | `studentUid` crescente, `createdAt` decrescente |
+| Chat do aluno: mensagens da conversa em ordem de envio | `createdAt` crescente (índice simples, automático) |
 
 
 ## Regras de segurança
@@ -173,6 +190,7 @@ service cloud.firestore {
 
     match /reports/{id} {
       allow create: if signedIn()
+        && id == request.auth.uid
         && request.resource.data.keys().hasOnly(['studentUid', 'type', 'description', 'status', 'createdAt'])
         && request.resource.data.studentUid == request.auth.uid
         && request.resource.data.status == 'pending'
@@ -182,14 +200,39 @@ service cloud.firestore {
         && request.resource.data.description.size() <= 2000
         && request.resource.data.createdAt == request.time;
 
+      // resource == null permite ao aluno acompanhar a própria conversa
+      // antes de enviar a primeira mensagem.
       allow read: if signedIn()
-        && (resource.data.studentUid == request.auth.uid || isPsychologist());
+        && ((resource == null && id == request.auth.uid)
+          || (resource != null && (resource.data.studentUid == request.auth.uid || isPsychologist())));
 
-      allow update: if isPsychologist()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'severity', 'reply'])
-        && request.resource.data.status in ['pending', 'inMediation', 'answered'];
+      allow update: if (
+          isPsychologist()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'severity'])
+          && request.resource.data.status in ['pending', 'inMediation', 'answered']
+        ) || (
+          signedIn()
+          && resource.data.studentUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status == 'pending'
+        );
 
       allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if signedIn() && (id == request.auth.uid || isPsychologist());
+
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['senderRole', 'text', 'createdAt'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.createdAt == request.time
+          && ((request.resource.data.senderRole == 'student' && id == request.auth.uid)
+            || (request.resource.data.senderRole == 'psychologist' && isPsychologist()));
+
+        allow update, delete: if false;
+      }
     }
   }
 }
@@ -197,13 +240,16 @@ service cloud.firestore {
 
 A descrição do relato tem limite de 2000 caracteres.
 
-O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentUid`. A regra de `update` acima já aceita `inMediation` e a chave `severity`, que a resposta da psicóloga (RF10) vai gravar. O repositório não versiona o arquivo `firestore.rules`, então a regra precisa ser publicada no console do Firebase.
+O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentUid`. Na regra de `update`, a psicóloga pode mudar `status` (inclusive para `inMediation`) e `severity`, e o aluno só pode devolver o relato para `pending` ao escrever de novo. A regra de `create` das mensagens aceita `psychologist` para a resposta da psicóloga (RF10). O repositório não versiona o arquivo `firestore.rules`, então as regras precisam ser publicadas no console do Firebase.
 
 ## Comportamento sem internet
 
 - Leituras do FAQ, dos canais e dos guias usam o cache do Firestore depois da primeira carga.
-- A denúncia criada sem internet entra na fila do Firestore e é enviada quando a conexão volta. Enquanto isso, a tela mostra o estado "aguardando envio".
-- Respostas da psicóloga só aparecem para o aluno depois que ele abrir o app com internet.
+- A mensagem escrita sem internet entra na fila do Firestore e é enviada quando a conexão volta. Enquanto isso, o balão mostra "Enviando…".
+- Com internet, o chat funciona em tempo real: a resposta da psicóloga aparece na tela do aluno assim que é gravada, sem recarregar, e a mensagem do aluno aparece na tela da psicóloga do mesmo jeito. O painel de triagem também acompanha `reports` em tempo real.
+- A resposta da psicóloga grava a mensagem (`senderRole: psychologist`) e, no mesmo lote, muda o `status` do relato para `answered` se ele estava `pending`. Mudar o status ou a gravidade grava só `status` ou `severity`, o que a regra de `update` da psicóloga já permite.
+- Sem internet e sem cache, o aluno não vê respostas novas, que chegam quando a conexão volta.
+- O aluno que entrou só com a sessão local (sem login anônimo no Firebase) não consegue enviar; o chat avisa para conectar à internet.
 
 ## O que fica fora do Firestore
 

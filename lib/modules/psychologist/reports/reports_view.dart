@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_view.dart';
 import 'package:mente_leve/modules/psychologist/reports/reports_controller.dart';
 import 'package:mente_leve/modules/psychologist/reports/widgets/report_card.dart';
 import 'package:mente_leve/shared/models/report_model.dart';
@@ -168,9 +169,9 @@ class _ReportsViewState extends State<ReportsView> {
           report: report,
           protocol: _controller.protocol(report),
           onOpen:
-              () => showReportDetail(
+              () => PsychologistChatView.open(
                 context,
-                report: report,
+                reportId: report.id,
                 protocol: _controller.protocol(report),
               ),
         ),

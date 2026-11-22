@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_controller.dart';
+import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_view.dart';
+import 'package:mente_leve/modules/psychologist/chat/repositories/psychologist_chat_repository.dart';
 import 'package:mente_leve/modules/psychologist/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/reports/reports_controller.dart';
 import 'package:mente_leve/modules/psychologist/reports/reports_view.dart';
 import 'package:mente_leve/shared/models/enums/user_role.dart';
+import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/models/user_model.dart';
 import 'package:mente_leve/shared/reports/report_repository.dart';
 
@@ -107,27 +111,68 @@ void main() {
       expect(repo.calls, 2);
     });
 
-    testWidgets('"Ver relato" abre o texto completo do relato', (tester) async {
-      await tester.pumpWidget(app(withSamples()));
+    testWidgets('"Responder" abre o chat do relato com o protocolo', (
+      tester,
+    ) async {
+      final chatRepo = InMemoryPsychologistChatRepository(
+        sampleReports().firstWhere((r) => r.id == 'd4'),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ReportsView(controller: withSamples()),
+          onGenerateRoute: (settings) {
+            if (settings.name != PsychologistChatView.routeName) return null;
+            final args = settings.arguments as ReportChatArgs;
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder:
+                  (_) => PsychologistChatView(
+                    args: args,
+                    controller: PsychologistChatController(
+                      reportId: args.reportId,
+                      repository: chatRepo,
+                    ),
+                  ),
+            );
+          },
+        ),
+      );
       await tester.pumpAndSettle();
 
       final open = find.byKey(const Key('report_open_d4'));
       await scrollTo(tester, open);
+      expect(
+        find.descendant(of: open, matching: find.text('Responder')),
+        findsOneWidget,
+      );
       await tester.tap(open);
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('report_detail_sheet')), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byKey(const Key('report_detail_sheet')),
-          matching: find.text('Ameaçaram me bater na saída'),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Mensagem anônima #004'), findsOneWidget);
+      expect(find.text('Ameaçaram me bater na saída'), findsOneWidget);
+    });
 
-      await tester.tap(find.byKey(const Key('report_detail_close')));
+    testWidgets('relato novo aparece em tempo real, sem recarregar', (
+      tester,
+    ) async {
+      final repo = LocalReportRepository(sampleReports());
+      await tester.pumpWidget(
+        app(ReportsController(repository: repo)),
+      );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('report_detail_sheet')), findsNothing);
+      expect(find.text('4 relatos (2 pendentes)'), findsOneWidget);
+
+      repo.upsert(
+        buildReport(
+          'd5',
+          description: 'Novo relato do aluno',
+          createdAt: DateTime(2026, 11, 20, 10),
+          severity: ReportSeverity.high,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('5 relatos (3 pendentes)'), findsOneWidget);
     });
 
     testWidgets('botões e chips respeitam a área de toque de 48dp', (
