@@ -3,8 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
+import 'package:mente_leve/modules/psychologist/reports/widgets/report_card.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
+import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/widgets/faq/faq_expandable_card.dart';
 
@@ -195,5 +197,29 @@ void main() {
         expect(deleteSize.height, greaterThanOrEqualTo(48));
       },
     );
+
+    test('selos de gravidade e status da triagem cumprem contraste AA (RF09)', () {
+      for (final severity in ReportSeverity.values) {
+        final colors = BadgeColors.forSeverity(severity);
+        expect(
+          wcagContrastRatio(colors.foreground, colors.background),
+          greaterThanOrEqualTo(4.5),
+          reason: 'gravidade ${severity.name}',
+        );
+      }
+      for (final status in ReportStatus.values) {
+        final colors = BadgeColors.forStatus(status);
+        expect(
+          wcagContrastRatio(colors.foreground, colors.background),
+          greaterThanOrEqualTo(4.5),
+          reason: 'status ${status.name}',
+        );
+      }
+      // Texto branco do chip de filtro selecionado e dos botões da triagem.
+      expect(
+        wcagContrastRatio(Colors.white, AppColors.sky700),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
   });
 }

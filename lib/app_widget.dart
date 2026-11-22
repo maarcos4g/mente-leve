@@ -5,6 +5,7 @@ import 'package:mente_leve/modules/parents/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/auth/auth_view.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
 import 'package:mente_leve/modules/psychologist/home/home_view.dart';
+import 'package:mente_leve/modules/psychologist/reports/reports_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
@@ -57,6 +58,7 @@ class AppWidget extends StatefulWidget {
       return PsychologistHomeView(user: user);
     },
     PsychologistFaqView.routeName: (context) => const PsychologistFaqView(),
+    ReportsView.routeName: (context) => const ReportsView(),
   };
 
   /// Avalia o gatilho de apoio (RN11) depois que o humor foi salvo.

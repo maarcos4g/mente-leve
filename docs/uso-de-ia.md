@@ -400,6 +400,37 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     3. **Resolução de conflitos:** nos PRs #26 e #27 a IA resolveu o merge. No #26, o push ficou para o integrante.
     4. **Ajuste em um PR:** na revisão do PR #12, o integrante pediu para remover do card "Diário Pessoal" da Home a navegação para a roleta de sentimentos. A IA mudou o destino para `/diary/reflection`, que ainda não estava registrada, então o card passou a mostrar "Disponível em breve".
 
+* **Painel de Gestão e Triagem de Relatos Anônimos (RF09 / EPIC-06) (21/11):**
+  * **O que foi feito:** Criação do painel de triagem da psicóloga (`ReportsView`, rota `/psychologist/reports`, com `ReportsController`) e do card "Triagem das denúncias" na Home. A tela lista as denúncias anônimas com filtros de gravidade e de status de mediação, "Ver relato" com o texto completo e estados de carregamento, vazio, sem resultado e erro. Também foram criados a entidade `Report` (`lib/shared/models/report_model.dart`), o `ReportRepository` (Firestore e em memória), a injeção no `main.dart` e os testes de modelo, controller, tela, Home e contraste WCAG. O `CHANGELOG.md`, o `README.md` e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter.
+    >
+    > **Tarefa:** implementar o Painel de Gestão e Triagem de Relatos Anônimos (RF09), vinculado ao EPIC-06, com estimativa de 5 Story Points, com base nas capturas de tela do Figma em anexo (Home/Painel da psicóloga, FAQ, Guias e Chat).
+    >
+    > **Critério de Aceite / DoD:** visualização das denúncias anônimas recebidas, com filtros de gravidade e de status de mediação.
+    >
+    > **Requisitos:**
+    > 1. Seguir a arquitetura, o padrão visual e as cores já usados no projeto, e consultar a modelagem em `docs/` antes de implementar.
+    > 2. Manter o anonimato do aluno: o painel não pode ler nem exibir nenhum dado que o identifique.
+    > 3. Nomear todos os arquivos novos apenas em inglês.
+    > 4. Usar nomes em inglês em todas as coleções e campos do Firestore.
+    > 5. Criar testes automatizados da regra de negócio, das telas e do contraste de acessibilidade (WCAG AA).
+    > 6. Atualizar o `CHANGELOG.md`, o `docs/uso-de-ia.md`, o `README.md` e a modelagem do Firestore.
+    >
+    > **Diretrizes de homologação:**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Leu `docs/modelagem/` e viu que a `Denuncia` já estava especificada, mas sem gravidade e sem o estado de mediação, então estendeu o modelo. Depois, a pedido do integrante, renomeou os arquivos para inglês e passou a coleção e os campos do Firestore para inglês (coleção `reports`; campos `studentUid`, `type`, `description`, `status`, `severity`, `createdAt` e `reply`), atualizando também `docs/modelagem/03-modelagem-firestore.md`. Reaproveitou o padrão de controller, tela e repositório injetado do FAQ da psicóloga e as cores do `AppColors`. Escreveu 24 testes novos, e `flutter analyze` e `flutter test` ficaram sem problemas (240 testes passando). Validou o build Android com `flutter build apk --debug`.
+  * **Dificuldades e ajustes manuais:**
+    1. **Gravidade não existe no documento do aluno:** a regra de criação da denúncia aceita só `studentUid`, `type`, `description`, `status` e `createdAt`. Sem o campo, a gravidade é estimada pelo tipo e por palavras de risco no texto. É uma regra provisória que precisa ser validada pela psicóloga da escola.
+    2. **Status "em mediação" e regras do Firestore:** a regra de `update` da modelagem só aceitava `pending` e `answered`. A modelagem foi atualizada para aceitar também `inMediation` e a chave `severity`, mas o `firestore.rules` não é versionado e a regra precisa ser publicada no console do Firebase.
+    3. **Botão "Responder" do Figma:** não foi criado, porque a resposta e o chat são o RF10. O card tem "Ver relato", que abre o texto completo.
+    4. **Sem denúncias no app ainda:** o envio pelo aluno (RF05) não existe no código, então a coleção `reports` só tem dados se for preenchida pelo console do Firebase.
+    5. **Teste no emulador:** o emulador `Pixel_6_API_34` existe, mas o login da psicóloga usa credenciais reais do Firebase que a IA não tem. A homologação visual no aparelho (e em API 24) ficou para o integrante; a IA validou analyzer, testes e o build do APK.
+    6. **Testes com lista longa:** o `ListView` constrói os cards sob demanda, e três testes falharam por procurar cards fora da área visível. Os testes passaram a rolar até o card.
+
 ### Mateus Henrique de Araújo Santos
 
 * **Especificação dos mappers Documento ↔ Entidade de domínio (20/11):**
