@@ -7,65 +7,7 @@ import 'package:mente_leve/shared/app_update/app_update_controller.dart';
 import 'package:mente_leve/shared/app_update/app_update_repository.dart';
 import 'package:mente_leve/shared/app_update/release_info.dart';
 
-final _release = ReleaseInfo(
-  tag: 'v1.1.0',
-  apkName: 'mente-leve.apk',
-  apkUrl: Uri.parse('https://example.com/mente-leve.apk'),
-);
-
-class FakeRepository implements AppUpdateRepository {
-  FakeRepository(this.result);
-
-  ReleaseInfo? result;
-  Object? error;
-  int calls = 0;
-  String? askedWith;
-
-  @override
-  Future<ReleaseInfo?> checkForUpdate(String currentVersion) async {
-    calls++;
-    askedWith = currentVersion;
-    if (error != null) throw error!;
-    return result;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class FakeDownloader implements ApkDownloader {
-  FakeDownloader(this.file);
-
-  final File file;
-  Object? error;
-  int calls = 0;
-
-  @override
-  Future<File> download(
-    ReleaseInfo release, {
-    void Function(double? progress)? onProgress,
-  }) async {
-    calls++;
-    if (error != null) throw error!;
-    onProgress?.call(0.5);
-    onProgress?.call(1);
-    return file;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class FakeInstaller implements ApkInstaller {
-  InstallResult result = InstallResult.started;
-  int calls = 0;
-
-  @override
-  Future<InstallResult> install(File apk) async {
-    calls++;
-    return result;
-  }
-}
+import 'update_fakes.dart';
 
 void main() {
   late Directory dir;
@@ -77,7 +19,7 @@ void main() {
   setUp(() {
     dir = Directory.systemTemp.createTempSync('update_controller_');
     apk = File('${dir.path}/app.apk')..writeAsStringSync('apk');
-    repository = FakeRepository(_release);
+    repository = FakeRepository(testRelease);
     downloader = FakeDownloader(apk);
     installer = FakeInstaller();
   });
