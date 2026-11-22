@@ -41,6 +41,7 @@
 - Diagramas de Caso de uso
 - Modelagem e mapeamento de Classes
 - Esquema Firestore
+- Revisão e aprovação do PR #1 (escopo, calendário de sprints e registro de uso de IA).
 
 ## [03/11/2026]
 
@@ -54,6 +55,7 @@
   - Fluxo 4: psicóloga (triagem, resposta, gestão de FAQ e guias) e responsável (consulta de guias).
 - Legenda de cores (tela, entrada/destino, concluído, erro, vazio/pendente, CVV ou sem protótipo, só no protótipo).
 - Estados de erro e vazio mapeados: credencial inválida, sem conexão, falha ao salvar, diário vazio, sem discador, FAQ e guias sem cache, triagem sem denúncias, denúncia aguardando envio e sem resposta.
+- Revisão dos PRs #2 (docs) e #4 (fluxograma de telas), aprovados, e #3 (EAP/WBS), com ajustes solicitados e aprovação em seguida.
 
 ## [05/11/2026]
 
@@ -71,6 +73,8 @@
 - Estrutura-base do projeto flutter.
 - Implementação do Design System (Cores, tipografias, assets).
 - Construção das telas de login nos módulos de aluno, psicólogo e responsável familiar.
+- Revisão e aprovação do PR #7 (reorganização da pasta `docs/` e simplificação do registro de uso de IA).
+- Setup do projeto Flutter (SCRUM-24): estrutura de pastas por módulo, rotas nomeadas, tema e dependências iniciais (PR #5).
 
 ## [06/11/2026]
 
@@ -78,6 +82,7 @@
 
 - Integração com SDK do Firebase (Authentication e Firestore).
 - Implementação dos módulos de autenticação para pais, psicólogos e alunos.
+- Dependências `firebase_core`, `firebase_auth` e `cloud_firestore`, com `Firebase.initializeApp()` no bootstrap e plugin Google Services no Android (SCRUM-25/27).
 
 ## [08/11/2026]
 
@@ -89,6 +94,7 @@
 - Teste de widget da Home (`test/home_view_test.dart`).
 - Diário de Sentimentos por Emojis (RF01 / SCRUM-28): tela `DiaryFeelingsView` fiel ao protótipo do Figma com disco radial interativo de 12 setores, expressões faciais vetoriais (`EmotionFacePainter`), ponteiro em gota (`NeedlePainter`), controlador (`DiaryController`), modelos (`Humor` e `RegistroDiario`), repositório local (`LocalDiaryRepository`) e widgets (`MoodSelectorCard`, `EmojiButton` e `RecentMoodsSummary`), cumprindo o fluxo de registro rápido em até 3 interações (RNF05).
 - Testes unitários e de widgets para o módulo do Diário de Sentimentos (`test/modules/student/diary/`).
+- Estado de carregamento e tratamento de erros no fluxo de autenticação das telas de aluno, psicóloga e responsável, com mensagens em PT-BR (PR #9).
 
 ### Modificado
 
@@ -103,9 +109,11 @@
 
 ## [10/11/2026]
 
-## Adicionado
+### Adicionado
 
 - Pipeline CI/CD com Github Actions e Firebase App Distribution
+- Workflow `.github/workflows/ci_cd.yml` que compila o APK Android em modo release a cada push na `main` (ou disparo manual) e envia o build ao Firebase App Distribution.
+- Revisão e aprovação do PR #10 (Home do aluno) e primeira revisão do PR #11 (diário reflexivo), com ajustes solicitados.
 
 ## [12/11/2026]
 
@@ -127,6 +135,7 @@
 - Botão de emergência "Ajuda (CVV)" fixo nas telas funcionais do aluno (Home e rotas de diário, chat anônimo e FAQ), que disca 188 pelo discador nativo (`url_launcher`) e não depende de internet (RF05).
 - `CvvOverlay` e `CvvRouteObserver` (`lib/shared/widgets/cvv_button/cvv_overlay.dart`), aplicados em `MaterialApp.builder` para sobrepor o botão a todas as rotas.
 - Teste de widget do overlay (`test/cvv_overlay_test.dart`): botão visível apenas nas telas do aluno, oculto em splash, onboarding, login, pais e psicólogo, e disparo da ação.
+- Revisão dos PRs #11 (diário reflexivo), #12 (diário de sentimentos) e #15 (CVV 188), com ajustes solicitados, e aprovação do PR #16 (responsabilidades no README).
 
 ### Modificado
 
@@ -143,6 +152,18 @@
 - Diário Pessoal: a folha "Como você está se sentindo?", a lista de registros e o botão de humor mostram o Breno com a cara de cada emoção no lugar dos rostinhos desenhados.
 - Seletor de emoção (RF01): um sentimento por dia. Se já houver registro hoje, a roda abre no humor registrado, avisa "Hoje você registrou: X" e salvar altera o humor do dia (mantendo texto e pontos positivos) em vez de criar outro registro.
 
+### Adicionado
+
+- Pipeline CI/CD: etapas de `flutter analyze` e `flutter test` antes do build, cache do Gradle e Flutter SDK fixado em 3.44.0.
+- Pipeline CI/CD: assinatura do APK com keystore fixo restaurado de Secret (`ANDROID_KEYSTORE_BASE64`) e `versionCode` igual ao `run_number` do workflow, para que cada build seja aceito como atualização nos celulares dos testadores (`android/app/build.gradle.kts`).
+
+## [17/11/2026]
+
+### Adicionado
+
+- Pipeline CI/CD com GitHub Actions e Firebase App Distribution integrada à `main` (PR #13).
+- Revisão e aprovação dos PRs #11 (diário reflexivo e checklist de pontos positivos), #12 (diário de sentimentos por emojis) e #15 (CVV 188).
+
 ## [18/11/2026]
 
 ### Adicionado
@@ -150,6 +171,7 @@
 - FAQ Empático Dinâmico e Canais de Apoio para o estudante (`StudentFaqView`, `StudentFaqController`, `FaqExpandableCard`, `FaqModel` e `FirestoreFaqRepository` / `LocalFaqRepository` — RF04 / SCRUM-33), com busca por palavras-chave, cards expansíveis fiéis ao protótipo do Figma, cache em `SharedPreferences` e fallback offline.
 - Painel Institucional de Publicação e Edição do FAQ para a psicóloga (`PsychologistFaqView` e `PsychologistFaqController` — RF08 / SCRUM-36), com CRUD completo (criar, listar, editar e excluir perguntas e orientações no Firestore/cache local) e atalho no `PsychologistHomeView`.
 - Suíte de testes automatizados de unidade, widgets e auditoria de acessibilidade WCAG AA (contraste $\ge 4,5:1$ e áreas mínimas de toque $\ge 48\times 48\text{dp}$ — SCRUM-41 / SCRUM-44) em `test/shared/faq/`, `test/modules/student/faq/`, `test/modules/psychologist/faq/` e `test/accessibility_wcag_test.dart`.
+- Revisão e aprovação dos PRs #14 (gatilho de apoio emergencial) e #17 (correção da roleta do diário).
 
 ### Modificado
 
@@ -166,6 +188,7 @@
 - Proteção por PIN no Diário Pessoal (`DiaryReflectionView`): o cadeado da App Bar abre opções para criar, alterar ou remover um PIN de 4 números. Com o PIN ativo, o ícone fica azul e a tela pede o PIN antes de mostrar os registros ("PIN incorreto" limpa o campo). Alterar e remover exigem o PIN atual.
 - `DiaryLockRepository` / `PrefsDiaryLockRepository` e `DiaryLockController`: o PIN fica só no aparelho (`SharedPreferences`, chave `diario_pin`), guardado como hash SHA-256 com salt, nunca em texto puro, e funciona offline. PIN salvo corrompido é tratado como "sem PIN", para o aluno não ficar trancado fora do diário.
 - Testes do repositório, do controller e da tela do PIN (`test/modules/student/diary/`).
+- Revisão do PR #18 (FAQ dinâmico e painel da psicóloga), com ajustes solicitados.
 
 ### Modificado
 
@@ -193,6 +216,7 @@
 - Testes do `AuthRepository` com Firebase simulado (`test/shared/auth/auth_repository_test.dart`) e do onboarding em telas baixas (`test/modules/onboarding/onboarding_view_test.dart`).
 - Especificação técnica dos mappers Documento (Firestore e aparelho) ↔ entidade de domínio: `toMap()`, `fromMap()`, conversores do Firestore, serialização JSON e tratamento de nulos (`docs/modelagem/05-especificacao-mappers.md`).
 - Mascote de acolhimento (RF03 / SCRUM-30): o resumo da semana da Home do aluno passa a ser uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz) calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado.
+- Revisão e aprovação dos PRs #18 (FAQ dinâmico e painel da psicóloga), #19 (mascote de acolhimento), #21 (especificação dos mappers), #22 (justificativas do `pubspec`), #23 (responsabilidades no README), #24 (PIN do diário), #25 (persistência offline), #26 (testes offline) e #27 (canais oficiais de denúncia e apoio).
 
 ### Modificado
 
