@@ -273,3 +273,4 @@
 
 - Filtros de **gravidade** e de **status de mediação** da tela de triagem (`ReportsView`), que não estavam no protótipo do Figma, junto do estado "Nenhuma denúncia com esses filtros" e do botão "Limpar filtros". A lista continua na ordem de triagem (mais grave primeiro e, na mesma gravidade, o mais antigo), e o `ReportsController` perdeu `filterBySeverity`, `filterByStatus`, `clearFilters` e `visible` (agora `sorted`).
 - Painel "Gerenciar relato" do chat da psicóloga (`PsychologistChatView`), com os seletores de status de mediação e de gravidade, e o código que o sustentava (`setStatus` e `setSeverity` no `PsychologistChatController` e no `PsychologistChatRepository`). A ideia de filtro e de classificação manual não existe no protótipo; o chat da psicóloga ficou só com a conversa, como no Figma.
+- `CLAUDE.md` (instruções locais do assistente de IA) removido do repositório e adicionado ao `.gitignore`, junto da pasta `.claude/`.
