@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Consulta de releases e download do APK da atualização in-app. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Permite abrir o instalador de pacotes para atualizar o próprio app. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <application
         android:label="mente_leve"
         android:name="${applicationName}"
