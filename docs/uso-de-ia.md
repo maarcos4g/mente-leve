@@ -195,7 +195,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 ### Marcos Paulo
 
 * **Arquitetura do perfil de usuário e autenticação com Firebase (SCRUM-25 / SCRUM-27) (06/11 a 08/11):**
-  * **O que foi feito:** Definição de como modelar o perfil dos três papéis (aluno anônimo, psicóloga e responsável) e correção dos erros que apareceram ao integrar o Firebase Auth e o Firestore: `UserModel`, `LocalUserModel`, `SessionModel` selado, `AuthRepository`, `ProfileStore` e o bootstrap em `main.dart`. A IA também escreveu as regras de segurança do Firestore (controle de acesso por papel, lendo `users/{uid}`).
+  * **O que foi feito:** Definição de como modelar o perfil dos três papéis (aluno anônimo, psicóloga e responsável) e correção dos erros que apareceram ao integrar o Firebase Auth e o Firestore: `UserModel`, `LocalUserModel`, `SessionModel` selado, `AuthRepository`, `ProfileStore` e o bootstrap em `main.dart`. A IA também escreveu as regras de segurança do Firestore (controle de acesso por papel, lendo `users/{uid}`), já traduzidas para o inglês, revisou o `.gitignore` antes do commit (inclusão de `GoogleService-Info.plist`, `firebase_options.dart` e `.firebaserc`) e redigiu o título e a descrição do PR #9.
   * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
   * **Prompt utilizado:**
     > **Atue como** um engenheiro de software sênior, especialista em Flutter e Firebase.
@@ -218,8 +218,8 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     3. **Validação:** nada foi testado em aparelho nem contra as regras publicadas no Firebase. O teste de login offline ficou como roteiro manual para o integrante.
     4. **E-mail do responsável:** o domínio `@parents.menteleve.app` precisou ser conferido no console do Firebase, onde o usuário de teste é cadastrado.
 
-* **Pipeline de CI/CD com GitHub Actions e Firebase App Distribution (10/11 e 16/11):**
-  * **O que foi feito:** Criação do workflow `.github/workflows/ci_cd.yml`, que compila o APK Android e envia ao Firebase App Distribution a cada push na `main`. Em 16/11, evolução da pipeline: `flutter analyze` e `flutter test` antes do build, cache do Gradle, assinatura com keystore fixo (`android/app/build.gradle.kts`) e versionamento do APK pelo `run_number` do workflow. A IA também escreveu a descrição do PR #13.
+* **Pipeline de CI/CD com GitHub Actions e Firebase App Distribution (10/11):**
+  * **O que foi feito:** Criação do workflow `.github/workflows/ci_cd.yml`, que compila o APK Android e envia ao Firebase App Distribution a cada push na `main`, com as credenciais em Secrets do GitHub. A IA também escreveu a descrição do PR #13.
   * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
   * **Prompt utilizado:**
     > **Atue como** um engenheiro DevOps com experiência em Flutter, GitHub Actions e Firebase App Distribution.
@@ -228,22 +228,19 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     >
     > **Requisitos:**
     > 1. Gatilho em push na `main` e disparo manual.
-    > 2. Java 17, Flutter na mesma versão usada localmente e cache do Gradle.
-    > 3. `flutter analyze` e `flutter test` antes do build.
-    > 4. Credenciais apenas em Secrets do GitHub (`google-services.json`, conta de serviço, ID do app e grupos de testadores), sem expor nada no código.
-    > 5. Assinatura com keystore fixo, restaurado a partir de um Secret, para o app atualizar nos celulares sem conflito.
-    > 6. Versionamento com `--build-number=${{ github.run_number }}` (prioridade).
-    > 7. Explicar como gerar cada secret, considerando que o projeto é acadêmico (sem conta na Play Store) e que o terminal é o PowerShell do Windows.
-  * **Como a IA ajudou:** Montou o workflow (Java 17, Flutter, `google-services.json` recriado a partir de Secret, upload pela action oficial) e explicou como gerar a conta de serviço, o keystore com `keytool` e o base64 para o Secret. Diagnosticou que três secrets estavam no *environment* `default` e o job não declarava `environment:`, o que deixava o `GOOGLE_SERVICES_JSON` vazio. No `flutter analyze`, a falha vinha de a pipeline usar um Flutter mais novo que o local, e a versão foi fixada em 3.44.0.
+    > 2. Java 17, Flutter SDK e `flutter build apk --release`.
+    > 3. Credenciais apenas em Secrets do GitHub (`google-services.json`, conta de serviço, ID do app e grupos de testadores), sem expor nada no código.
+    > 4. Envio do APK pela action oficial do Firebase App Distribution.
+    > 5. Explicar passo a passo como gerar cada secret.
+  * **Como a IA ajudou:** Montou o workflow (Java 17, Flutter, `google-services.json` recriado a partir de Secret, upload pela action oficial) e explicou como gerar a conta de serviço e os grupos de testadores. Diagnosticou que três secrets estavam no *environment* `default` e o job não declarava `environment:`, o que deixava o `GOOGLE_SERVICES_JSON` vazio. Também explicou que o build de iOS exigiria um runner macOS.
   * **Dificuldades e ajustes manuais:**
     1. **Chave exposta:** a chave privada da conta de serviço apareceu na conversa porque o arquivo estava selecionado no editor. A IA orientou a tratá-la como comprometida e a revogá-la.
-    2. **Terminal:** o comando do `keytool` usava `\` para quebrar linha (válido só no Bash) e falhou no PowerShell. A leitura do `release.jks` também falhou por caminho relativo, e foi preciso usar o caminho completo.
-    3. **Keystore e secrets:** o `release.jks` fica fora do repositório e só entra na pipeline pelo Secret `ANDROID_KEYSTORE_BASE64`. Os secrets de assinatura foram cadastrados à mão no GitHub pelo integrante.
-    4. **Validação:** a IA não consegue rodar o GitHub Actions, então a pipeline só é confirmada rodando no repositório depois do push. O build local usou a chave de debug, e o caminho do keystore só é exercitado na pipeline.
-    5. **iOS:** a IA explicou que o build de iOS exige um runner macOS. Ele não foi incluído, por estar fora do escopo da tarefa.
+    2. **Secrets:** o nome do secret foi recusado pelo GitHub por conter caracteres inválidos, e parte dos secrets estava no lugar errado (*environment* em vez do repositório). Ambos foram corrigidos pelo integrante.
+    3. **Validação:** a IA não consegue rodar o GitHub Actions, então a pipeline só é confirmada rodando no repositório depois do push.
+    4. **iOS:** o build de iOS não foi incluído, por estar fora do escopo da tarefa.
 
-* **Revisão de Pull Requests da equipe (10/11 a 21/11):**
-  * **O que foi feito:** Apoio na revisão técnica dos PRs dos demais integrantes, comparando cada branch com a `main`: Home do aluno e Firebase (#10), CVV 188 e gatilho de apoio (#15 e #14), diário de sentimentos (#12), diário reflexivo (#11), FAQ dinâmico e painel da psicóloga (#18), PIN do diário (#24), mascote de acolhimento (#19), especificação dos mappers (#21), persistência offline (#25), testes offline (#26) e canais oficiais de denúncia e apoio (#27). A cada PR, a IA devolveu a funcionalidade que o PR insere, os pontos positivos, os pontos de melhoria e um saldo. O integrante usou esse parecer para decidir entre aprovar ou pedir ajustes no GitHub.
+* **Revisão de Pull Requests da equipe (10/11 a 14/11):**
+  * **O que foi feito:** Apoio na revisão técnica de PRs dos demais integrantes, comparando cada branch com a `main`: Home do aluno e Firebase (#10), CVV 188 (#15) e gatilho de apoio emergencial (#14). A IA devolveu a funcionalidade, os pontos positivos, os pontos de melhoria e um saldo de cada PR. O integrante usou esse parecer para decidir entre aprovar ou pedir ajustes no GitHub.
   * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
   * **Prompt utilizado:**
     > **Atue como** um revisor de código sênior de projetos Flutter.
@@ -258,30 +255,11 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     > 5. Listar os pontos de melhoria e de atenção (bugs, riscos e aderência à modelagem em `docs/` e aos requisitos).
     > 6. Fechar com o saldo: se o PR está aprovável e o que o impede, incluindo conflitos e como resolvê-los.
     > 7. Não alterar nenhum arquivo nesta etapa.
-  * **Como a IA ajudou:** Levantou o diff contra a `main` e rodou `flutter analyze` e `flutter test` na maioria dos PRs. Apontou, por exemplo, que no PR #14 o gatilho ainda não era chamado por nenhuma tela, que o login institucional podia reabrir o aluno em silêncio depois de sair da conta (na revisão da Home e do Firebase), e que o `docs/modelagem/05-especificacao-mappers.md` estava desatualizado em relação ao FAQ já implementado. No PR #24, explicou que o PIN fica no `SharedPreferences`, guardado como hash SHA-256 com salt, e que isso não é criptografia. Nos PRs #25, #26 e #27 explicou a causa dos conflitos (`CHANGELOG.md` e `docs/uso-de-ia.md`) e, nos dois últimos, resolveu o merge mantendo os dois lados. No #26, o `flutter analyze` ficou sem problemas e os 220 testes passaram depois do merge.
+  * **Como a IA ajudou:** Levantou o diff contra a `main` e rodou `flutter analyze` e `flutter test`. Apontou que o login institucional podia reabrir o aluno em silêncio depois de sair da conta (na revisão da Home e do Firebase) e que, no PR #14, o gatilho ainda não era chamado por nenhuma tela. Também separou, a pedido, o que era do PR do que já vinha de PRs mergeados.
   * **Dificuldades e ajustes manuais:**
     1. **Escopo da revisão:** a primeira revisão de 14/11 misturou pontos que pertenciam a PRs já mergeados. Foi preciso perguntar o que era de fato do PR e, nas revisões seguintes, restringir o pedido ao código alterado.
-    2. **Revisão sem execução:** a IA não abriu o app em aparelho. O que ela diz sobre comportamento vem da leitura do código e dos testes. No PR #25, ela não rodou `flutter analyze` nem `flutter test` e usou os números da descrição do PR.
-    3. **Decisão de aprovar:** o resultado da IA é um parecer. Quem decidiu entre aprovar ou pedir ajustes (como nos PRs #11, #12 e #15) foi o integrante, no GitHub.
-    4. **Resolução de conflitos:** nos PRs #26 e #27 a IA resolveu o merge. No #26, o push ficou para o integrante.
-    5. **Ajuste em um PR:** na revisão do PR #12, o integrante pediu para remover do card "Diário Pessoal" da Home a navegação para a roleta de sentimentos. A IA mudou o destino para `/diary/reflection`, que ainda não estava registrada, então o card passou a mostrar "Disponível em breve".
-
-* **Descrições de PR, revisão do `.gitignore` e documentação (07/11 e 21/11):**
-  * **O que foi feito:** Revisão do `.gitignore` antes do commit do PR #9 (inclusão do `GoogleService-Info.plist`, `firebase_options.dart` e `.firebaserc`), escrita de títulos e descrições de PR (#9 e #13) no formato dos PRs anteriores da equipe, e atualização do `README.md` (responsabilidades da fase 2), do `CHANGELOG.md` (com as atividades rastreadas no histórico do Git e nas revisões do GitHub) e deste registro.
-  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
-  * **Prompt utilizado:**
-    > **Atue como** um engenheiro de software sênior e redator técnico.
-    >
-    > **Tarefa:** atualizar a documentação do projeto com as minhas atividades da fase 2 e preparar o PR.
-    >
-    > **Requisitos:**
-    > 1. `README.md`: acrescentar as minhas responsabilidades na tabela, seguindo o modelo existente.
-    > 2. `CHANGELOG.md`: rastrear minhas alterações no `git log` e nas revisões de PR do GitHub e registrá-las por data (`## [dd/mm/aaaa]` e `### Adicionado`).
-    > 3. `docs/uso-de-ia.md`: registrar o uso da IA por sprint, no formato já usado, com base no histórico das sessões.
-    > 4. Revisar o `.gitignore` antes do commit e redigir título e descrição do PR no formato dos PRs anteriores.
-    > 5. Não registrar nada que não tenha evidência no repositório.
-  * **Como a IA ajudou:** Confirmou que `google-services.json` e os keystores já estavam ignorados e sugeriu os arquivos de configuração do Firebase que faltavam. Reconstruiu as datas das atividades a partir do `git log` e das revisões feitas no GitHub com a CLI `gh`, e inseriu as entradas nas seções certas do `CHANGELOG.md`.
-  * **Dificuldades e ajustes manuais:** Não existe um arquivo `firebase.rules` versionado no repositório, então as regras do Firebase não puderam ser registradas no CHANGELOG. As datas e os números dos PRs vêm do Git e do GitHub, e o texto final foi revisado pelo integrante.
+    2. **Revisão sem execução:** a IA não abriu o app em aparelho. O que ela diz sobre comportamento vem da leitura do código e dos testes.
+    3. **Decisão de aprovar:** o resultado da IA é um parecer. Quem decidiu entre aprovar ou pedir ajustes (como no PR #15) foi o integrante, no GitHub.
 
 ### Mateus Henrique de Araújo Santos
 
@@ -378,7 +356,49 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Marcos Paulo
 
-*(A preencher pelo integrante)*
+* **Evolução da pipeline de CI/CD: testes, assinatura e versionamento (16/11):**
+  * **O que foi feito:** Evolução do `.github/workflows/ci_cd.yml` e do `android/app/build.gradle.kts`: `flutter analyze` e `flutter test` antes do build, cache do Gradle, assinatura do APK com keystore fixo restaurado de Secret e `versionCode` igual ao `run_number` do workflow.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro DevOps com experiência em Flutter, GitHub Actions e Firebase App Distribution.
+    >
+    > **Tarefa:** evoluir a pipeline de CI/CD existente para que cada build seja aceito como atualização nos celulares dos testadores.
+    >
+    > **Requisitos:**
+    > 1. Assinatura com keystore fixo, restaurado a partir de um Secret (prioridade crítica).
+    > 2. Versionamento com `--build-number=${{ github.run_number }}` (prioridade).
+    > 3. `flutter analyze` e `flutter test` antes de gerar e enviar o APK.
+    > 4. Cache do Gradle no `setup-java`.
+    > 5. Explicar como gerar o keystore e cada secret de assinatura, considerando que o projeto é acadêmico (sem conta na Play Store) e que o terminal é o PowerShell do Windows.
+    > 6. Corrigir falhas que apareçam na análise de código da pipeline.
+  * **Como a IA ajudou:** Alterou o workflow e o Gradle, e explicou como gerar o keystore com `keytool` e convertê-lo em base64 para o Secret. Esclareceu que o `run_number` é preenchido pelo GitHub e pode pular números, e que isso não impede o Android de aceitar a atualização. No `flutter analyze`, a falha vinha de a pipeline usar um Flutter mais novo que o local, e a versão foi fixada em 3.44.0.
+  * **Dificuldades e ajustes manuais:**
+    1. **Terminal:** o comando do `keytool` usava `\` para quebrar linha (válido só no Bash) e falhou no PowerShell. A leitura do `release.jks` também falhou por caminho relativo, e foi preciso usar o caminho completo.
+    2. **Keystore e secrets:** o `release.jks` fica fora do repositório e só entra na pipeline pelo Secret `ANDROID_KEYSTORE_BASE64`. Os secrets de assinatura foram cadastrados à mão no GitHub pelo integrante.
+    3. **Validação:** `flutter analyze` e `flutter test` passaram localmente, mas a IA não consegue rodar o GitHub Actions. O build local usou a chave de debug, então o caminho do keystore só é exercitado na pipeline.
+
+* **Revisão de Pull Requests da equipe (17/11 a 21/11):**
+  * **O que foi feito:** Apoio na revisão técnica dos PRs dos demais integrantes, comparando cada branch com a `main`: diário de sentimentos (#12), diário reflexivo (#11), nova revisão do gatilho de apoio (#14), FAQ dinâmico e painel da psicóloga (#18), PIN do diário (#24), mascote de acolhimento (#19), especificação dos mappers (#21), persistência offline (#25), testes offline (#26) e canais oficiais de denúncia e apoio (#27). A IA devolveu a funcionalidade, os pontos positivos, os pontos de melhoria e um saldo de cada PR. O integrante usou esse parecer para decidir entre aprovar ou pedir ajustes no GitHub.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um revisor de código sênior de projetos Flutter.
+    >
+    > **Tarefa:** revisar o PR #N comparando a branch com a `main`.
+    >
+    > **Requisitos:**
+    > 1. Descrever a funcionalidade que o PR insere.
+    > 2. Considerar apenas o código alterado neste PR, sem apontar pontos de PRs já mergeados.
+    > 3. Rodar `flutter analyze` e `flutter test`.
+    > 4. Listar os pontos positivos da implementação.
+    > 5. Listar os pontos de melhoria e de atenção (bugs, riscos e aderência à modelagem em `docs/` e aos requisitos).
+    > 6. Fechar com o saldo: se o PR está aprovável e o que o impede, incluindo conflitos e como resolvê-los.
+    > 7. Não alterar nenhum arquivo nesta etapa.
+  * **Como a IA ajudou:** Levantou o diff contra a `main` e rodou `flutter analyze` e `flutter test` na maioria dos PRs. No PR #24, explicou que o PIN fica no `SharedPreferences`, guardado como hash SHA-256 com salt, e que isso não é criptografia. No PR #21, apontou que o `docs/modelagem/05-especificacao-mappers.md` estava desatualizado em relação ao FAQ já implementado. Nos PRs #25, #26 e #27 explicou a causa dos conflitos (`CHANGELOG.md` e `docs/uso-de-ia.md`) e, nos dois últimos, resolveu o merge mantendo os dois lados. No #26, o `flutter analyze` ficou sem problemas e os 220 testes passaram depois do merge.
+  * **Dificuldades e ajustes manuais:**
+    1. **Revisão sem execução:** a IA não abriu o app em aparelho. O que ela diz sobre comportamento vem da leitura do código e dos testes. No PR #25, ela não rodou `flutter analyze` nem `flutter test` e usou os números da descrição do PR.
+    2. **Decisão de aprovar:** o resultado da IA é um parecer. Quem decidiu entre aprovar ou pedir ajustes (como nos PRs #11, #12 e #18) foi o integrante, no GitHub.
+    3. **Resolução de conflitos:** nos PRs #26 e #27 a IA resolveu o merge. No #26, o push ficou para o integrante.
+    4. **Ajuste em um PR:** na revisão do PR #12, o integrante pediu para remover do card "Diário Pessoal" da Home a navegação para a roleta de sentimentos. A IA mudou o destino para `/diary/reflection`, que ainda não estava registrada, então o card passou a mostrar "Disponível em breve".
 
 ### Mateus Henrique de Araújo Santos
 
@@ -422,7 +442,21 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Marcos Paulo
 
-*(A preencher pelo integrante)*
+* **Consolidação da documentação: README, CHANGELOG e registro de uso de IA (21/11):**
+  * **O que foi feito:** Atualização do `README.md` (responsabilidades da fase 2), do `CHANGELOG.md` (atividades rastreadas no histórico do Git e nas revisões de PR do GitHub, por data) e deste registro, com base no histórico das sessões com a IA.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior e redator técnico.
+    >
+    > **Tarefa:** atualizar a documentação do projeto com as minhas atividades da fase 2.
+    >
+    > **Requisitos:**
+    > 1. `README.md`: acrescentar as minhas responsabilidades na tabela, seguindo o modelo existente.
+    > 2. `CHANGELOG.md`: rastrear minhas alterações no `git log` e nas revisões de PR do GitHub e registrá-las por data (`## [dd/mm/aaaa]` e `### Adicionado`).
+    > 3. `docs/uso-de-ia.md`: registrar o uso da IA por sprint, no formato já usado, com base no histórico das sessões.
+    > 4. Não registrar nada que não tenha evidência no repositório.
+  * **Como a IA ajudou:** Reconstruiu as datas das atividades a partir do `git log` e das revisões feitas no GitHub com a CLI `gh`, inseriu as entradas nas seções certas do `CHANGELOG.md` e organizou o registro de uso de IA por sprint.
+  * **Dificuldades e ajustes manuais:** Não existe um arquivo `firebase.rules` versionado no repositório, então as regras do Firebase não puderam ser registradas no CHANGELOG. As datas e os números dos PRs vêm do Git e do GitHub, e o texto final foi revisado pelo integrante. A distribuição das entradas entre as sprints seguiu o calendário de `docs/levantamento/escopo.md`.
 
 ### Rayelen de Jesus Oliveira
 
