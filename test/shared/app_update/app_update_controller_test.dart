@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/shared/app_update/apk_downloader.dart';
 import 'package:mente_leve/shared/app_update/apk_installer.dart';
 import 'package:mente_leve/shared/app_update/app_update_controller.dart';
-import 'package:mente_leve/shared/app_update/app_update_repository.dart';
-import 'package:mente_leve/shared/app_update/release_info.dart';
 
 import 'update_fakes.dart';
 

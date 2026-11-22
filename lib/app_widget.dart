@@ -18,6 +18,8 @@ import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
 import 'package:mente_leve/modules/student/official_channels/official_channels_view.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_modal_view.dart';
+import 'package:mente_leve/shared/app_update/app_update_controller.dart';
+import 'package:mente_leve/shared/app_update/app_update_prompter.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
 import 'package:mente_leve/shared/widgets/cvv_button/cvv_overlay.dart';
@@ -89,10 +91,36 @@ class AppWidget extends StatefulWidget {
 
 class _AppWidgetState extends State<AppWidget> {
   final CvvRouteObserver _routeObserver = CvvRouteObserver();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  late final AppUpdatePrompter _updatePrompter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Atualização in-app (GitHub Releases): verifica ao iniciar e mostra o
+    // modal quando o app chegar numa tela inicial.
+    _updatePrompter = AppUpdatePrompter(
+      controller: context.read<AppUpdateController>(),
+      navigatorKey: _navigatorKey,
+      currentRoute: _routeObserver.currentRoute,
+      homeRoutes: const {
+        '/student/home',
+        '/parents/home',
+        '/psychologist/home',
+      },
+    )..start();
+  }
+
+  @override
+  void dispose() {
+    _updatePrompter.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Mente Leve',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
