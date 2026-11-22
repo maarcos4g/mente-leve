@@ -1,8 +1,15 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Consulta de releases e download do APK da atualização in-app. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Permite abrir o instalador de pacotes para atualizar o próprio app. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <!-- O open_filex declara permissões de armazenamento e mídia que o app não
+         usa: o APK fica no cache do próprio app. Removidas do manifesto final. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove"/>
     <application
         android:label="mente_leve"
         android:name="${applicationName}"
