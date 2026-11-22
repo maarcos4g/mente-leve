@@ -4,14 +4,19 @@ on:
   push:
     branches:
       - main
+    # Tag vX.Y.Z publica também uma GitHub Release com o APK, que o app
+    # consulta para a atualização in-app.
+    tags:
+      - "v*"
   workflow_dispatch:
 
 concurrency:
   group: ci-cd-${{ github.ref }}
   cancel-in-progress: true
 
+# "write" só é usado para criar a Release em builds de tag.
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-and-distribute:
@@ -21,6 +26,16 @@ jobs:
     environment: default
 
     steps:
+      # O app compara a tag com o versionName instalado, então a tag precisa
+      # ser exatamente vMAJOR.MINOR.PATCH (ex.: v1.2.0).
+      - name: Validar formato da tag de release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if ! [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' inválida. Use vMAJOR.MINOR.PATCH (ex.: v1.2.0)."
+            exit 1
+          fi
+
       - name: Checkout do código
         uses: actions/checkout@v4
 
@@ -72,12 +87,38 @@ jobs:
 
       # O versionCode (build number) é o run_number do workflow: cresce a cada
       # execução, então o Android aceita cada APK como atualização do anterior.
+      # Em build de tag, o versionName vem da tag (v1.2.0 -> 1.2.0), para o app
+      # instalado enxergar a mesma versão que a Release anuncia.
       - name: Build do APK (release)
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: flutter build apk --release --build-number=${{ github.run_number }}
+        run: |
+          ARGS="--build-number=${{ github.run_number }}"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            ARGS="$ARGS --build-name=${GITHUB_REF_NAME#v}"
+          fi
+          flutter build apk --release $ARGS
+
+      # Release pública (não rascunho nem pré-lançamento): é o que o endpoint
+      # /releases/latest devolve ao app, sem token. Roda antes do Firebase para
+      # que uma falha da distribuição aos testadores não atrase os usuários.
+      - name: Publicar GitHub Release com o APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="mente-leve-${GITHUB_REF_NAME}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "$APK"
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$APK" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$APK" \
+              --verify-tag \
+              --title "MenteLeve ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
 
       - name: Enviar APK ao Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
