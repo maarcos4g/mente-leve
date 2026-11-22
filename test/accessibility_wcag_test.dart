@@ -3,9 +3,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
+import 'package:mente_leve/modules/psychologist/reports/widgets/report_card.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
+import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
+import 'package:mente_leve/shared/widgets/chat/chat_widgets.dart';
 import 'package:mente_leve/shared/widgets/faq/faq_expandable_card.dart';
 
 /// Calcula a razão de contraste WCAG 2.1 entre duas cores (1.0 a 21.0).
@@ -195,5 +198,44 @@ void main() {
         expect(deleteSize.height, greaterThanOrEqualTo(48));
       },
     );
+
+    test('selos de gravidade e status da triagem cumprem contraste AA (RF09)', () {
+      for (final severity in ReportSeverity.values) {
+        final colors = BadgeColors.forSeverity(severity);
+        expect(
+          wcagContrastRatio(colors.foreground, colors.background),
+          greaterThanOrEqualTo(4.5),
+          reason: 'gravidade ${severity.name}',
+        );
+      }
+      for (final status in ReportStatus.values) {
+        final colors = BadgeColors.forStatus(status);
+        expect(
+          wcagContrastRatio(colors.foreground, colors.background),
+          greaterThanOrEqualTo(4.5),
+          reason: 'status ${status.name}',
+        );
+      }
+      // Texto branco sobre sky700 (botões primários).
+      expect(
+        wcagContrastRatio(Colors.white, AppColors.sky700),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+
+    test('balões do chat anônimo cumprem contraste AA (RF05)', () {
+      expect(
+        wcagContrastRatio(ChatColors.ownText, ChatColors.ownBubble),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        wcagContrastRatio(ChatColors.otherText, ChatColors.otherBubble),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        wcagContrastRatio(ChatColors.otherMeta, ChatColors.otherBubble),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
   });
 }

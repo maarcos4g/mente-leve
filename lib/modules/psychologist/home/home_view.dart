@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
+import 'package:mente_leve/modules/psychologist/reports/widgets/reports_summary_card.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
 import 'package:mente_leve/shared/models/user_model.dart';
@@ -118,19 +119,26 @@ class PsychologistHomeView extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: _PsychologistActionCard(
-                  cardKey: const Key('psychologist_open_faq_button'),
-                  icon: LucideIcons.circleQuestionMark,
-                  iconBackgroundColor: const Color(0xFFB8E6FE),
-                  iconColor: AppColors.sky700,
-                  title: 'Editar Perguntas\nFrequentes (FAQ)',
-                  onTap:
-                      () => Navigator.of(
-                        context,
-                      ).pushNamed(PsychologistFaqView.routeName),
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const ReportsSummaryCard(),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: _PsychologistActionCard(
+                      cardKey: const Key('psychologist_open_faq_button'),
+                      icon: LucideIcons.circleQuestionMark,
+                      iconBackgroundColor: const Color(0xFFB8E6FE),
+                      iconColor: AppColors.sky700,
+                      title: 'Editar Perguntas\nFrequentes (FAQ)',
+                      onTap:
+                          () => Navigator.of(
+                            context,
+                          ).pushNamed(PsychologistFaqView.routeName),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
