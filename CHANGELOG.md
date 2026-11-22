@@ -267,6 +267,7 @@
 - Tela do chat do aluno (`AnonymousChatView`): passou a usar os widgets de chat compartilhados, sem mudar o comportamento.
 - Mensagem de erro do painel de triagem: separa falta de rede, permissão negada e demais falhas, e registra o erro real no log.
 - Chat do aluno (`AnonymousChatView`): o assunto da conversa deixou de vir pré-selecionado em "Bullying". O aluno precisa escolher o assunto (bullying, cyberbullying ou outros) antes de enviar a primeira mensagem; sem escolher, a mensagem não é enviada e a tela avisa "Escolha o assunto da conversa antes de enviar.". Testes em `test/modules/student/chat/`.
+- Responsabilidades de Abraão Luiz Ribeiro da Cruz Dantas atualizadas em `README.md` (diário reflexivo, Breno, um sentimento por dia, PIN do diário, persistência offline e bateria de testes offline).
 
 ### Removido
 
