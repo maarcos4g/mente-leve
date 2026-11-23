@@ -175,20 +175,57 @@ class LocalFaqRepository implements FaqRepository {
 
 /// Repositório integrado à coleção `faq` do Cloud Firestore com cache local
 /// em `SharedPreferences` e fallback offline automático (RF04, RF08, RNF02).
+///
+/// Sem internet, o Firestore guarda a escrita numa fila local e só confirma
+/// quando a conexão volta. Por isso nenhuma operação espera o servidor por
+/// mais que [writeWait] (escrita) ou [readWait] (leitura): passado esse
+/// tempo, a tela segue com o cache local e a escrita pendente sobe sozinha
+/// na reconexão (EPIC-09).
 class FirestoreFaqRepository implements FaqRepository {
-  FirestoreFaqRepository(this._firestore, {SharedPreferences? storage})
-    : _fallback = LocalFaqRepository(storage: storage);
+  FirestoreFaqRepository(
+    this._firestore, {
+    SharedPreferences? storage,
+    this.writeWait = const Duration(seconds: 2),
+    this.readWait = const Duration(seconds: 6),
+    this.offlineReadWait = const Duration(seconds: 1),
+  }) : _fallback = LocalFaqRepository(storage: storage);
 
   final FirebaseFirestore _firestore;
   final LocalFaqRepository _fallback;
 
+  /// Tempo máximo esperando o servidor confirmar uma escrita. Online a
+  /// confirmação chega antes, e erros (ex.: permissão) continuam aparecendo.
+  final Duration writeWait;
+
+  /// Tempo máximo esperando a leitura da coleção antes de usar o cache.
+  final Duration readWait;
+
+  /// Espera da leitura logo depois de uma escrita sem resposta: o aparelho
+  /// provavelmente está sem rede, então não vale esperar [readWait] de novo.
+  final Duration offlineReadWait;
+
+  /// Uma escrita recente ficou sem resposta (provável falta de rede).
+  bool _semRede = false;
+
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('faq');
+
+  /// Espera a escrita por até [writeWait]; depois disso ela continua na fila
+  /// offline do Firestore e é enviada quando a conexão voltar.
+  Future<void> _write(Future<void> write) async {
+    var respondeu = true;
+    await write.timeout(writeWait, onTimeout: () => respondeu = false);
+    _semRede = !respondeu;
+  }
 
   @override
   Future<List<FaqModel>> list() async {
     try {
-      final snap = await _collection.orderBy('createdAt', descending: true).get();
+      final snap = await _collection
+          .orderBy('createdAt', descending: true)
+          .get()
+          .timeout(_semRede ? offlineReadWait : readWait);
+      _semRede = false;
       if (snap.docs.isNotEmpty) {
         final items = snap.docs
             .map((doc) => FaqModel.fromFirestore(doc, null))
@@ -219,7 +256,7 @@ class FirestoreFaqRepository implements FaqRepository {
         updatedAt: now,
         updatedBy: updatedBy,
       );
-      await docRef.set(item.toFirestore());
+      await _write(docRef.set(item.toFirestore()));
       final current = List<FaqModel>.from(await _fallback.list());
       current.insert(0, item);
       await _fallback._writeCache(current);
@@ -241,9 +278,10 @@ class FirestoreFaqRepository implements FaqRepository {
       updatedAt: DateTime.now(),
     );
     try {
-      await _collection.doc(item.id).set(
-        updated.toFirestore(),
-        SetOptions(merge: true),
+      await _write(
+        _collection
+            .doc(item.id)
+            .set(updated.toFirestore(), SetOptions(merge: true)),
       );
     } catch (_) {
       // Atualiza também o cache local mesmo se offline.
@@ -254,7 +292,7 @@ class FirestoreFaqRepository implements FaqRepository {
   @override
   Future<void> delete(String id) async {
     try {
-      await _collection.doc(id).delete();
+      await _write(_collection.doc(id).delete());
     } catch (_) {
       // Remove também do cache local mesmo se offline.
     }

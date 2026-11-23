@@ -221,6 +221,8 @@
 - Testes da nova tela, da discagem e da auditoria WCAG AA das cores novas (`test/modules/student/official_channels/`, `test/shared/utils/` e `test/accessibility_wcag_test.dart`).
 - Entrada do aluno sem internet (RNF02, EPIC-03): se o login anônimo do Firebase falhar por falta de rede, o aluno entra com uma sessão local (`ProfileStore.localUid()`, id `local-<hex>` guardado no aparelho) e usa o diário normalmente. O login anônimo é refeito sozinho na próxima abertura do app com internet.
 - Testes do `AuthRepository` com Firebase simulado (`test/shared/auth/auth_repository_test.dart`) e do onboarding em telas baixas (`test/modules/onboarding/onboarding_view_test.dart`).
+- Bateria de testes de falha de conexão (EPIC-09) em `test/offline/`: FAQ, painel da psicóloga, diário e botão CVV sem internet e na reconexão, com um Firestore simulado em que a escrita fica pendente até a rede voltar.
+- Roteiro e resultados da bateria offline no emulador Android 7.0 (`docs/testes/bateria-offline.md`).
 - Especificação técnica dos mappers Documento (Firestore e aparelho) ↔ entidade de domínio: `toMap()`, `fromMap()`, conversores do Firestore, serialização JSON e tratamento de nulos (`docs/modelagem/05-especificacao-mappers.md`).
 - Mascote de acolhimento (RF03 / SCRUM-30): o resumo da semana da Home do aluno passa a ser uma escala de 1 a 5 (raiva, triste, confuso, neutro, feliz) calculada pela média dos humores dos últimos 7 dias. O cérebro do nível atual fica em destaque (opacidade total e brilho verde) e a escala é recalculada ao voltar da roleta de sentimentos. Sem registros na semana, nenhum cérebro é destacado.
 - Revisão e aprovação dos PRs #18 (FAQ dinâmico e painel da psicóloga), #19 (mascote de acolhimento), #21 (especificação dos mappers), #22 (justificativas do `pubspec`), #23 (responsabilidades no README), #24 (PIN do diário), #25 (persistência offline), #26 (testes offline) e #27 (canais oficiais de denúncia e apoio).
@@ -247,6 +249,7 @@
 - Diário Pessoal (`PrefsDiaryRepository`): um registro em formato inesperado não derruba mais a leitura do diário inteiro. Se a chave `diario` estiver ilegível, o conteúdo é copiado para `diario_corrompido` e o diário volta a funcionar.
 - Sair da conta numa sessão offline agora também apaga o perfil local, para o app não entrar de novo sozinho.
 - Onboarding (`OnboardingView`): o conteúdo passa a rolar. No Android 7 (731 dp de altura) ele estourava 194 px e o botão "Entrar como aluno" ficava fora da área de toque.
+- Painel de FAQ da psicóloga (`FirestoreFaqRepository`): salvar ou excluir uma pergunta sem internet deixava a tela em "Salvando…" até a rede voltar. Agora a escrita é esperada por no máximo 2 s e segue na fila offline do Firestore, que a envia na reconexão. A leitura da lista ganhou limite de 6 s, e de 1 s logo depois de uma escrita sem resposta.
 - Acessibilidade (SCRUM-30): os cérebros da escala da Home são anunciados por leitores de tela ("Escala N de 5: humor", com "(nível atual)" no destacado) e o rosto central da roleta de sentimentos é anunciado como botão "Registrar humor <humor>".
 
 ## [22/11/2026]
@@ -282,11 +285,16 @@
 - Tela do chat do aluno (`AnonymousChatView`): passou a usar os widgets de chat compartilhados, sem mudar o comportamento.
 - Mensagem de erro do painel de triagem: separa falta de rede, permissão negada e demais falhas, e registra o erro real no log.
 - Chat do aluno (`AnonymousChatView`): o assunto da conversa deixou de vir pré-selecionado em "Bullying". O aluno precisa escolher o assunto (bullying, cyberbullying ou outros) antes de enviar a primeira mensagem; sem escolher, a mensagem não é enviada e a tela avisa "Escolha o assunto da conversa antes de enviar.". Testes em `test/modules/student/chat/`.
+<<<<<<< HEAD
+- Responsabilidades de Abraão Luiz Ribeiro da Cruz Dantas atualizadas em `README.md` (diário reflexivo, Breno, um sentimento por dia, PIN do diário, persistência offline e bateria de testes offline).
+=======
 - Pipeline de CI/CD: o workflow passou a rodar também em tags `v*` e a ter `permissions: contents: write`, usado só para criar a Release em builds de tag. A versão do app deixou de depender do `pubspec.yaml`: o `versionName` vem da última tag (ou da próxima, quando há Release) e o `versionCode` passou a ser `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`. Assim, o APK de uma Release mais nova sempre tem código maior que qualquer build de versão anterior, inclusive os da `main` distribuídos no Firebase, e o Android não recusa a atualização por downgrade.
 - `AndroidManifest.xml`: as permissões de armazenamento e mídia que o `open_filex` traz (`READ_EXTERNAL_STORAGE`, `READ_MEDIA_*`) foram removidas do manifesto final, porque o app não as usa (o APK fica no cache do próprio app).
 - `permission_handler` fixado na linha 12.x: a 13.x exige `compileSdk` 37, acima do que o Android Gradle Plugin do projeto recomenda (36), e quebrava o build.
+>>>>>>> origin/main
 
 ### Removido
 
 - Filtros de **gravidade** e de **status de mediação** da tela de triagem (`ReportsView`), que não estavam no protótipo do Figma, junto do estado "Nenhuma denúncia com esses filtros" e do botão "Limpar filtros". A lista continua na ordem de triagem (mais grave primeiro e, na mesma gravidade, o mais antigo), e o `ReportsController` perdeu `filterBySeverity`, `filterByStatus`, `clearFilters` e `visible` (agora `sorted`).
 - Painel "Gerenciar relato" do chat da psicóloga (`PsychologistChatView`), com os seletores de status de mediação e de gravidade, e o código que o sustentava (`setStatus` e `setSeverity` no `PsychologistChatController` e no `PsychologistChatRepository`). A ideia de filtro e de classificação manual não existe no protótipo; o chat da psicóloga ficou só com a conversa, como no Figma.
+- `CLAUDE.md` (instruções locais do assistente de IA) removido do repositório e adicionado ao `.gitignore`, junto da pasta `.claude/`.

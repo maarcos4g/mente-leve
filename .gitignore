@@ -5,6 +5,8 @@
 
 # Automações, scripts e artefatos de agentes
 .agents/
+.claude/
+CLAUDE.md
 
 # Miscellaneous
 *.class
