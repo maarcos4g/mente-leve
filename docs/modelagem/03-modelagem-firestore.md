@@ -66,7 +66,7 @@ reports/{studentUid}/messages/{messageId}   mensagens do chat entre o aluno e a 
 
 Os canais de apoio (Disque 100, Conselho Tutelar e Ouvidoria Escolar) não ficam no Firestore. Eles são uma lista fixa no app (`officialChannels`, em `lib/modules/student/official_channels/models/official_channel.dart`), para funcionar offline desde a primeira abertura. A coleção `channels`, prevista no início do projeto, não foi criada.
 
-A coleção `guides` é usada pela branch `feat/parents-home-e-guias-psicologa` (RF11, UC17 e UC19), que ainda não foi mesclada na `main`. Os campos descritos abaixo são os que essa branch grava.
+A coleção `guides` guarda os guias para responsáveis (RF08, RF11, UC17 e UC19). A psicóloga publica, edita e exclui guias em `/psychologist/guides`, e o responsável lê na Home (`/parents/home`) e em `/parents/guide`. O app também guarda uma cópia no aparelho (`SharedPreferences`, chave `guides_cache`) para leitura sem internet.
 
 Obs: Cada aluno tem uma única conversa, no documento `reports/{uid}`. A primeira mensagem cria o relato e as seguintes entram na subcoleção `messages`, que o app acompanha em tempo real. O id do relato ser o `uid` evita consulta e índice para achar a conversa do aluno.
 

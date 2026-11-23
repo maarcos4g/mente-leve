@@ -8,7 +8,7 @@ Mostra para onde cada classe de domínio vai e como os campos são convertidos. 
 flowchart LR
   UserModel["UserModel (Usuario)"]
   FaqModel["FaqModel (PerguntaFaq)"]
-  GuideModel["GuideModel (Guia)*"]
+  GuideModel["GuideModel (Guia)"]
   Report["Report (Denuncia)"]
   ChatMessage["ChatMessage (MensagemChat)"]
   OfficialChannel["OfficialChannel (CanalApoio)"]
@@ -29,6 +29,7 @@ flowchart LR
     kPin[("diario_pin")]
     kProfile[("profile")]
     kFaqCache[("faq_cache")]
+    kGuidesCache[("guides_cache")]
     kGatilho[("support_trigger_state")]
   end
   APP["Código do app<br/>(lista fixa)"]
@@ -38,6 +39,7 @@ flowchart LR
   FaqModel --> cFaq
   FaqModel -. "cópia offline" .-> kFaqCache
   GuideModel --> cGuides
+  GuideModel -. "cópia offline" .-> kGuidesCache
   Report --> cReports
   Report -. "id = uid anônimo" .-> AUTH
   ChatMessage --> cMessages
@@ -48,8 +50,6 @@ flowchart LR
   SupportTriggerState -. "lê (RN11)" .-> kDiario
 ```
 
-\* `GuideModel` está na branch `feat/parents-home-e-guias-psicologa`, ainda não mesclada na `main`.
-
 > A imagem `mapeamento-dart-firestore.png` está desatualizada: ainda mostra as coleções `usuarios`, `denuncias`, `guias` e `canais` e o campo `resposta`. O código-fonte Mermaid acima é a versão atual.
 
 ## Tabela de mapeamento
@@ -58,7 +58,7 @@ flowchart LR
 |---|---|---|---|
 | `UserModel` | Firestore e Firebase Auth | `users/{uid}` | `uid` é o id do documento. `role` é lido com `Role.values.byName`. Só leitura: o documento é criado pela escola. As credenciais ficam no Auth. |
 | `FaqModel` | Firestore e aparelho | `faq/{id}` e chave `faq_cache` | `id` é o id do documento. No Firestore as datas viram `Timestamp` e `updatedAt` usa `FieldValue.serverTimestamp()`. No cache local, as datas viram texto ISO 8601. |
-| `GuideModel` | Firestore | `guides/{id}` | Igual ao FAQ. `category` e `authorUid` são omitidos quando vazios. |
+| `GuideModel` | Firestore e aparelho | `guides/{id}` e chave `guides_cache` | Igual ao FAQ. `category` e `authorUid` são omitidos quando vazios. |
 | `Report` | Firestore | `reports/{uid}` | O id do documento é o `uid` anônimo do aluno. `type`, `status` e `severity` são gravados pelo nome do enum. `createdAt` usa `FieldValue.serverTimestamp()`. O `studentUid` é gravado, mas nunca lido pelo app. |
 | `ChatMessage` | Firestore | `reports/{uid}/messages/{id}` | `senderRole` é `student` ou `psychologist`. `createdAt` usa `FieldValue.serverTimestamp()`. `isPending` não é gravado: vem de `metadata.hasPendingWrites`. |
 | `OfficialChannel` | Código do app | `officialChannels` | Lista constante. Não é gravada em lugar nenhum. |

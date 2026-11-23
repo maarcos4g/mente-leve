@@ -153,7 +153,7 @@ O diagrama usa nomes em português para descrever o domínio. No código, as cla
 | Denuncia | `Report` | Relato anônimo do aluno, aberto pela primeira mensagem do chat. É o que a psicóloga vê na triagem. | Firestore, documento `reports/{uid}` | RF05, RF09 |
 | MensagemChat | `ChatMessage` | Mensagem da conversa entre o aluno e a psicóloga, em tempo real. A resposta da psicóloga é uma mensagem com remetente `psychologist`. | Firestore, subcoleção `reports/{uid}/messages` | RF05, RF10 |
 | PerguntaFaq | `FaqModel` | Pergunta e resposta do FAQ. | Firestore, coleção `faq`, com cópia no aparelho (`faq_cache`) | RF04, RF08 |
-| Guia | `GuideModel` (branch `feat/parents-home-e-guias-psicologa`, ainda não mesclada) | Material de orientação para os responsáveis. | Firestore, coleção `guides` | RF08, RF11 |
+| Guia | `GuideModel` | Material de orientação para os responsáveis. | Firestore, coleção `guides`, com cópia no aparelho (`guides_cache`) | RF08, RF11 |
 | CanalApoio | `OfficialChannel` | Canal de ajuda externo (Disque 100, Conselho Tutelar, Ouvidoria Escolar). O CVV 188 tem botão próprio (`CvvButton`). | Lista fixa no app (`officialChannels`), sem banco | RF06 |
 | EstadoGatilhoApoio | `SupportTriggerState` | Controle do modal de apoio por sofrimento intenso: quando apareceu pela última vez (`lastShownAt`) e a partir de quando a sequência volta a contar (`countFrom`). Não identifica o aluno nem guarda o humor. | Aparelho, junto do diário (chave `support_trigger_state`) | RN11 (UC20) |
 

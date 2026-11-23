@@ -697,7 +697,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5), com o conector do Jira (Atlassian MCP).
   * **Prompts utilizados:**
     * > Faça uma revisão de consistência entre o Jira, a documentação e o código do MenteLeve. Compare cada ticket do projeto SCRUM com a `main` atual do GitHub e com a pasta `docs/`. Para cada ticket marcado como "Concluído", confira se o critério de aceite foi cumprido no código. Aponte também funcionalidades documentadas que não estão na `main`, documentos que descrevem uma versão antiga do app e pendências no próprio Jira. Separe o resultado em: o que impede a entrega, o que precisa de decisão do grupo e o que confere. Não altere nenhum arquivo nem ticket. Informe o que não foi verificado (testes, emulador, console do Firebase).
-  * **Como a IA ajudou:** Conferiu cada divergência no código (coleções gravadas, campos lidos pelos modelos, chaves do `SharedPreferences`, rotas e autoria no `git log`) e comparou a branch dos guias, ainda não mesclada, com a modelagem do `03`.
+  * **Como a IA ajudou:** Conferiu cada divergência no código (coleções gravadas, campos lidos pelos modelos, chaves do `SharedPreferences`, rotas e autoria no `git log`) e comparou a branch dos guias, que na hora da revisão ainda não tinha sido mesclada, com a modelagem do `03`.
    
 
 ### Alexandre Pedro de Matos Ferreira
@@ -710,6 +710,19 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     * > `agora preciso q atualize o readme com minhas responsabilidades. também atualize o changelog e o uso de IA. primeiro faça um pull da main`
   * **Como a IA ajudou:** Inspecionou o diff completo do PR #28 via Git e API do GitHub, simulou o merge sem alterar o workspace (`git merge-tree`) contra a `main` e contra o PR #20, apontou ajustes de consistência documental (separação das entradas por sprint, referência a `firebase.rules` sem arquivo versionado e padronização de cabeçalhos no `CHANGELOG.md`) e cruzou o `git log` da `main` para atualizar o `README.md` com base apenas nas entregas versionadas.
   * **Dificuldades e ajustes manuais:** A CLI `gh` não estava disponível no ambiente local, sendo substituída por consultas diretas à API REST do GitHub via PowerShell combinadas com `git fetch origin pull/<N>/head` para leitura do diff e simulação de merge.
+
+* **Revisão Técnica do PR #30 e Implementação da Home dos Responsáveis (`home / parents`) e Gestão de Guias e Orientações (`guias / edit`) (22/11):**
+  * **O que foi feito:** Revisão técnica completa do PR #30 (triagem e chat anônimo em tempo real, com validação de `flutter analyze`, 277 testes e diagnóstico de race conditions e regras do Firestore) seguida do planejamento (`/plan`) e implementação das telas faltantes do protótipo: camada compartilhada `GuideModel` / `FirestoreGuideRepository` / `LocalGuideRepository` / `GuideCard` (`guides` no Firestore com cache offline em `SharedPreferences`), tela `"Orientações"` da psicóloga (`PsychologistGuidesView` com CRUD completo e ações de editar/excluir via *swipe* para a esquerda + card de atalho na `PsychologistHomeView`), Home dos responsáveis (`ParentsHomeView` com saudação via Firestore, modal `"Fale com a escola"`, lista de guias e `GuideDetailView` para leitura completa), polimento do ícone de senha no login dos pais, atualização do `README.md`, `CHANGELOG.md` e deste registro, além da nova suíte de testes unitários, de widgets e WCAG AA (372 testes passando no total, `flutter analyze` sem avisos).
+  * **Ferramenta utilizada:** Antigravity (Gemini 4 Argon).
+  * **Prompts utilizados:**
+    * > `analisa o novo pull request atrás de bug e erros: https://github.com/maarcos4g/mente-leve/pull/30`
+    * > `/plan ficaram faltando algumas tarefas referente as telas que você aparentemente ignorou: tela dos pais/responsáveis e uma tela especifica para a publicação de conteudos informativos (acredito que o faq).` (com capturas e especificações CSS do Figma para `parents`, `home / parents`, `chat` e `guias / edit`).
+    * > `atualize também o changelog e o uso de IA, também o readme com a nova função que desenvolvemos.`
+  * **Como a IA ajudou:** Mapeou o que já existia na `origin/main` versus o que faltava (`ParentsHomeView` ainda era um stub e `guides` ainda não tinha implementação Dart), alinhou o modelo `GuideModel` aos campos em inglês já definidos em `docs/modelagem/03-modelagem-firestore.md`, reaproveitou o padrão de resiliência offline com timeouts e cache em `SharedPreferences` do `FirestoreFaqRepository`, preservou a integração de perfil/logout (`showProfileSheet`) e escreveu os testes de repositório, telas e contraste WCAG AA.
+  * **Dificuldades e ajustes manuais:**
+    1. **Contraste de cores do protótipo nos cards de guia:** No CSS do Figma, a etiqueta de categoria (`#00A6F4`) e a descrição (`#9F9FA9`) sobre `#F4F4F5` ficavam abaixo de `4,5:1`; foram ajustadas para `AppColors.sky700` e `AppColors.slate600` mantendo a identidade visual com conformidade WCAG AA.
+    2. **Overflow no modal `"Fale com a escola"`:** O teste de widget detectou `RenderFlex overflowed by 71 pixels on the bottom` no bottom sheet padrão (`isScrollControlled: false`); o modal foi envolvido em `SingleChildScrollView` com `isScrollControlled: true`, passando todos os 372 testes sem avisos.
+    3. **Marcadores de conflito residuais em `CHANGELOG.md`:** Ao atualizar o changelog da `main`, foram encontrados marcadores `<<<<<<< HEAD` / `>>>>>>> origin/main` remanescentes na seção `[22/11/2026]`, que foram limpos preservando todas as entradas dos integrantes.
 
 ## Justificativa de Bibliotecas e Dependências
 

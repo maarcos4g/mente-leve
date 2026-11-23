@@ -58,7 +58,7 @@ aparelho --getString(chave)--> String --jsonDecode--> Map (dynamic) --fromMap()-
 | `FaqModel` (PerguntaFaq) | Firestore e aparelho | `faq/{id}` e `faq_cache` | `fromFirestore`, `toFirestore`, `toMap`, `fromMap` | Implementado |
 | `Report` (Denuncia) | Firestore | `reports/{uid}` | `fromFirestore`, `fromMap(id, data)` | Implementado. A criação é feita por mapa literal no `ChatRepository.send` (ver `04`) |
 | `ChatMessage` (MensagemChat) | Firestore | `reports/{uid}/messages/{id}` | `fromMap(id, data, isPending:)` | Implementado. A escrita é feita por mapa literal nos repositórios do chat |
-| `GuideModel` (Guia) | Firestore | `guides/{id}` | `fromFirestore`, `toFirestore` | Na branch `feat/parents-home-e-guias-psicologa`, ainda não mesclada |
+| `GuideModel` (Guia) | Firestore e aparelho | `guides/{id}` e `guides_cache` | `fromFirestore`, `toFirestore`, `toMap`, `fromMap` | Implementado |
 | `OfficialChannel` (CanalApoio) | Código do app | `officialChannels` | nenhum | Lista constante, sem persistência |
 
 > **Nomenclatura.** Os nomes de coleções e de campos do Firestore estão em inglês (`users`, `role`, `name`, `createdAt`, `faq`, `question`, `answer`, `reports`, `messages`, `guides`), como no código e no `03`. As regras de segurança leem `users/{uid}.role`. Os nomes em português (Usuario, Denuncia etc.) aparecem só no diagrama de classes (`02`), que descreve o domínio.
@@ -200,7 +200,7 @@ Os conversores do FAQ, do relato e do chat são **tolerantes**: campo ausente ou
 | `FaqModel` (`lib/shared/models/faq_model.dart`) | `fromFirestore`: `question` e `answer` com fallback `''`; datas com fallback `DateTime.now()`; `updatedBy` com fallback `''`. Documento vazio lança `StateError` | `toFirestore()`: `createdAt` preservado, `updatedAt` = `serverTimestamp()`. `toMap()`/`fromMap()` para o cache `faq_cache`, com datas em ISO 8601 | Nenhum campo opcional |
 | `Report` (`lib/shared/models/report_model.dart`) | `fromMap(id, data)`: `type` e `status` por `fromName`; `createdAt` nulo (escrita pendente) vira `DateTime.now()`; `severity` ausente é estimada por `ReportSeverity.infer(type, description)` | Não tem `toFirestore`. O `ChatRepository.send` grava `studentUid, type, description, status('pending'), createdAt(serverTimestamp)`, exatamente as chaves que a regra de `create` aceita | `type` desconhecido → `other`; `status` desconhecido → `pending` (nunca some da triagem). `studentUid` é ignorado na leitura |
 | `ChatMessage` (`lib/shared/models/chat_message.dart`) | `fromMap(id, data, isPending:)`: `senderRole` por `ChatSender.fromName`; `text` com fallback `''`; `createdAt` com fallback `DateTime.now()` | Mapa literal `{senderRole, text, createdAt(serverTimestamp)}` | `senderRole` desconhecido → `psychologist`, para nunca ser exibido como mensagem do próprio aluno. `isPending` vem de `metadata.hasPendingWrites` e não é gravado |
-| `GuideModel` (branch dos guias) | `fromFirestore`; `category` opcional | `toFirestore()` omite `category` e `authorUid` quando vazios | `category`, `authorUid` |
+| `GuideModel` (`lib/shared/models/guide_model.dart`) | `fromFirestore`; `category` opcional | `toFirestore()` omite `category` e `authorUid` quando vazios. `toMap()`/`fromMap()` para o cache `guides_cache` | `category`, `authorUid` |
 
 ## 5. Critérios de teste dos mappers
 
@@ -225,4 +225,3 @@ Para o `UserModel`, use `fake_cloud_firestore` ou um `DocumentSnapshot` simulado
 | 2 | `RegistroDiario.getAll()` falha a lista inteira com um registro inválido | Um registro corrompido esconde todo o diário; avaliar tolerância como no `PrefsMoodRecordRepository` |
 | 3 | `RegistroDiario.fromMap` aceita `id` ausente como `''` | Pode gerar registro não removível por `delete(id)` |
 | 4 | Diário e perfil em `SharedPreferences` sem criptografia | Decisão do grupo, registrada no `03` e no `04`: os dados nunca saem do aparelho e o diário é protegido por PIN (guardado como hash). Criptografar o armazenamento fica como melhoria futura |
-| 5 | `GuideModel` ainda não está na `main` | Depende do merge da branch `feat/parents-home-e-guias-psicologa` |

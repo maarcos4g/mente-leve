@@ -213,7 +213,7 @@ Legenda de status: ✅ Concluído · 🔄 Em andamento · ⏳ Pendente.
 | ID  | Pacote de trabalho           | Descrição / entregável                                                 | Critério de aceite                                                     | RF/RNF | Prior. | Status |
 | --- | ---------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------ | :----: | :----: |
 | 6.1 | Autenticação institucional   | Login por e-mail institucional + senha via bottom sheet de multi-login | Acesso negado a credenciais não cadastradas; logout disponível        | RF07   |   I    |   ✅   |
-| 6.2 | Gestão de conteúdos          | CRUD de itens do FAQ (CREATE/READ/UPDATE/DELETE)                       | Conteúdo publicado aparece no app do aluno após sincronização         | RF08   |   I    |   ✅   |
+| 6.2 | Gestão de conteúdos          | CRUD de itens do FAQ e dos guias para responsáveis (CREATE/READ/UPDATE/DELETE) | Conteúdo publicado aparece no app do aluno após sincronização         | RF08   |   I    |   ✅   |
 | 6.3 | Triagem de denúncias         | Painel com a lista das denúncias anônimas em ordem de triagem, por gravidade e antiguidade (READ). Os filtros foram removidos por não estarem no Figma | Todas as denúncias enviadas aparecem, sem dados que identifiquem o aluno | RF09 |   I    |   ✅   |
 | 6.4 | Resposta à queixa            | Resposta pelo chat em tempo real e mudança de status pendente → respondida (CREATE/UPDATE) | Status atualizado no painel; resposta vinculada à denúncia      | RF10   |   I    |   ✅   |
 
@@ -223,7 +223,7 @@ Legenda de status: ✅ Concluído · 🔄 Em andamento · ⏳ Pendente.
 | --- | --------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------ | :----: | :----: |
 | 7.1 | Cadastro backoffice         | Cadastro prévio dos responsáveis feito pela escola fora do app (ex.: console Firebase/planilha de importação) | Responsáveis não conseguem se autocadastrar pelo app | RNF10 |   S    |   ✅   |
 | 7.2 | Autenticação do responsável | Login por número de identificação + senha fornecida pela escola       | Somente credenciais pré-cadastradas acessam o painel                   | RF12   |   S    |   ✅   |
-| 7.3 | Conteúdos informativos      | Guias e artigos sobre sinais de alerta, bullying e prevenção (READ). Implementado na branch `feat/parents-home-e-guias-psicologa`, ainda não mesclada | Conteúdos exibidos após login, gerenciáveis pela psicóloga (6.2)      | RF11   |   S    |   🔄   |
+| 7.3 | Conteúdos informativos      | Guias e artigos sobre sinais de alerta, bullying e prevenção (READ). Home dos responsáveis (`/parents/home`) e leitura do guia (`/parents/guide`) | Conteúdos exibidos após login, gerenciáveis pela psicóloga (6.2)      | RF11   |   S    |   ✅   |
 
 ### 8. Qualidade e Homologação (UNIT)
 
