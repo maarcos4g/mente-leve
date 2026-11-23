@@ -5,17 +5,28 @@ on:
     branches:
       - main
       - feat/update-in-app-github-releases
-    # Tag vX.Y.Z publica também uma GitHub Release com o APK, que o app
-    # consulta para a atualização in-app.
-    tags:
-      - "v*"
+  # Execução manual: serve para testar a publicação numa branch antes do PR.
+  # "nenhum" só gera o build e envia ao Firebase; as demais opções forçam a
+  # publicação de uma Release com o incremento escolhido.
   workflow_dispatch:
+    inputs:
+      release:
+        description: "Publicar Release? (incremento sobre a última tag)"
+        type: choice
+        options:
+          - nenhum
+          - patch
+          - minor
+          - major
+        default: nenhum
 
+# Na main as execuções entram em fila (e não se cancelam), para que duas
+# publicações seguidas nunca calculem a mesma versão.
 concurrency:
   group: ci-cd-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
-# "write" só é usado para criar a Release em builds de tag.
+# "write" é usado para criar a tag e a Release.
 permissions:
   contents: write
 
@@ -27,50 +38,87 @@ jobs:
     environment: default
 
     steps:
+      # Histórico e tags completos: a versão é calculada a partir da última tag.
       - name: Checkout do código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Fonte única de versão: o "version" do pubspec.yaml. O app compara a tag
-      # da Release com o versionName instalado, então, em build de tag, a tag
-      # precisa ser vMAJOR.MINOR.PATCH e igual ao pubspec (suba o pubspec no PR
-      # antes de criar a tag).
+      # Versionamento 100% automático: a versão não depende do pubspec.yaml.
       #
-      # O versionCode é derivado da versão (e não só do run_number): qualquer
-      # build de uma versão maior tem código maior que qualquer build de uma
-      # versão menor. Sem isso, um build comum do Firebase com run_number alto
-      # impediria o Android de instalar, por cima, o APK de uma Release mais
-      # nova (INSTALL_FAILED_VERSION_DOWNGRADE).
+      # Base: a última tag vMAJOR.MINOR.PATCH (as tags são criadas só por este
+      # workflow, junto com a Release).
+      #
+      # Publica Release quando:
+      #   - push na main que alterou arquivos do app desde a última tag
+      #     (lib/, assets/, android/, pubspec.yaml/lock); docs, testes e CI
+      #     sozinhos não geram atualização para os usuários; ou
+      #   - execução manual com incremento diferente de "nenhum".
+      # Incremento (push na main): "!:" ou BREAKING CHANGE -> major; "feat:" ->
+      # minor; qualquer outro -> patch. Sem Release, o build usa a versão da
+      # última tag (não aparece como atualização para quem já a tem).
+      #
+      # versionCode derivado da versão (e não só do run_number): um build de
+      # versão maior sempre tem código maior que o de versão menor, então o
+      # Android não recusa o APK da Release por downgrade:
       #   versionCode = (MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number
       - name: Calcular versão do app (versionName e versionCode)
+        env:
+          INPUT_RELEASE: ${{ github.event.inputs.release }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
-          VERSION_NAME=$(sed -n 's/^version:[[:space:]]*\([^+[:space:]]*\).*/\1/p' pubspec.yaml | head -n1 | tr -d '\r')
-          if ! [[ "$VERSION_NAME" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            echo "::error::Versão '$VERSION_NAME' do pubspec.yaml inválida. Use MAJOR.MINOR.PATCH+BUILD (ex.: 1.2.0+1)."
-            exit 1
+          APP_PATHS='^(lib/|assets/|android/|pubspec\.yaml$|pubspec\.lock$)'
+
+          LAST_TAG=$(git tag --list 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1 || true)
+          if [ -z "$LAST_TAG" ]; then BASE="0.0.0"; RANGE="HEAD"; else BASE="${LAST_TAG#v}"; RANGE="$LAST_TAG..HEAD"; fi
+
+          BUMP=""
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ -n "$INPUT_RELEASE" && "$INPUT_RELEASE" != "nenhum" ]]; then BUMP="$INPUT_RELEASE"; fi
+          elif [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            if [ -z "$LAST_TAG" ]; then
+              CHANGED="primeira-release"
+            else
+              CHANGED=$(git diff --name-only "$LAST_TAG" HEAD | grep -E "$APP_PATHS" || true)
+            fi
+            if [ -n "$CHANGED" ]; then
+              MESSAGES=$(git log "$RANGE" --format='%s%n%b')
+              if grep -Eq '^[a-z]+(\(.*\))?!:|BREAKING CHANGE' <<< "$MESSAGES"; then BUMP="major"
+              elif grep -Eq '^feat(\(.*\))?:' <<< "$MESSAGES"; then BUMP="minor"
+              else BUMP="patch"; fi
+            else
+              echo "Nenhum arquivo do app mudou desde ${LAST_TAG}: sem Release."
+            fi
           fi
+
+          [[ "$BASE" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]
           MAJOR=$((10#${BASH_REMATCH[1]}))
           MINOR=$((10#${BASH_REMATCH[2]}))
           PATCH=$((10#${BASH_REMATCH[3]}))
-
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            if [[ "$GITHUB_REF_NAME" != "v$VERSION_NAME" ]]; then
-              echo "::error::Tag '$GITHUB_REF_NAME' diferente da versão do pubspec.yaml ('v$VERSION_NAME'). Ajuste o pubspec.yaml e crie a tag novamente."
-              exit 1
-            fi
-          fi
+          case "$BUMP" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+          VERSION_NAME="$MAJOR.$MINOR.$PATCH"
 
           # Limites para o versionCode caber no int do Android (máx. 2.147.483.647).
           if (( MAJOR > 20 || MINOR > 99 || PATCH > 99 )); then
             echo "::error::Versão $VERSION_NAME fora do limite suportado (MAJOR <= 20, MINOR <= 99, PATCH <= 99)."
             exit 1
           fi
-          if (( ${{ github.run_number }} > 9999 )); then
-            echo "::error::run_number ${{ github.run_number }} acima de 9999: revise a fórmula do versionCode."
+          if (( RUN_NUMBER > 9999 )); then
+            echo "::error::run_number $RUN_NUMBER acima de 9999: revise a fórmula do versionCode."
             exit 1
           fi
+          VERSION_CODE=$(( (MAJOR * 10000 + MINOR * 100 + PATCH) * 10000 + RUN_NUMBER ))
 
-          VERSION_CODE=$(( (MAJOR * 10000 + MINOR * 100 + PATCH) * 10000 + ${{ github.run_number }} ))
-          echo "versionName=$VERSION_NAME versionCode=$VERSION_CODE"
+          if [ -n "$BUMP" ]; then
+            echo "RELEASE_TAG=v$VERSION_NAME" >> "$GITHUB_ENV"
+            echo "Release v$VERSION_NAME ($BUMP sobre ${LAST_TAG:-nenhuma tag}), versionCode=$VERSION_CODE"
+          else
+            echo "Sem Release. versionName=$VERSION_NAME versionCode=$VERSION_CODE"
+          fi
           echo "APP_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
           echo "APP_VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
 
@@ -120,8 +168,8 @@ jobs:
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
           echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
-      # versionName vem do pubspec.yaml e versionCode da fórmula calculada acima
-      # (o "+BUILD" do pubspec é ignorado em favor do --build-number).
+      # versionName e versionCode vêm do passo de versão acima (o "version" do
+      # pubspec.yaml é ignorado pelo build do CI).
       - name: Build do APK (release)
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -133,21 +181,23 @@ jobs:
             --build-number="$APP_VERSION_CODE"
 
       # Release pública (não rascunho nem pré-lançamento): é o que o endpoint
-      # /releases/latest devolve ao app, sem token. Roda antes do Firebase para
+      # /releases/latest devolve ao app, sem token. A tag é criada aqui, no
+      # commit do build, só depois de o APK compilar. Tags criadas com o token
+      # do workflow não disparam uma nova execução. Roda antes do Firebase para
       # que uma falha da distribuição aos testadores não atrase os usuários.
       - name: Publicar GitHub Release com o APK
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.RELEASE_TAG != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          APK="mente-leve-${GITHUB_REF_NAME}.apk"
+          APK="mente-leve-${RELEASE_TAG}.apk"
           cp build/app/outputs/flutter-apk/app-release.apk "$APK"
-          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "$APK" --clobber
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$APK" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" "$APK" \
-              --verify-tag \
-              --title "MenteLeve ${GITHUB_REF_NAME}" \
+            gh release create "$RELEASE_TAG" "$APK" \
+              --target "$GITHUB_SHA" \
+              --title "MenteLeve ${RELEASE_TAG}" \
               --generate-notes
           fi
 
@@ -159,6 +209,7 @@ jobs:
           groups: ${{ secrets.FIREBASE_TESTER_GROUPS }}
           file: build/app/outputs/flutter-apk/app-release.apk
           releaseNotes: |
+            Versão: ${{ env.APP_VERSION_NAME }} (${{ env.APP_VERSION_CODE }})
             Commit: ${{ github.sha }}
             Autor: ${{ github.actor }}
             Mensagem: ${{ github.event.head_commit.message }}

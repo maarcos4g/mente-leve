@@ -63,7 +63,7 @@ class ReleaseInfo {
         sha256: _sha256From(digest),
       );
     }
-    return null;
+    return null; 
   }
 
   static String? _sha256From(Object? digest) {

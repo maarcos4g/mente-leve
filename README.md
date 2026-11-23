@@ -31,12 +31,12 @@ MenteLeve é um aplicativo móvel de apoio à saúde emocional de adolescentes d
 
 O app Android verifica sozinho, ao abrir, se existe uma versão nova na API pública de Releases do repositório (`/releases/latest`), sem login e sem token. Se houver, mostra um modal, baixa o APK com barra de progresso e abre o instalador do Android. Sem internet ou com falha na API, a verificação é ignorada e o app abre normalmente. O repositório precisa continuar **público**.
 
-Para publicar uma versão:
+A publicação é **automática**: não é preciso editar o `pubspec.yaml`, criar tag ou subir arquivo à mão.
 
-1. Suba o `version` do `pubspec.yaml` (ex.: `1.1.0+1`) no mesmo PR da mudança. O `versionName` do app vem sempre do pubspec.
-2. Depois do merge na `main`, crie a tag no formato `vMAJOR.MINOR.PATCH` (ex.: `git tag v1.1.0 && git push origin v1.1.0`).
-3. A pipeline (`.github/workflows/ci_cd.yml`) confere se a tag é igual ao `version` do pubspec (senão falha), compila o APK assinado e publica a Release com o arquivo `mente-leve-v1.1.0.apk`. O app só oferece a atualização se a tag for maior que a versão instalada; builds comuns da branch com a mesma versão da Release não mostram o modal.
-
-O `versionCode` do APK é calculado pela pipeline como `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`, para que uma versão maior nunca seja recusada pelo Android como downgrade. Versões aceitas: até `20.99.99`.
+- A cada push na `main` que altere arquivos do app (`lib/`, `assets/`, `android/`, `pubspec.yaml` ou `pubspec.lock`) desde a última tag, a pipeline (`.github/workflows/ci_cd.yml`) calcula a próxima versão, compila o APK assinado, cria a tag `vX.Y.Z` e publica a Release com o arquivo `mente-leve-vX.Y.Z.apk`. Mudanças só em docs, testes ou CI não geram Release nem oferecem atualização aos usuários.
+- O incremento vem das mensagens de commit (Conventional Commits) desde a última tag: `feat!:` ou `BREAKING CHANGE` sobe o **major**, `feat:` sobe o **minor** e qualquer outro (`fix:`, `refactor:` etc.) sobe o **patch**.
+- Para testar antes do PR, rode o workflow na branch (Actions → CI/CD → Run workflow) escolhendo `patch`, `minor` ou `major`. Com `nenhum`, só gera o build e envia ao Firebase.
+- O app só oferece a atualização se a tag da Release for maior que o `versionName` instalado. Builds da branch ou da `main` sem Release usam a versão da última tag, então não mostram o modal.
+- O `versionName` do APK vem da tag, não do `pubspec.yaml` (o campo `version` do pubspec só vale para builds locais). O `versionCode` é calculado como `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`, para que uma versão maior nunca seja recusada pelo Android como downgrade. Versões aceitas: até `20.99.99`.
 
 Código em `lib/shared/app_update/`.
