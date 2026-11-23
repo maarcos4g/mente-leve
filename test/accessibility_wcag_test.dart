@@ -89,6 +89,32 @@ void main() {
           ),
           greaterThanOrEqualTo(4.5),
         );
+
+        // Card de canais oficiais (SCRUM-34): título e subtítulo
+        expect(
+          wcagContrastRatio(
+            AppColors.zinc950,
+            StudentFaqView.officialChannelsCardBackground,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          wcagContrastRatio(
+            AppColors.slate600,
+            StudentFaqView.officialChannelsCardBackground,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
+
+        // Ícone do card de canais oficiais sobre branco: elemento gráfico,
+        // WCAG 1.4.11 pede >= 3:1
+        expect(
+          wcagContrastRatio(
+            StudentFaqView.officialChannelsIconColor,
+            Colors.white,
+          ),
+          greaterThanOrEqualTo(3.0),
+        );
       },
     );
 
@@ -109,6 +135,12 @@ void main() {
         );
         expect(cvvCardSize.width, greaterThanOrEqualTo(48));
         expect(cvvCardSize.height, greaterThanOrEqualTo(48));
+
+        final officialCardSize = tester.getSize(
+          find.byKey(const Key('support_channel_official')),
+        );
+        expect(officialCardSize.width, greaterThanOrEqualTo(48));
+        expect(officialCardSize.height, greaterThanOrEqualTo(48));
 
         final reportCardSize = tester.getSize(
           find.byKey(const Key('support_channel_report')),
