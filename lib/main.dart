@@ -112,7 +112,7 @@ class _MyAppState extends State<MyApp> {
 
         return Provider.value(
           value: _supportTrigger,
-          child: Provider.value(
+          child: ChangeNotifierProvider.value(
             value: _appUpdate,
             child: ChangeNotifierProvider.value(
               value: snapshot.data!,
