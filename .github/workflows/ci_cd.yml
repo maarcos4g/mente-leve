@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/update-in-app-github-releases
   # Execução manual: serve para testar a publicação numa branch antes do PR.
   # "nenhum" só gera o build e envia ao Firebase; as demais opções forçam a
   # publicação de uma Release com o incremento escolhido.
