@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mente_leve/modules/psychologist/reports/widgets/reports_summary_card.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_controller.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
@@ -44,14 +45,19 @@ void main() {
         expect(find.text('Salvar'), findsOneWidget);
 
         // Botões de editar e excluir NÃO devem estar visíveis antes do swipe
-        expect(find.byKey(const Key('faq_edit_faq-cyberbullying')), findsNothing);
+        expect(
+          find.byKey(const Key('faq_edit_faq-cyberbullying')),
+          findsNothing,
+        );
         expect(
           find.byKey(const Key('faq_delete_faq-cyberbullying')),
           findsNothing,
         );
 
         // Arrasta o card para a esquerda -> revela botões de editar e excluir
-        final swipeTarget = find.byKey(const Key('faq_swipe_faq-cyberbullying'));
+        final swipeTarget = find.byKey(
+          const Key('faq_swipe_faq-cyberbullying'),
+        );
         await tester.ensureVisible(swipeTarget);
         await tester.drag(swipeTarget, const Offset(-100, 0));
         await tester.pumpAndSettle();
@@ -69,7 +75,10 @@ void main() {
         await tester.drag(swipeTarget, const Offset(100, 0));
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('faq_edit_faq-cyberbullying')), findsNothing);
+        expect(
+          find.byKey(const Key('faq_edit_faq-cyberbullying')),
+          findsNothing,
+        );
         expect(
           find.byKey(const Key('faq_delete_faq-cyberbullying')),
           findsNothing,
@@ -116,67 +125,73 @@ void main() {
       );
     });
 
-    testWidgets('edita e atualiza uma pergunta existente após arrastar para a esquerda (Update)', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'edita e atualiza uma pergunta existente após arrastar para a esquerda (Update)',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
 
-      final swipeTarget = find.byKey(const Key('faq_swipe_faq-cyberbullying'));
-      await tester.ensureVisible(swipeTarget);
-      await tester.drag(swipeTarget, const Offset(-100, 0));
-      await tester.pumpAndSettle();
+        final swipeTarget = find.byKey(
+          const Key('faq_swipe_faq-cyberbullying'),
+        );
+        await tester.ensureVisible(swipeTarget);
+        await tester.drag(swipeTarget, const Offset(-100, 0));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const Key('faq_edit_faq-cyberbullying')));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('faq_edit_faq-cyberbullying')));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Atualizar'), findsOneWidget);
-      expect(find.byKey(const Key('faq_cancel_edit_button')), findsOneWidget);
+        expect(find.text('Atualizar'), findsOneWidget);
+        expect(find.byKey(const Key('faq_cancel_edit_button')), findsOneWidget);
 
-      await tester.enterText(
-        find.byKey(const Key('faq_title_input')),
-        'O que é cyberbullying e como agir?',
-      );
-      await tester.enterText(
-        find.byKey(const Key('faq_description_input')),
-        'Guarde evidências, bloqueie o agressor e avise a escola.',
-      );
+        await tester.enterText(
+          find.byKey(const Key('faq_title_input')),
+          'O que é cyberbullying e como agir?',
+        );
+        await tester.enterText(
+          find.byKey(const Key('faq_description_input')),
+          'Guarde evidências, bloqueie o agressor e avise a escola.',
+        );
 
-      final submitBtn = find.byKey(const Key('faq_submit_button'));
-      await tester.ensureVisible(submitBtn);
-      await tester.tap(submitBtn);
-      await tester.pumpAndSettle();
+        final submitBtn = find.byKey(const Key('faq_submit_button'));
+        await tester.ensureVisible(submitBtn);
+        await tester.tap(submitBtn);
+        await tester.pumpAndSettle();
 
-      expect(find.text('Pergunta atualizada com sucesso!'), findsOneWidget);
-      expect(find.text('O que é cyberbullying e como agir?'), findsOneWidget);
-      expect(
-        find.text('Guarde evidências, bloqueie o agressor e avise a escola.'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('exclui uma pergunta existente após arrastar para a esquerda (Delete)', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      expect(find.text('O que é cyberbullying'), findsOneWidget);
-
-      final swipeTarget = find.byKey(const Key('faq_swipe_faq-cyberbullying'));
-      await tester.ensureVisible(swipeTarget);
-      await tester.drag(swipeTarget, const Offset(-100, 0));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('faq_delete_faq-cyberbullying')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('O que é cyberbullying'), findsNothing);
-      expect(find.text('Pergunta removida do FAQ.'), findsOneWidget);
-    });
+        expect(find.text('Pergunta atualizada com sucesso!'), findsOneWidget);
+        expect(find.text('O que é cyberbullying e como agir?'), findsOneWidget);
+        expect(
+          find.text('Guarde evidências, bloqueie o agressor e avise a escola.'),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets(
-      'PsychologistHomeView exibe nome do Firestore, avatar na AppBar e card compacto de FAQ (152x142)',
+      'exclui uma pergunta existente após arrastar para a esquerda (Delete)',
+      (tester) async {
+        await tester.pumpWidget(createWidget());
+        await tester.pumpAndSettle();
+
+        expect(find.text('O que é cyberbullying'), findsOneWidget);
+
+        final swipeTarget = find.byKey(
+          const Key('faq_swipe_faq-cyberbullying'),
+        );
+        await tester.ensureVisible(swipeTarget);
+        await tester.drag(swipeTarget, const Offset(-100, 0));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('faq_delete_faq-cyberbullying')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('O que é cyberbullying'), findsNothing);
+        expect(find.text('Pergunta removida do FAQ.'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'PsychologistHomeView exibe nome do Firestore, avatar na AppBar e cards de FAQ e Guias dividindo a largura da triagem',
       (tester) async {
         final firestoreUser = UserModel(
           uid: 'psi-01',
@@ -189,8 +204,8 @@ void main() {
           MaterialApp(
             routes: {
               '/': (_) => PsychologistHomeView(user: firestoreUser),
-              PsychologistFaqView.routeName:
-                  (_) => PsychologistFaqView(controller: controller),
+              PsychologistFaqView.routeName: (_) =>
+                  PsychologistFaqView(controller: controller),
             },
           ),
         );
@@ -203,11 +218,21 @@ void main() {
         // Avatar presente na AppBar
         expect(find.byKey(const Key('psychologist_avatar')), findsOneWidget);
 
-        // Card compacto conforme Figma (152x142)
-        final cardFinder = find.byKey(const Key('psychologist_open_faq_button'));
+        // Os dois cards dividem a largura do card de triagem (gap de 16).
+        final cardFinder = find.byKey(
+          const Key('psychologist_open_faq_button'),
+        );
+        final guidesFinder = find.byKey(
+          const Key('psychologist_open_guides_button'),
+        );
         expect(cardFinder, findsOneWidget);
         final cardSize = tester.getSize(cardFinder);
-        expect(cardSize.width, 152);
+        final guidesSize = tester.getSize(guidesFinder);
+        final triageWidth = tester
+            .getSize(find.byType(ReportsSummaryCard))
+            .width;
+        expect(cardSize.width, guidesSize.width);
+        expect(cardSize.width * 2 + 16, closeTo(triageWidth, 0.5));
         expect(cardSize.height, 142);
 
         await tester.tap(cardFinder);

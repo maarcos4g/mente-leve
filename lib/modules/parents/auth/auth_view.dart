@@ -64,7 +64,7 @@ class _ParentsAuthViewState extends State<ParentsAuthView> {
         InputTextField(
           controller: passwordController,
           hint: 'Senha fornecida pela escola',
-          prefixIcon: LucideIcons.lock,
+          prefixIcon: LucideIcons.lockKeyhole,
           obscureText: true,
           validator: controller.validatePassword,
         ),

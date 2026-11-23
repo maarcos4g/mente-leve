@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mente_leve/app_widget.dart';
+import 'package:mente_leve/modules/parents/home/parents_home_controller.dart';
 import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_controller.dart';
 import 'package:mente_leve/modules/psychologist/chat/repositories/psychologist_chat_repository.dart';
+import 'package:mente_leve/modules/psychologist/guides/psychologist_guides_controller.dart';
 import 'package:mente_leve/modules/psychologist/reports/reports_controller.dart';
 import 'package:mente_leve/modules/student/chat/anonymous_chat_controller.dart';
 import 'package:mente_leve/modules/student/chat/repositories/chat_repository.dart';
@@ -24,6 +26,7 @@ import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/auth/auth_repository.dart';
 import 'package:mente_leve/shared/auth/profile_store.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
+import 'package:mente_leve/shared/guides/guide_repository.dart';
 import 'package:mente_leve/shared/reports/report_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,6 +72,12 @@ class _MyAppState extends State<MyApp> {
       FirebaseFirestore.instance,
       storage: storage,
     );
+    final guidesRepository = FirestoreGuideRepository(
+      FirebaseFirestore.instance,
+      storage: storage,
+    );
+    ParentsHomeController.defaultRepository = guidesRepository;
+    PsychologistGuidesController.defaultRepository = guidesRepository;
     AnonymousChatController.defaultRepository = FirestoreChatRepository(
       FirebaseFirestore.instance,
       FirebaseAuth.instance,
