@@ -119,31 +119,32 @@ class PsychologistHomeView extends StatelessWidget {
                 children: [
                   const ReportsSummaryCard(),
                   const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
+                  Row(
                     children: [
-                      _PsychologistActionCard(
-                        cardKey: const Key('psychologist_open_faq_button'),
-                        icon: LucideIcons.circleQuestionMark,
-                        iconBackgroundColor: const Color(0xFFB8E6FE),
-                        iconColor: AppColors.sky700,
-                        title: 'Editar Perguntas\nFrequentes (FAQ)',
-                        onTap:
-                            () => Navigator.of(
-                              context,
-                            ).pushNamed(PsychologistFaqView.routeName),
+                      Expanded(
+                        child: _PsychologistActionCard(
+                          cardKey: const Key('psychologist_open_faq_button'),
+                          icon: LucideIcons.circleQuestionMark,
+                          iconBackgroundColor: const Color(0xFFB8E6FE),
+                          iconColor: AppColors.sky700,
+                          title: 'Editar Perguntas\nFrequentes (FAQ)',
+                          onTap: () => Navigator.of(
+                            context,
+                          ).pushNamed(PsychologistFaqView.routeName),
+                        ),
                       ),
-                      _PsychologistActionCard(
-                        cardKey: const Key('psychologist_open_guides_button'),
-                        icon: LucideIcons.bookOpen,
-                        iconBackgroundColor: const Color(0xFFD0FAE5),
-                        iconColor: const Color(0xFF047857),
-                        title: 'Guias e\nOrientações',
-                        onTap:
-                            () => Navigator.of(
-                              context,
-                            ).pushNamed(PsychologistGuidesView.routeName),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _PsychologistActionCard(
+                          cardKey: const Key('psychologist_open_guides_button'),
+                          icon: LucideIcons.bookOpen,
+                          iconBackgroundColor: const Color(0xFFD0FAE5),
+                          iconColor: const Color(0xFF047857),
+                          title: 'Guias e\nOrientações',
+                          onTap: () => Navigator.of(
+                            context,
+                          ).pushNamed(PsychologistGuidesView.routeName),
+                        ),
                       ),
                     ],
                   ),
@@ -167,8 +168,9 @@ class _PsychologistAvatar extends StatelessWidget {
   final String displayName;
 
   Widget _buildFallback() {
-    final initial =
-        displayName.isNotEmpty ? displayName[0].toUpperCase() : null;
+    final initial = displayName.isNotEmpty
+        ? displayName[0].toUpperCase()
+        : null;
     return Container(
       width: 40,
       height: 40,
@@ -178,21 +180,16 @@ class _PsychologistAvatar extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 1.5),
       ),
       alignment: Alignment.center,
-      child:
-          initial != null
-              ? Text(
-                initial,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.sky700,
-                ),
-              )
-              : const Icon(
-                LucideIcons.user,
-                size: 20,
+      child: initial != null
+          ? Text(
+              initial,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
                 color: AppColors.sky700,
               ),
+            )
+          : const Icon(LucideIcons.user, size: 20, color: AppColors.sky700),
     );
   }
 
@@ -201,26 +198,24 @@ class _PsychologistAvatar extends StatelessWidget {
     final hasPhoto = photoUrl != null && photoUrl!.isNotEmpty;
     return Semantics(
       image: true,
-      label:
-          displayName.isNotEmpty
-              ? 'Foto de perfil de $displayName'
-              : 'Foto de perfil da psicóloga',
+      label: displayName.isNotEmpty
+          ? 'Foto de perfil de $displayName'
+          : 'Foto de perfil da psicóloga',
       child: SizedBox(
         key: const Key('psychologist_avatar'),
         width: 40,
         height: 40,
-        child:
-            hasPhoto
-                ? ClipOval(
-                  child: Image.network(
-                    photoUrl!,
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _buildFallback(),
-                  ),
-                )
-                : _buildFallback(),
+        child: hasPhoto
+            ? ClipOval(
+                child: Image.network(
+                  photoUrl!,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => _buildFallback(),
+                ),
+              )
+            : _buildFallback(),
       ),
     );
   }
@@ -251,7 +246,6 @@ class _PsychologistActionCard extends StatelessWidget {
       button: true,
       label: title.replaceAll('\n', ' '),
       child: SizedBox(
-        width: 152,
         height: 142,
         child: Material(
           color: AppColors.zinc100,
