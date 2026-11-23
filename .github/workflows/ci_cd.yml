@@ -27,18 +27,52 @@ jobs:
     environment: default
 
     steps:
-      # O app compara a tag com o versionName instalado, então a tag precisa
-      # ser exatamente vMAJOR.MINOR.PATCH (ex.: v1.2.0).
-      - name: Validar formato da tag de release
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Fonte única de versão: o "version" do pubspec.yaml. O app compara a tag
+      # da Release com o versionName instalado, então, em build de tag, a tag
+      # precisa ser vMAJOR.MINOR.PATCH e igual ao pubspec (suba o pubspec no PR
+      # antes de criar a tag).
+      #
+      # O versionCode é derivado da versão (e não só do run_number): qualquer
+      # build de uma versão maior tem código maior que qualquer build de uma
+      # versão menor. Sem isso, um build comum do Firebase com run_number alto
+      # impediria o Android de instalar, por cima, o APK de uma Release mais
+      # nova (INSTALL_FAILED_VERSION_DOWNGRADE).
+      #   versionCode = (MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number
+      - name: Calcular versão do app (versionName e versionCode)
         run: |
-          if ! [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Tag '$GITHUB_REF_NAME' inválida. Use vMAJOR.MINOR.PATCH (ex.: v1.2.0)."
+          VERSION_NAME=$(sed -n 's/^version:[[:space:]]*\([^+[:space:]]*\).*/\1/p' pubspec.yaml | head -n1 | tr -d '\r')
+          if ! [[ "$VERSION_NAME" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Versão '$VERSION_NAME' do pubspec.yaml inválida. Use MAJOR.MINOR.PATCH+BUILD (ex.: 1.2.0+1)."
+            exit 1
+          fi
+          MAJOR=$((10#${BASH_REMATCH[1]}))
+          MINOR=$((10#${BASH_REMATCH[2]}))
+          PATCH=$((10#${BASH_REMATCH[3]}))
+
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            if [[ "$GITHUB_REF_NAME" != "v$VERSION_NAME" ]]; then
+              echo "::error::Tag '$GITHUB_REF_NAME' diferente da versão do pubspec.yaml ('v$VERSION_NAME'). Ajuste o pubspec.yaml e crie a tag novamente."
+              exit 1
+            fi
+          fi
+
+          # Limites para o versionCode caber no int do Android (máx. 2.147.483.647).
+          if (( MAJOR > 20 || MINOR > 99 || PATCH > 99 )); then
+            echo "::error::Versão $VERSION_NAME fora do limite suportado (MAJOR <= 20, MINOR <= 99, PATCH <= 99)."
+            exit 1
+          fi
+          if (( ${{ github.run_number }} > 9999 )); then
+            echo "::error::run_number ${{ github.run_number }} acima de 9999: revise a fórmula do versionCode."
             exit 1
           fi
 
-      - name: Checkout do código
-        uses: actions/checkout@v4
+          VERSION_CODE=$(( (MAJOR * 10000 + MINOR * 100 + PATCH) * 10000 + ${{ github.run_number }} ))
+          echo "versionName=$VERSION_NAME versionCode=$VERSION_CODE"
+          echo "APP_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "APP_VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
 
       - name: Configurar Java 17
         uses: actions/setup-java@v4
@@ -86,21 +120,17 @@ jobs:
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
           echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
-      # O versionCode (build number) é o run_number do workflow: cresce a cada
-      # execução, então o Android aceita cada APK como atualização do anterior.
-      # Em build de tag, o versionName vem da tag (v1.2.0 -> 1.2.0), para o app
-      # instalado enxergar a mesma versão que a Release anuncia.
+      # versionName vem do pubspec.yaml e versionCode da fórmula calculada acima
+      # (o "+BUILD" do pubspec é ignorado em favor do --build-number).
       - name: Build do APK (release)
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          ARGS="--build-number=${{ github.run_number }}"
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            ARGS="$ARGS --build-name=${GITHUB_REF_NAME#v}"
-          fi
-          flutter build apk --release $ARGS
+          flutter build apk --release \
+            --build-name="$APP_VERSION_NAME" \
+            --build-number="$APP_VERSION_CODE"
 
       # Release pública (não rascunho nem pré-lançamento): é o que o endpoint
       # /releases/latest devolve ao app, sem token. Roda antes do Firebase para

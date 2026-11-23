@@ -33,8 +33,10 @@ O app Android verifica sozinho, ao abrir, se existe uma versão nova na API púb
 
 Para publicar uma versão:
 
-1. Suba o `version` do `pubspec.yaml` (ex.: `1.1.0+1`) no mesmo PR da mudança.
+1. Suba o `version` do `pubspec.yaml` (ex.: `1.1.0+1`) no mesmo PR da mudança. O `versionName` do app vem sempre do pubspec.
 2. Depois do merge na `main`, crie a tag no formato `vMAJOR.MINOR.PATCH` (ex.: `git tag v1.1.0 && git push origin v1.1.0`).
-3. A pipeline (`.github/workflows/ci_cd.yml`) compila o APK assinado, usa a tag como `versionName` e publica a Release com o arquivo `mente-leve-v1.1.0.apk`. O app só oferece a atualização se a tag for maior que a versão instalada.
+3. A pipeline (`.github/workflows/ci_cd.yml`) confere se a tag é igual ao `version` do pubspec (senão falha), compila o APK assinado e publica a Release com o arquivo `mente-leve-v1.1.0.apk`. O app só oferece a atualização se a tag for maior que a versão instalada; builds comuns da branch com a mesma versão da Release não mostram o modal.
+
+O `versionCode` do APK é calculado pela pipeline como `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`, para que uma versão maior nunca seja recusada pelo Android como downgrade. Versões aceitas: até `20.99.99`.
 
 Código em `lib/shared/app_update/`.
