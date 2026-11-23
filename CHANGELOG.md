@@ -209,6 +209,13 @@
 
 ### Adicionado
 
+- Perfil do usuário (SCRUM-51): tocar no avatar da Home do aluno (ou no ícone de perfil das Homes de psicóloga e responsável) abre um painel com codinome/avatar (aluno) ou nome, e-mail e papel (perfis institucionais), e a opção "Sair da conta".
+- Logout com confirmação (SCRUM-51): o aluno é avisado de que o perfil anônimo e os registros do diário serão apagados do aparelho (e o logout passa a apagá-los de fato: diário e estado do gatilho de apoio); depois de sair, o app volta ao `/onboarding`. `InstitutionalSession` passou a carregar o e-mail da conta.
+
+### Modificado
+
+- Logout do aluno (SCRUM-51, `AuthRepository.signOut`): além do perfil, apaga o diário e o estado do gatilho de apoio guardados no aparelho, por meio do novo parâmetro opcional `clearStudentData` (ligado no `main.dart`). Logout de psicóloga e responsável não apaga nada local.
+- Homes de psicóloga e responsável (SCRUM-51): o botão "Sair" sem confirmação foi trocado por um ícone de perfil na barra superior, que abre o mesmo painel de perfil.
 - Guia e lista de Canais Oficiais de Denúncia e Apoio para o aluno (`OfficialChannelsView`, rota `/faq/canais-oficiais` — RF06 / SCRUM-34): Disque 100, Conselho Tutelar e Ouvidoria Escolar, com o que cada canal faz, quando procurar e como entrar em contato. Só o Disque 100 tem botão "Ligar 100", porque os outros dois não têm número nacional. A lista é fixa no app e funciona offline. A tela traz também um aviso para ligar 190 em perigo imediato.
 - Função de discagem compartilhada `dialPhoneNumber` (`lib/shared/utils/phone_dialer.dart`), que abre o discador nativo com qualquer número.
 - Testes da nova tela, da discagem e da auditoria WCAG AA das cores novas (`test/modules/student/official_channels/`, `test/shared/utils/` e `test/accessibility_wcag_test.dart`).

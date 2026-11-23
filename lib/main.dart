@@ -60,6 +60,9 @@ class _MyAppState extends State<MyApp> {
       records: PrefsMoodRecordRepository(storage),
       stateStore: SupportTriggerStateStore(storage),
     );
+    final diary = PrefsDiaryRepository(storage);
+    final triggerState = SupportTriggerStateStore(storage);
+    DiaryController.defaultRepository = diary;
     DiaryController.defaultRepository = PrefsDiaryRepository(storage);
     DiaryLockController.defaultRepository = PrefsDiaryLockRepository(storage);
     StudentFaqController.defaultRepository = FirestoreFaqRepository(
@@ -80,6 +83,10 @@ class _MyAppState extends State<MyApp> {
         FirebaseAuth.instance,
         FirebaseFirestore.instance,
         ProfileStore(storage),
+        clearStudentData: () async {
+          await diary.clear();
+          await triggerState.clear();
+        },
       ),
     );
   }

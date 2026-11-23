@@ -7,6 +7,7 @@ import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
 import 'package:mente_leve/shared/models/user_model.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
+import 'package:mente_leve/shared/widgets/profile/profile_sheet.dart';
 import 'package:provider/provider.dart';
 
 class PsychologistHomeView extends StatelessWidget {
@@ -69,22 +70,15 @@ class PsychologistHomeView extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           IconButton(
-                            key: const Key('psychologist_logout_button'),
-                            tooltip: 'Sair',
-                            onPressed: () async {
-                              final nav = Navigator.of(context);
-                              await context.read<AuthNotifier>().signOut();
-                              nav.pushNamedAndRemoveUntil(
-                                '/onboarding',
-                                (_) => false,
-                              );
-                            },
+                            key: const Key('psychologist_profile_button'),
+                            tooltip: 'Perfil',
+                            onPressed: () => showProfileSheet(context),
                             constraints: const BoxConstraints(
                               minWidth: 48,
                               minHeight: 48,
                             ),
                             icon: const Icon(
-                              LucideIcons.logOut,
+                              LucideIcons.user,
                               size: 20,
                               color: AppColors.zinc50,
                             ),
