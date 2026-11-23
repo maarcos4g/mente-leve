@@ -295,6 +295,7 @@
 - `AndroidManifest.xml`: as permissões de armazenamento e mídia que o `open_filex` traz (`READ_EXTERNAL_STORAGE`, `READ_MEDIA_*`) foram removidas do manifesto final, porque o app não as usa (o APK fica no cache do próprio app).
 - `permission_handler` fixado na linha 12.x: a 13.x exige `compileSdk` 37, acima do que o Android Gradle Plugin do projeto recomenda (36), e quebrava o build.
 - Tela de login de responsáveis (`ParentsAuthView`): ícone do campo de senha ajustado para `LucideIcons.lockKeyhole`, alinhado ao protótipo do Figma.
+- Responsabilidades de Alexandre Pedro de Matos Ferreira atualizadas em `README.md` com o módulo de Guias e Orientações da Psicóloga (`RF08`), Home dos Responsáveis (`RF11`) e revisão do PR #30.
 
 ### Removido
 
