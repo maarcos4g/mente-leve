@@ -2,14 +2,20 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mente_leve/modules/parents/home/home_view.dart';
+import 'package:mente_leve/modules/parents/home/parents_home_controller.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
+import 'package:mente_leve/modules/psychologist/guides/psychologist_guides_controller.dart';
+import 'package:mente_leve/modules/psychologist/guides/psychologist_guides_view.dart';
 import 'package:mente_leve/modules/psychologist/reports/widgets/report_card.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
 import 'package:mente_leve/shared/faq/faq_repository.dart';
+import 'package:mente_leve/shared/guides/guide_repository.dart';
 import 'package:mente_leve/shared/models/report_model.dart';
 import 'package:mente_leve/shared/themes/app_colors.dart';
 import 'package:mente_leve/shared/widgets/chat/chat_widgets.dart';
 import 'package:mente_leve/shared/widgets/faq/faq_expandable_card.dart';
+import 'package:mente_leve/shared/widgets/guides/guide_card.dart';
 
 /// Calcula a razão de contraste WCAG 2.1 entre duas cores (1.0 a 21.0).
 double wcagContrastRatio(Color a, Color b) {
@@ -237,5 +243,95 @@ void main() {
         greaterThanOrEqualTo(4.5),
       );
     });
+
+    test('cards de Guias e Orientações cumprem contraste AA (RF08 / RF11)', () {
+      expect(
+        wcagContrastRatio(
+          GuideCard.categoryTextColor,
+          GuideCard.cardBackground,
+        ),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        wcagContrastRatio(AppColors.zinc950, GuideCard.cardBackground),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(
+        wcagContrastRatio(
+          GuideCard.descriptionTextColor,
+          GuideCard.cardBackground,
+        ),
+        greaterThanOrEqualTo(4.5),
+      );
+    });
+
+    testWidgets(
+      'controles interativos em PsychologistGuidesView e ParentsHomeView possuem área >= 48x48dp',
+      (tester) async {
+        final guidesRepo = LocalGuideRepository();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PsychologistGuidesView(
+              controller: PsychologistGuidesController(repository: guidesRepo),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final backSize = tester.getSize(
+          find.byKey(const Key('psychologist_guides_back_button')),
+        );
+        expect(backSize.width, greaterThanOrEqualTo(48));
+        expect(backSize.height, greaterThanOrEqualTo(48));
+
+        final submitSize = tester.getSize(
+          find.byKey(const Key('guide_submit_button')),
+        );
+        expect(submitSize.width, greaterThanOrEqualTo(48));
+        expect(submitSize.height, greaterThanOrEqualTo(48));
+
+        final swipeCard = find.byKey(
+          const Key('guide_swipe_guide-sinais-ansiedade'),
+        );
+        await tester.ensureVisible(swipeCard);
+        await tester.pumpAndSettle();
+        await tester.drag(swipeCard, const Offset(-100, 0));
+        await tester.pumpAndSettle();
+
+        final editSize = tester.getSize(
+          find.byKey(const Key('guide_edit_guide-sinais-ansiedade')),
+        );
+        expect(editSize.width, greaterThanOrEqualTo(48));
+        expect(editSize.height, greaterThanOrEqualTo(48));
+
+        final deleteSize = tester.getSize(
+          find.byKey(const Key('guide_delete_guide-sinais-ansiedade')),
+        );
+        expect(deleteSize.width, greaterThanOrEqualTo(48));
+        expect(deleteSize.height, greaterThanOrEqualTo(48));
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ParentsHomeView(
+              controller: ParentsHomeController(repository: guidesRepo),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final profileSize = tester.getSize(
+          find.byKey(const Key('parents_profile_button')),
+        );
+        expect(profileSize.width, greaterThanOrEqualTo(48));
+        expect(profileSize.height, greaterThanOrEqualTo(48));
+
+        final contactSize = tester.getSize(
+          find.byKey(const Key('parents_contact_school_button')),
+        );
+        expect(contactSize.width, greaterThanOrEqualTo(48));
+        expect(contactSize.height, greaterThanOrEqualTo(48));
+      },
+    );
   });
 }

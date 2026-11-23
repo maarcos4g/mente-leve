@@ -277,6 +277,11 @@
   - Permissões `INTERNET` e `REQUEST_INSTALL_PACKAGES` declaradas no `AndroidManifest.xml`.
   - Dependências: `http`, `package_info_plus`, `path_provider`, `open_filex` e `permission_handler`.
   - 57 testes novos em `test/shared/app_update/` (versão, release, repositório com `MockClient`, download, controller, modal e coordenação na inicialização).
+- Módulo de Guias e Orientações para Responsáveis (`RF08` / `RF11`):
+  - Entidade `GuideModel` (`lib/shared/models/guide_model.dart`) com campos em inglês (`title`, `description`, `text`, `category`, `createdAt`, `updatedAt`, `authorUid`), repositório `GuideRepository` (`FirestoreGuideRepository` e `LocalGuideRepository` em `lib/shared/guides/guide_repository.dart`) conectado à coleção `guides` com cache offline em `SharedPreferences` (`guides_cache`) e card reutilizável `GuideCard` (`lib/shared/widgets/guides/guide_card.dart`).
+  - Tela "Orientações" (`PsychologistGuidesView` e `PsychologistGuidesController`, rota `/psychologist/guides`) no painel da psicóloga para publicar, editar e excluir guias com ações reveladas no *swipe* para a esquerda e atalho compacto "Guias e Orientações" na `PsychologistHomeView`.
+  - Home dos Responsáveis (`ParentsHomeView` e `ParentsHomeController`, rota `/parents/home`) fiel ao protótipo do Figma, com cabeçalho azul e saudação dinâmica via Firestore (`"Olá, <nome>!"` / fallback `"Olá, Família!"`), botão de perfil/logout, banner `"Fale com a escola"` (modal institucional com orientações de contato e discagem CVV 188), lista de `"Guias e Orientações"` com *pull-to-refresh* e tela de leitura completa `GuideDetailView` (`/parents/guide`).
+  - Testes unitários, de widgets e auditoria WCAG AA para guias, painel da psicóloga e Home dos responsáveis (`test/shared/guides/`, `test/modules/psychologist/guides/`, `test/modules/parents/home/` e `test/accessibility_wcag_test.dart`).
 
 ### Modificado
 
@@ -285,13 +290,11 @@
 - Tela do chat do aluno (`AnonymousChatView`): passou a usar os widgets de chat compartilhados, sem mudar o comportamento.
 - Mensagem de erro do painel de triagem: separa falta de rede, permissão negada e demais falhas, e registra o erro real no log.
 - Chat do aluno (`AnonymousChatView`): o assunto da conversa deixou de vir pré-selecionado em "Bullying". O aluno precisa escolher o assunto (bullying, cyberbullying ou outros) antes de enviar a primeira mensagem; sem escolher, a mensagem não é enviada e a tela avisa "Escolha o assunto da conversa antes de enviar.". Testes em `test/modules/student/chat/`.
-<<<<<<< HEAD
 - Responsabilidades de Abraão Luiz Ribeiro da Cruz Dantas atualizadas em `README.md` (diário reflexivo, Breno, um sentimento por dia, PIN do diário, persistência offline e bateria de testes offline).
-=======
 - Pipeline de CI/CD: o workflow passou a rodar também em tags `v*` e a ter `permissions: contents: write`, usado só para criar a Release em builds de tag. A versão do app deixou de depender do `pubspec.yaml`: o `versionName` vem da última tag (ou da próxima, quando há Release) e o `versionCode` passou a ser `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`. Assim, o APK de uma Release mais nova sempre tem código maior que qualquer build de versão anterior, inclusive os da `main` distribuídos no Firebase, e o Android não recusa a atualização por downgrade.
 - `AndroidManifest.xml`: as permissões de armazenamento e mídia que o `open_filex` traz (`READ_EXTERNAL_STORAGE`, `READ_MEDIA_*`) foram removidas do manifesto final, porque o app não as usa (o APK fica no cache do próprio app).
 - `permission_handler` fixado na linha 12.x: a 13.x exige `compileSdk` 37, acima do que o Android Gradle Plugin do projeto recomenda (36), e quebrava o build.
->>>>>>> origin/main
+- Tela de login de responsáveis (`ParentsAuthView`): ícone do campo de senha ajustado para `LucideIcons.lockKeyhole`, alinhado ao protótipo do Figma.
 
 ### Removido
 
