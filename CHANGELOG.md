@@ -256,6 +256,17 @@
 - Painel de triagem em tempo real: `ReportRepository.watch()` (`snapshots()` do Firestore) no lugar da leitura única. Relatos novos, mensagens e mudanças de status aparecem na lista e no resumo da Home sem recarregar.
 - Widgets de chat compartilhados entre aluno e psicóloga (`lib/shared/widgets/chat/chat_widgets.dart`: balões, separador de dia, campo de mensagem e barra superior) e `ChatMessage` em `lib/shared/models/`.
 - Testes do controller e da tela do chat da psicóloga, do painel em tempo real e do botão "Responder" (`test/modules/psychologist/chat/` e `test/modules/psychologist/reports/`).
+- Atualização in-app anônima via GitHub Releases (`lib/shared/app_update/`), sem login nem token:
+  - Ao abrir o app com internet, `AppUpdateRepository` consulta o endpoint público `GET /repos/maarcos4g/mente-leve/releases/latest` (timeout de 5 s) e compara a `tag_name` com o `versionName` instalado (`package_info_plus`). `AppVersion` compara `major.minor.patch` e aceita `v1.2.3`, `1.2.3+4` e `v1.2`.
+  - `ReleaseInfo` escolhe o primeiro asset `.apk` da release e ignora rascunho, pré-lançamento, download fora de HTTPS e JSON inesperado.
+  - Offline, timeout, limite de requisições (403/429), 404 (sem releases) ou resposta inválida são ignorados em silêncio: o app abre normalmente.
+  - Modal acolhedor (`AppUpdateDialog`, mesma identidade do modal de apoio: cantos de 24, mascote sobre o rosa da marca, botões de 48 dp, modo escuro) com "Atualizar agora" e "Agora não". Durante o download mostra barra de progresso com porcentagem e não pode ser fechado; se algo falhar ou a permissão for negada, tranquiliza e oferece "Tentar de novo".
+  - `ApkDownloader` baixa o APK para o cache do app, informa o progresso e confere o tamanho e o SHA-256 (`digest`) do asset, apagando o arquivo se não baterem. `AndroidApkInstaller` pede "Instalar apps desconhecidos" só se ainda não concedida e abre o instalador nativo do Android.
+  - `AppUpdateController` (estados: disponível, baixando, instalando, instalador aberto, permissão negada e falha) e `AppUpdatePrompter`, que dispara a verificação em paralelo à splash e só abre o modal numa tela inicial (aluno, responsável ou psicóloga), uma vez por execução, sem interromper o diário ou o chat. A verificação só roda no Android.
+  - Pipeline (`.github/workflows/ci_cd.yml`): ao criar uma tag `vX.Y.Z`, a publicação é automática, sem editar o `pubspec.yaml` nem criar tag à mão. A cada push na `main` que altera arquivos do app (`lib/`, `assets/`, `android/`, `pubspec.yaml` ou `pubspec.lock`) desde a última tag, o workflow calcula a próxima versão, compila o APK, cria a tag `vX.Y.Z` e publica uma GitHub Release pública com `mente-leve-vX.Y.Z.apk`. Mudanças só em docs, testes ou CI não geram Release. Incremento pelas mensagens de commit: `!:` ou `BREAKING CHANGE` sobe o major, `feat:` o minor e qualquer outra o patch. Também dá para forçar a publicação, a partir de qualquer branch, em Actions → Run workflow, escolhendo `patch`, `minor` ou `major`.
+  - Permissões `INTERNET` e `REQUEST_INSTALL_PACKAGES` declaradas no `AndroidManifest.xml`.
+  - Dependências: `http`, `package_info_plus`, `path_provider`, `open_filex` e `permission_handler`.
+  - 57 testes novos em `test/shared/app_update/` (versão, release, repositório com `MockClient`, download, controller, modal e coordenação na inicialização).
 
 ### Modificado
 
@@ -264,6 +275,9 @@
 - Tela do chat do aluno (`AnonymousChatView`): passou a usar os widgets de chat compartilhados, sem mudar o comportamento.
 - Mensagem de erro do painel de triagem: separa falta de rede, permissão negada e demais falhas, e registra o erro real no log.
 - Chat do aluno (`AnonymousChatView`): o assunto da conversa deixou de vir pré-selecionado em "Bullying". O aluno precisa escolher o assunto (bullying, cyberbullying ou outros) antes de enviar a primeira mensagem; sem escolher, a mensagem não é enviada e a tela avisa "Escolha o assunto da conversa antes de enviar.". Testes em `test/modules/student/chat/`.
+- Pipeline de CI/CD: o workflow passou a rodar também em tags `v*` e a ter `permissions: contents: write`, usado só para criar a Release em builds de tag. A versão do app deixou de depender do `pubspec.yaml`: o `versionName` vem da última tag (ou da próxima, quando há Release) e o `versionCode` passou a ser `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`. Assim, o APK de uma Release mais nova sempre tem código maior que qualquer build de versão anterior, inclusive os da `main` distribuídos no Firebase, e o Android não recusa a atualização por downgrade.
+- `AndroidManifest.xml`: as permissões de armazenamento e mídia que o `open_filex` traz (`READ_EXTERNAL_STORAGE`, `READ_MEDIA_*`) foram removidas do manifesto final, porque o app não as usa (o APK fica no cache do próprio app).
+- `permission_handler` fixado na linha 12.x: a 13.x exige `compileSdk` 37, acima do que o Android Gradle Plugin do projeto recomenda (36), e quebrava o build.
 
 ### Removido
 

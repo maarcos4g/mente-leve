@@ -16,6 +16,10 @@ import 'package:mente_leve/modules/student/faq/student_faq_controller.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/prefs_mood_record_repository.dart';
 import 'package:mente_leve/modules/student/support_trigger/repositories/support_trigger_state_store.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_trigger_controller.dart';
+import 'package:mente_leve/shared/app_update/apk_downloader.dart';
+import 'package:mente_leve/shared/app_update/apk_installer.dart';
+import 'package:mente_leve/shared/app_update/app_update_controller.dart';
+import 'package:mente_leve/shared/app_update/app_update_repository.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/auth/auth_repository.dart';
 import 'package:mente_leve/shared/auth/profile_store.dart';
@@ -41,6 +45,13 @@ class _MyAppState extends State<MyApp> {
 
   /// Gatilho de apoio (RN11): lê o diário e guarda seu estado só no aparelho.
   late final SupportTriggerController _supportTrigger;
+
+  /// Atualização in-app via GitHub Releases (anônima, sem login).
+  final AppUpdateController _appUpdate = AppUpdateController(
+    repository: AppUpdateRepository(),
+    downloader: ApkDownloader(),
+    installer: const AndroidApkInstaller(),
+  );
 
   Future<AuthNotifier> _bootstrap() async {
     await Firebase.initializeApp();
@@ -94,9 +105,12 @@ class _MyAppState extends State<MyApp> {
 
         return Provider.value(
           value: _supportTrigger,
-          child: ChangeNotifierProvider.value(
-            value: snapshot.data!,
-            child: AppWidget(),
+          child: Provider.value(
+            value: _appUpdate,
+            child: ChangeNotifierProvider.value(
+              value: snapshot.data!,
+              child: AppWidget(),
+            ),
           ),
         );
       },

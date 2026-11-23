@@ -609,6 +609,39 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Como a IA ajudou:** Reconstruiu as datas das atividades a partir do `git log` e das revisões feitas no GitHub com a CLI `gh`, inseriu as entradas nas seções certas do `CHANGELOG.md` e organizou o registro de uso de IA por sprint.
   * **Dificuldades e ajustes manuais:** Não existe um arquivo `firebase.rules` versionado no repositório, então as regras do Firebase não puderam ser registradas no CHANGELOG. As datas e os números dos PRs vêm do Git e do GitHub, e o texto final foi revisado pelo integrante. A distribuição das entradas entre as sprints seguiu o calendário de `docs/levantamento/escopo.md`.
 
+* **Atualização In-App Anônima via GitHub Releases (22/11):**
+  * **O que foi feito:** Criação do serviço de atualização in-app (`lib/shared/app_update/`). Ao abrir o app, ele consulta o endpoint público `/releases/latest` do GitHub (sem login nem token, com timeout de 5 s) e compara a `tag_name` com a versão instalada (`package_info_plus`). Havendo versão superior, abre um modal acolhedor (`AppUpdateDialog`) que, ao confirmar, baixa o APK com barra de progresso e abre o instalador do Android, pedindo "Instalar apps desconhecidos" só se ainda não concedida. Offline ou com falha na API, a verificação é ignorada. Também foram criados `AppVersion`, `ReleaseInfo`, `AppUpdateRepository`, `ApkDownloader` (confere tamanho e SHA-256), `AndroidApkInstaller`, `AppUpdateController` e `AppUpdatePrompter` (só abre o modal numa tela inicial, uma vez por execução), a integração em `main.dart` e `app_widget.dart` e as permissões no `AndroidManifest.xml`. O `ci_cd.yml` passou a publicar uma GitHub Release com o APK ao criar uma tag `vX.Y.Z`. Foram escritos 57 testes novos (`test/shared/app_update/`). O `CHANGELOG.md`, o `README.md` (responsabilidades e passo a passo de publicação de versão) e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior.
+    >
+    > **Tarefa:** Atualização In-App Anônima via GitHub Releases. Implementar um serviço próprio de verificação e atualização automática (In-App Update) integrado à API pública de Releases do repositório do projeto no GitHub. Sempre que uma nova versão (tag) contendo o arquivo `.apk` for publicada, o aplicativo deve detectar a atualização na inicialização, exibir um modal acolhedor ao usuário e, mediante confirmação, baixar o pacote em segundo plano e acionar o instalador nativo do Android, garantindo o anonimato total sem exigir login ou cadastro de testadores.
+    >
+    > **Critério de Aceite / DoD:**
+    > 1. Ao iniciar o aplicativo com acesso à internet, o sistema consulta o endpoint público `/releases/latest` da API do GitHub e compara a `tag_name` remota com a versão local instalada (`package_info_plus`).
+    > 2. Caso exista uma versão superior, um modal seguindo a identidade visual do MenteLeve (cores suaves, cantos arredondados e tom acolhedor) informa a novidade e oferece a opção de atualizar.
+    > 3. Ao confirmar no modal, o download do `.apk` é feito com barra de progresso visível e, ao concluir, o instalador de pacotes do Android é aberto automaticamente (exigindo a permissão "Instalar apps desconhecidos" apenas se ainda não concedida).
+    > 4. Em cenários offline ou de falha na API do GitHub (como rate limit), a verificação é ignorada silenciosamente, com timeout curto, sem travar o app.
+    > 5. O repositório no GitHub deve estar público (ou com releases acessíveis), para a requisição ocorrer sem token nem autenticação.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+    >
+    > **Etapas:** primeiro apresentar o plano; depois de aprovado, construir todas as etapas e, ao concluir, atualizar o `docs/uso-de-ia.md`, o `CHANGELOG.md` e o `README.md` com as responsabilidades e as alterações feitas.
+  * **Como a IA ajudou:** Leu o projeto antes de planejar e viu que o repositório já era público, que o `ci_cd.yml` só enviava o APK ao Firebase App Distribution (sem criar Release, sem a qual `/releases/latest` devolve 404) e que o `AndroidManifest.xml` não tinha as permissões necessárias. Propôs separar o download (`ApkDownloader`, testável com `MockClient`) do instalador (`ApkInstaller`, que depende do Android) e reaproveitar o `CvvRouteObserver.currentRoute` para só mostrar o modal numa tela inicial, sem interromper o diário ou o chat. Notou que o `run_number` é contado por workflow e que um segundo workflow poderia gerar `versionCode` menor, e por isso pôs a publicação da Release no mesmo `ci_cd.yml`. Leu o código do `open_filex` e confirmou que o APK no cache do app dispensa permissão de armazenamento. Reaproveitou a paleta e o estilo do modal de apoio, escreveu os 57 testes e fez um commit por etapa, em Conventional Commits. Ao final, `flutter analyze` ficou sem problemas e os 334 testes da suíte passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Build quebrado pelo `permission_handler` 13.x:** `flutter analyze` e `flutter test` passaram, mas o `flutter build apk --debug` falhou, porque o `permission_handler_android` 14.x exige `compileSdk` 37 e o Android Gradle Plugin do projeto recomenda no máximo 36. A dependência foi fixada em `^12.0.1`. Só o build real mostrou o problema.
+    2. **Permissões que o app não usa:** o `open_filex` traz `READ_EXTERNAL_STORAGE` e `READ_MEDIA_*` para o manifesto. Como o APK fica no cache do app, elas foram removidas com `tools:node="remove"`, o que foi conferido com `aapt dump permissions` no APK gerado.
+    3. **Comparação de versões:** a IA tinha adicionado o `pub_semver`, mas ele foi trocado por uma comparação própria de `major.minor.patch`, com testes, por aceitar tags como `v1.2` e por ignorar pré-lançamento e build de forma previsível. O pacote foi removido do `pubspec.yaml`.
+    4. **"Em segundo plano":** foi interpretado como não bloquear a tela, com progresso visível. O download não continua com o app fechado, e o modal não pode ser fechado enquanto baixa.
+    5. **Versão e assinatura:** o app só se atualiza se a tag for maior que o `versionName` instalado, e o APK novo precisa ter a mesma assinatura (keystore dos Secrets) e `versionCode` maior. Na primeira versão da pipeline o `versionName` vinha do `pubspec.yaml` nos builds comuns e da tag nos builds de tag; isso fez um build da branch (1.0.1) ficar igual à Release (v1.0.1) e o modal não aparecer. Depois a pipeline passou a calcular a versão sozinha (última tag + incremento pelos commits), com `versionCode` derivado da versão, para o Android não recusar a Release por downgrade. Um APK de debug local não é atualizado por um APK de release.
+    6. **Validação parcial:** a IA rodou `flutter analyze` (sem problemas), os 334 testes, o `flutter build apk --debug` e abriu o app no emulador `Pixel_6_API_34` (API 34), sem falhas. A homologação em API 24 e o fluxo completo (modal, download, permissão e instalador) com uma Release real ainda dependem de o integrante publicar a primeira tag, porque ainda não existe nenhuma Release no repositório. A IA não publicou tag nem Release por ser uma ação externa.
+    7. **Pipeline e publicação automática:** o passo de versão do `ci_cd.yml` foi testado localmente em repositórios git temporários (sem tag, só docs, `fix:`, `feat:`, breaking, dispatch manual e limite de versão) mas o fluxo completo (tag, Release e modal no app) só é confirmado rodando no GitHub. A publicação passou a ser automática a cada push na `main` que altere arquivos do app, com tag e Release criadas pelo workflow. A IA não publicou tag nem Release; os commits foram feitos pelo integrante.
+    8. **Limite da API:** a API pública do GitHub permite cerca de 60 requisições por hora por IP, e sem token (para manter o anonimato) quem estoura o limite só não recebe a oferta de atualização, sem erro visível.
+    9. **Arquivos regenerados:** rodar o Flutter no Windows alterou os registros de plugins de `macos/` e `windows/`. Essas mudanças ficaram fora dos commits.
+
 ### Rayelen de Jesus Oliveira
 
 * **Guia e Lista de Canais Oficiais de Denúncia e Apoio (RF06 / SCRUM-34) (19/11 a 21/11):**
@@ -655,6 +688,11 @@ Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.ya
 | `flutter_svg` | ^2.3.2 | Renderiza SVG. Avatares, mascote e ilustrações da home são vetoriais, o que mantém nitidez em qualquer densidade de tela e reduz o tamanho dos assets. | Seleção de avatar, diário, modal de apoio e widgets da home |
 | `lucide_icons_flutter` | ^4.0.2 | Conjunto de ícones Lucide, de traço leve e consistente, que complementa os ícones nativos do Material. | Onboarding, telas de autenticação, diário, home e botão CVV |
 | `url_launcher` | ^6.3.2 | Abre aplicativos externos a partir do app. Faz a ligação para o CVV (188), um canal de apoio emergencial. | `cvv_button.dart` |
+| `http` | ^1.6.0 | Cliente HTTP. Consulta o `releases/latest` do GitHub e baixa o APK da atualização em stream, o que permite mostrar o progresso. Aceita `MockClient` nos testes. | `app_update_repository.dart`, `apk_downloader.dart` |
+| `package_info_plus` | ^10.2.2 | Lê o `versionName` instalado para compará-lo com a tag da release. | `app_update_controller.dart` |
+| `path_provider` | ^2.1.6 | Localiza a pasta de cache do app, onde o APK é baixado sem exigir permissão de armazenamento. | `apk_downloader.dart` |
+| `open_filex` | ^5.0.0 | Abre o APK baixado pelo instalador nativo do Android (via FileProvider). | `apk_installer.dart` |
+| `permission_handler` | ^12.0.1 | Confere e pede a permissão "Instalar apps desconhecidos" só se ainda não concedida. Fixado em 12.x, porque a 13.x exige `compileSdk` 37. | `apk_installer.dart` |
 | `cupertino_icons` | ^1.0.8 | Fonte de ícones estilo iOS, incluída pelo template do Flutter. **Não há uso direto em `lib/` hoje**; pode ser removida sem impacto se a equipe preferir enxugar o `pubspec.yaml`. | — |
 
 ### Dependências de desenvolvimento (`dev_dependencies`)
