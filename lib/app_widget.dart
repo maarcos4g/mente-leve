@@ -3,11 +3,14 @@ import 'package:mente_leve/modules/onboarding/onboarding_view.dart';
 import 'package:mente_leve/modules/parents/auth/auth_view.dart';
 import 'package:mente_leve/modules/parents/home/home_view.dart';
 import 'package:mente_leve/modules/psychologist/auth/auth_view.dart';
+import 'package:mente_leve/modules/psychologist/chat/psychologist_chat_view.dart';
 import 'package:mente_leve/modules/psychologist/faq/psychologist_faq_view.dart';
 import 'package:mente_leve/modules/psychologist/home/home_view.dart';
+import 'package:mente_leve/modules/psychologist/reports/reports_view.dart';
 import 'package:mente_leve/modules/splash/splash_view.dart';
 import 'package:mente_leve/modules/student/auth/auth_view.dart';
 import 'package:mente_leve/modules/student/auth/select_avatar_view.dart';
+import 'package:mente_leve/modules/student/chat/anonymous_chat_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_feelings_view.dart';
 import 'package:mente_leve/modules/student/diary/diary_reflection_view.dart';
 import 'package:mente_leve/modules/student/faq/student_faq_view.dart';
@@ -15,6 +18,8 @@ import 'package:mente_leve/modules/student/home/home_controller.dart';
 import 'package:mente_leve/modules/student/home/home_view.dart';
 import 'package:mente_leve/modules/student/official_channels/official_channels_view.dart';
 import 'package:mente_leve/modules/student/support_trigger/support_modal_view.dart';
+import 'package:mente_leve/shared/app_update/app_update_controller.dart';
+import 'package:mente_leve/shared/app_update/app_update_prompter.dart';
 import 'package:mente_leve/shared/auth/auth_notifier.dart';
 import 'package:mente_leve/shared/models/session_model.dart';
 import 'package:mente_leve/shared/widgets/cvv_button/cvv_overlay.dart';
@@ -50,6 +55,7 @@ class AppWidget extends StatefulWidget {
     HomeController.faqRoute: (context) =>
         StudentFaqView(availableRoutes: routes.keys.toSet()),
     OfficialChannelsView.routeName: (context) => const OfficialChannelsView(),
+    HomeController.reportRoute: (context) => const AnonymousChatView(),
     '/parents/home': (context) => ParentsHomeView(),
     '/psychologist/home': (context) {
       final session = context.watch<AuthNotifier>().session;
@@ -57,6 +63,11 @@ class AppWidget extends StatefulWidget {
       return PsychologistHomeView(user: user);
     },
     PsychologistFaqView.routeName: (context) => const PsychologistFaqView(),
+    ReportsView.routeName: (context) => const ReportsView(),
+    PsychologistChatView.routeName: (context) {
+      final args = ModalRoute.of(context)!.settings.arguments as ReportChatArgs;
+      return PsychologistChatView(args: args);
+    },
   };
 
   /// Avalia o gatilho de apoio (RN11) depois que o humor foi salvo.
@@ -80,10 +91,36 @@ class AppWidget extends StatefulWidget {
 
 class _AppWidgetState extends State<AppWidget> {
   final CvvRouteObserver _routeObserver = CvvRouteObserver();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  late final AppUpdatePrompter _updatePrompter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Atualização in-app (GitHub Releases): verifica ao iniciar e mostra o
+    // modal quando o app chegar numa tela inicial.
+    _updatePrompter = AppUpdatePrompter(
+      controller: context.read<AppUpdateController>(),
+      navigatorKey: _navigatorKey,
+      currentRoute: _routeObserver.currentRoute,
+      homeRoutes: const {
+        '/student/home',
+        '/parents/home',
+        '/psychologist/home',
+      },
+    )..start();
+  }
+
+  @override
+  void dispose() {
+    _updatePrompter.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Mente Leve',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

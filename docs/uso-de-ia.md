@@ -400,6 +400,156 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     3. **Resolução de conflitos:** nos PRs #26 e #27 a IA resolveu o merge. No #26, o push ficou para o integrante.
     4. **Ajuste em um PR:** na revisão do PR #12, o integrante pediu para remover do card "Diário Pessoal" da Home a navegação para a roleta de sentimentos. A IA mudou o destino para `/diary/reflection`, que ainda não estava registrada, então o card passou a mostrar "Disponível em breve".
 
+* **Painel de Gestão e Triagem de Relatos Anônimos (RF09 / EPIC-06) (21/11):**
+  * **O que foi feito:** Criação do painel de triagem da psicóloga (`ReportsView`, rota `/psychologist/reports`, com `ReportsController`) e do card "Triagem das denúncias" na Home. A tela lista as denúncias anônimas com selos de status, gravidade e tipo, ordem de triagem e estados de carregamento, vazio e erro (a primeira versão tinha filtros de gravidade e de status e "Ver relato", ambos removidos depois, conforme o registro do ajuste de revisão abaixo). Também foram criados a entidade `Report` (`lib/shared/models/report_model.dart`), o `ReportRepository` (Firestore e em memória), a injeção no `main.dart` e os testes de modelo, controller, tela, Home e contraste WCAG. O `CHANGELOG.md`, o `README.md` e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter.
+    >
+    > **Tarefa:** implementar o Painel de Gestão e Triagem de Relatos Anônimos (RF09), vinculado ao EPIC-06, com estimativa de 5 Story Points, com base nas capturas de tela do Figma em anexo (Home/Painel da psicóloga, FAQ, Guias e Chat).
+    >
+    > **Critério de Aceite / DoD:** visualização das denúncias anônimas recebidas, com filtros de gravidade e de status de mediação.
+    >
+    > **Requisitos:**
+    > 1. Seguir a arquitetura, o padrão visual e as cores já usados no projeto, e consultar a modelagem em `docs/` antes de implementar.
+    > 2. Manter o anonimato do aluno: o painel não pode ler nem exibir nenhum dado que o identifique.
+    > 3. Nomear todos os arquivos novos apenas em inglês.
+    > 4. Usar nomes em inglês em todas as coleções e campos do Firestore.
+    > 5. Criar testes automatizados da regra de negócio, das telas e do contraste de acessibilidade (WCAG AA).
+    > 6. Atualizar o `CHANGELOG.md`, o `docs/uso-de-ia.md`, o `README.md` e a modelagem do Firestore.
+    >
+    > **Diretrizes de homologação:**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Leu `docs/modelagem/` e viu que a `Denuncia` já estava especificada, mas sem gravidade e sem o estado de mediação, então estendeu o modelo. Depois, a pedido do integrante, renomeou os arquivos para inglês e passou a coleção e os campos do Firestore para inglês (coleção `reports`; campos `studentUid`, `type`, `description`, `status`, `severity` e `createdAt`), atualizando também `docs/modelagem/03-modelagem-firestore.md`. Reaproveitou o padrão de controller, tela e repositório injetado do FAQ da psicóloga e as cores do `AppColors`. Escreveu 24 testes novos, e `flutter analyze` e `flutter test` ficaram sem problemas (240 testes passando). Validou o build Android com `flutter build apk --debug`.
+  * **Dificuldades e ajustes manuais:**
+    1. **Gravidade não existe no documento do aluno:** a regra de criação da denúncia aceita só `studentUid`, `type`, `description`, `status` e `createdAt`. Sem o campo, a gravidade é estimada pelo tipo e por palavras de risco no texto. É uma regra provisória que precisa ser validada pela psicóloga da escola.
+    2. **Status "em mediação" e regras do Firestore:** a regra de `update` da modelagem só aceitava `pending` e `answered`. A modelagem foi atualizada para aceitar também `inMediation` e a chave `severity`, mas o `firestore.rules` não é versionado e a regra precisa ser publicada no console do Firebase.
+    3. **Botão "Responder" do Figma:** não foi criado nesta tarefa, porque a resposta e o chat são o RF10. O card tinha "Ver relato", que abria o texto completo. O botão foi feito na tarefa do chat da psicóloga e ajustado ao Figma no registro do ajuste de revisão abaixo.
+    4. **Sem denúncias no app ainda:** nesta tarefa o envio pelo aluno (RF05) não existia no código, e a coleção `reports` só tinha dados se fosse preenchida pelo console do Firebase. O envio foi feito na tarefa seguinte, registrada abaixo.
+    5. **Teste no emulador:** o emulador `Pixel_6_API_34` existe, mas o login da psicóloga usa credenciais reais do Firebase que a IA não tem. A homologação visual no aparelho (e em API 24) ficou para o integrante; a IA validou analyzer, testes e o build do APK.
+    6. **Testes com lista longa:** o `ListView` constrói os cards sob demanda, e três testes falharam por procurar cards fora da área visível. Os testes passaram a rolar até o card.
+
+* **Chat Anônimo do Aluno em Tempo Real e Envio de Relatos (RF05 / EPIC-06) (21/11):**
+  * **O que foi feito:** Criação do chat anônimo do aluno com a escola (`AnonymousChatView`, rota `/report`, com `AnonymousChatController`). O aluno escolhe o tipo do relato, escreve a mensagem e acompanha a conversa em tempo real, e as respostas da psicóloga aparecem sem recarregar a tela. Também foram criados o modelo `ChatMessage` e o `ChatRepository` (`FirestoreChatRepository` sobre `snapshots()` do Firestore e `InMemoryChatRepository`), a injeção no `main.dart`, o registro da rota no `AppWidget` e os testes do controller, da tela e do contraste WCAG. A modelagem do Firestore foi atualizada (mensagens na subcoleção `reports/{uid}/messages` e regras de segurança), e o `CHANGELOG.md`, o `README.md` e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter e Cloud Firestore.
+    >
+    > **Tarefa:** implementar a parte do aluno do Chat Anônimo e Envio de Relatos (RF05), vinculado ao EPIC-06, de modo que as denúncias enviadas apareçam no Painel de Triagem da psicóloga (RF09) já implementado. O bate-papo deve funcionar em tempo real, com base na tela de chat do aluno do Figma.
+    >
+    > **Critério de Aceite / DoD:** o aluno envia relatos anonimamente, escolhendo o tipo do relato, e acompanha a conversa com a escola em tempo real, vendo as respostas da psicóloga assim que elas chegam.
+    >
+    > **Requisitos:**
+    > 1. Seguir a arquitetura, o padrão visual e as cores já usados no projeto, e consultar a modelagem em `docs/` antes de implementar.
+    > 2. Manter o anonimato do aluno: a mensagem não pode carregar nome nem qualquer dado que o identifique.
+    > 3. Atualizar o chat em tempo real com `snapshots()` do Firestore, sem exigir que o aluno recarregue a tela.
+    > 4. Funcionar sem internet: a mensagem entra na fila do Firestore e a tela mostra "Enviando…" até sincronizar.
+    > 5. Tratar os estados de carregamento, erro de conexão, mensagem vazia, limite de 2000 caracteres e aluno sem login no Firebase.
+    > 6. Nomear todos os arquivos novos apenas em inglês e usar nomes em inglês em todas as coleções e campos do Firestore.
+    > 7. Criar testes automatizados do controller, da tela e do contraste de acessibilidade (WCAG AA).
+    > 8. Atualizar o `CHANGELOG.md`, o `docs/uso-de-ia.md`, o `README.md` e a modelagem do Firestore (estrutura e regras de segurança).
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Viu que os cards "Chat Anônimo", "Denúncias anônimas à escola" e o modal de apoio já apontavam para `/report`, rota que não estava registrada. Propôs usar o `uid` do aluno como id do relato, o que dispensa consulta e índice extra e torna a conversa única e estável, e guardar as mensagens numa subcoleção para o tempo real. Escreveu as regras de segurança do chat, o repositório com `snapshots(includeMetadataChanges: true)` e `hasPendingWrites` para o estado "Enviando…", e 22 testes novos. `flutter analyze` ficou sem problemas e os 262 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Escrita offline no Firestore:** sem rede, o `commit()` só termina quando o servidor responde. O envio passou a considerar a mensagem "na fila" depois de 3 segundos, para a tela não travar, e o balão fica como "Enviando…" até sincronizar.
+    2. **Botão CVV sobre o campo de mensagem:** o botão "Ajuda (CVV)" fica no canto inferior direito das telas do aluno, inclusive em `/report`, e cobria o botão de enviar. O campo de mensagem sobe 96 dp para ficar acima dele.
+    3. **Regras do Firestore:** a regra de leitura do relato falharia para um aluno sem relato ainda (o documento não existe), então a leitura aceita `resource == null` quando o id é o próprio `uid`. As regras não são versionadas no repositório e precisam ser publicadas no console do Firebase.
+    4. **Resposta da psicóloga:** a tela do aluno já mostra as mensagens da psicóloga em tempo real, mas escrever a resposta (RF10) ainda não existe no app da psicóloga, e o painel de triagem mostra só a primeira mensagem do relato.
+    5. **Campo `reply` removido:** o campo de resposta único do relato, criado na tarefa anterior, foi trocado pela subcoleção de mensagens, e a modelagem foi atualizada.
+    6. **Teste no emulador:** o chat usa o login anônimo e o Firestore reais e não foi aberto em aparelho pela IA. A homologação no emulador (API 24+) e a conferência em tempo real entre dois aparelhos ficam para o integrante.
+    7. **Testes com tempo real:** o repositório de teste precisou emitir uma conversa vazia logo na assinatura, como o Firestore faz; sem isso o indicador de carregamento nunca terminava e os testes de tela travavam.
+    8. **Chat com erro no emulador:** ao abrir o chat, a tela mostrou "Não foi possível acompanhar a conversa" mesmo com internet. O `adb logcat` do emulador mostrou `PERMISSION_DENIED` nas duas escutas do Firestore (`reports/{uid}` e `reports/{uid}/messages`): as regras de segurança da modelagem ainda não estavam publicadas no projeto do Firebase. A causa não era de rede. A IA passou a diferenciar os erros na mensagem (rede, permissão e genérico) e a registrar o erro real no log; publicar as regras no console do Firebase continua sendo ação do integrante.
+
+* **Telas da Psicóloga: Chat em Tempo Real e Gestão dos Relatos (RF10 / EPIC-06) (22/11):**
+  * **O que foi feito:** Criação do chat da psicóloga com o aluno (`PsychologistChatView`, rota `/psychologist/chat`, com `PsychologistChatController`), em tempo real. A psicóloga abre a conversa pelo botão "Responder" dos cards da triagem (tela de triagem e Home), e responde ao aluno (a primeira versão tinha o painel "Gerenciar relato", com seletores de status e de gravidade, removido depois conforme o registro do ajuste de revisão abaixo). O painel de triagem passou a acompanhar os relatos em tempo real (`ReportRepository.watch()`). Também foram criados o `PsychologistChatRepository` (Firestore e em memória), os widgets de chat compartilhados com o aluno, a injeção no `main.dart`, o registro da rota no `AppWidget` e os testes. O `CHANGELOG.md`, o `README.md`, a modelagem do Firestore e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter e Cloud Firestore.
+    >
+    > **Tarefa:** implementar as telas da psicóloga do Chat e Resposta aos Relatos Anônimos (RF10), vinculado ao EPIC-06, completando o ciclo entre o relato do aluno (RF05) e o Painel de Triagem (RF09) já implementados. O bate-papo deve funcionar em tempo real, com base nas telas de Home/Painel e de Chat da psicóloga do Figma.
+    >
+    > **Critério de Aceite / DoD:** a psicóloga abre um relato pela triagem, conversa com o aluno anônimo em tempo real, vê as mensagens novas assim que chegam e gerencia o status de mediação e a gravidade do relato.
+    >
+    > **Requisitos:**
+    > 1. Seguir a arquitetura, o padrão visual e as cores já usados no projeto, reaproveitando os componentes do chat do aluno em vez de duplicá-los.
+    > 2. Manter o anonimato do aluno: nenhuma tela pode mostrar dado que o identifique, apenas o número do protocolo.
+    > 3. Atualizar o chat e o painel de triagem em tempo real com `snapshots()` do Firestore, sem exigir recarregar a tela.
+    > 4. Incluir o botão "Responder" nos cards da triagem, abrindo o chat do relato.
+    > 5. Permitir mudar o status de mediação e a gravidade dentro do chat, respeitando as regras de segurança do Firestore.
+    > 6. Tratar os estados de carregamento, erro de conexão e de permissão, relato inexistente, mensagem vazia e limite de 2000 caracteres.
+    > 7. Nomear todos os arquivos novos apenas em inglês e usar nomes em inglês em todas as coleções e campos do Firestore.
+    > 8. Criar testes automatizados do controller, das telas e do tempo real.
+    > 9. Atualizar o `CHANGELOG.md`, o `docs/uso-de-ia.md`, o `README.md` e a modelagem do Firestore.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Reaproveitou o chat do aluno: moveu `ChatMessage` para `lib/shared/models/` e extraiu balões, separador de dia, campo de mensagem e barra superior para `lib/shared/widgets/chat/`, mantendo o comportamento e os testes do aluno. Como o id do relato é o `uid` do aluno, a tela da psicóloga trabalha só com o conteúdo e o protocolo. Trocou a leitura única do painel por `snapshots()`, de modo que `load()` continua servindo ao "puxar para atualizar". Escreveu os testes de status (primeira resposta, mediação mantida, aluno que volta a escrever) e de tempo real. `flutter analyze` ficou sem problemas e os 282 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Regras do Firestore:** as ações da psicóloga dependem das regras da modelagem (leitura de `reports` e de `messages`, criação de mensagem com `senderRole: psychologist` e `update` de `status`). Elas precisam estar publicadas no console do Firebase, e a conta usada precisa ter `role: psychologist` em `users/{uid}`.
+    2. **Resposta e status:** a decisão de negócio ficou assim: a primeira resposta a um relato pendente muda para "respondida"; relato em mediação continua em mediação; se o aluno volta a escrever, o relato volta para pendente. A equipe de psicologia precisa validar esse fluxo.
+    3. **Botão "Ver relato" removido:** a folha de detalhe da tarefa anterior deixou de existir, porque o chat mostra o relato inteiro. O botão virou "Responder", como no Figma.
+    4. **Relatos sem mensagens:** um relato criado direto no console não tem mensagens, então a tela mostra o texto do relato como a primeira mensagem do aluno.
+    5. **Identificação do aluno:** o id do documento é o `uid` anônimo do aluno. Ele não aparece em nenhuma tela, mas quem abre o console do Firebase consegue vê-lo.
+    6. **Teste no emulador:** a IA validou analyzer, testes e o build do APK, mas não abriu o app logada como psicóloga. A homologação no emulador (API 24+) e a conferência do chat entre dois aparelhos ficam para o integrante.
+    7. **Telas "guias" e "pais" do Figma:** a edição de guias e o chat do responsável com a psicóloga aparecem nas capturas, mas são outros requisitos e não foram feitos nesta tarefa.
+
+* **Ajustes de Revisão das Telas da Psicóloga: Remoção dos Filtros da Triagem e Botão "Responder" (22/11):**
+  * **O que foi feito:** Remoção dos filtros de gravidade e de status de mediação da tela de triagem (`ReportsView`) e do código que os sustentava no `ReportsController`, mantendo o restante da tela (selos, contador, ordem de triagem, estados de carregamento, vazio e erro). Ajuste do botão "Responder" dos cards da triagem (`ReportCard`, na tela de triagem e na Home) às medidas do Figma. Os testes foram atualizados, e `CHANGELOG.md`, `README.md`, `docs/modelagem/03-modelagem-firestore.md`, `docs/levantamento/escopo.md` e este registro foram corrigidos para não citar mais os filtros.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter.
+    >
+    > **Tarefa:** aplicar ajustes de revisão de fidelidade ao Figma nas telas da psicóloga (Painel de Triagem, RF09, e Chat, RF10), sem alterar o restante das telas aprovadas.
+    >
+    > **Requisitos:**
+    > 1. Remover da tela de triagem os filtros de Gravidade e de Status da mediação, que não estavam previstos no Figma e não têm necessidade, mantendo o restante da tela.
+    > 2. Ajustar o botão "Responder" dos cards da triagem às medidas do Figma: ícone `lucide/undo`, padding de 16 na horizontal e 4 na vertical, espaçamento de 8 entre os itens e cor `sky500`.
+    > 3. Atualizar os testes automatizados para refletir as mudanças.
+    > 4. Documentar o que for necessário e remover ou ajustar, no `CHANGELOG.md`, no `docs/uso-de-ia.md`, no `README.md` e na documentação de modelagem e escopo, tudo o que citar os filtros removidos.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Localizou o código dos filtros na tela, no controller e nos testes e tirou tudo, inclusive o estado "sem resultado". Montou o botão com `ElevatedButton.icon` e verificou as medidas num teste: cor `sky500`, ícone `undo`, padding 16x4 e gap de 8. Varreu a documentação procurando as menções aos filtros (README, CHANGELOG, modelagem do Firestore, escopo e este registro). `flutter analyze` ficou sem problemas e os 277 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Contraste do botão:** o texto branco sobre `sky500` (`#00A6F4`) tem contraste de cerca de 2,7:1, abaixo dos 4,5:1 do WCAG AA para texto pequeno. A cor foi mantida como o Figma define; se a acessibilidade for prioridade, vale o grupo avaliar `sky700` (que passa) ou texto escuro.
+    2. **Altura do botão:** com padding vertical de 4, o botão fica baixo (cerca de 28 dp). A área de toque continua com 48 dp, com o botão visível centralizado nela, e o raio da borda (4) foi estimado, porque o Figma não traz esse valor nas capturas.
+    3. **Ordem de triagem:** sem os filtros, a lista continua mostrando primeiro os relatos mais graves e, na mesma gravidade, os mais antigos. A gravidade segue sendo estimada pelo texto do relato.
+    4. **Critério de aceite original:** o critério da tarefa RF09 citava "filtros de gravidade e status de mediação". A remoção foi decisão do integrante, e o critério do Jira pode precisar ser atualizado.
+    5. **Quebra de linha dos arquivos:** vários arquivos do projeto usam CRLF, e o primeiro script de remoção, escrito para LF, falhou no meio e foi refeito normalizando as quebras de linha.
+
+* **Ajustes de Revisão: Chat da Psicóloga sem Filtros e Assunto Obrigatório no Chat do Aluno (22/11):**
+  * **O que foi feito:** Remoção do painel "Gerenciar relato" (seletores de status de mediação e de gravidade) do chat da psicóloga (`PsychologistChatView`) e de todo o código que o sustentava (`setStatus` e `setSeverity` no controller e no repositório). No chat do aluno (`AnonymousChatView`), o assunto da conversa deixou de vir pré-selecionado: o aluno precisa escolher bullying, cyberbullying ou outros antes de enviar a primeira mensagem. Os testes foram atualizados, e `CHANGELOG.md`, `README.md` e `docs/modelagem/03-modelagem-firestore.md` foram corrigidos.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior com experiência em Flutter.
+    >
+    > **Tarefa:** aplicar ajustes de revisão nos chats do aluno e da psicóloga (RF05 e RF10), mantendo o restante das telas aprovadas.
+    >
+    > **Requisitos:**
+    > 1. Remover do chat da psicóloga os filtros de gravidade e de status. No módulo da psicóloga, nenhuma ideia de filtro deve existir, porque ela não faz parte da proposta inicial do Figma.
+    > 2. Manter no chat do aluno a escolha do assunto antes do envio da mensagem, porque é importante o aluno apontar o assunto que quer abordar.
+    > 3. Atualizar os testes automatizados para refletir as mudanças.
+    > 4. Documentar o que for necessário e remover ou ajustar, no `CHANGELOG.md`, no `docs/uso-de-ia.md`, no `README.md` e na modelagem do Firestore, tudo o que citar o que foi removido.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+  * **Como a IA ajudou:** Removeu o painel, os dois métodos de escrita e os testes ligados a ele, e deixou um teste que garante que a tela da psicóloga não tem seletores. No aluno, percebeu que "Bullying" já vinha marcado e o aluno poderia enviar sem escolher de verdade; então o assunto passou a ser obrigatório, sem seleção prévia, com aviso quando falta. Varreu a documentação atrás das menções ao que foi removido. `flutter analyze` ficou sem problemas e os testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Status "em mediação" sem tela:** sem o painel, nenhuma tela grava `inMediation` nem `severity`. Os valores continuam existindo no modelo (a equipe pode defini-los pelo console, e o app os lê), e o status só muda pelo fluxo da conversa: a primeira resposta marca "respondida" e a volta do aluno marca "pendente". O grupo precisa decidir se mantém esses valores.
+    2. **Assunto obrigatório:** é uma decisão de interface tomada pela IA a partir do pedido ("é importante apontar o assunto"). O assunto só é pedido antes da primeira mensagem; nas seguintes, a conversa já tem o assunto.
+    3. **Teste no emulador:** a IA validou analyzer e testes, mas não abriu o app em aparelho. A conferência visual no emulador (API 24+) fica para o integrante.
 
 ### Mateus Henrique de Araújo Santos
 
@@ -471,6 +621,39 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Como a IA ajudou:** Reconstruiu as datas das atividades a partir do `git log` e das revisões feitas no GitHub com a CLI `gh`, inseriu as entradas nas seções certas do `CHANGELOG.md` e organizou o registro de uso de IA por sprint.
   * **Dificuldades e ajustes manuais:** Não existe um arquivo `firebase.rules` versionado no repositório, então as regras do Firebase não puderam ser registradas no CHANGELOG. As datas e os números dos PRs vêm do Git e do GitHub, e o texto final foi revisado pelo integrante. A distribuição das entradas entre as sprints seguiu o calendário de `docs/levantamento/escopo.md`.
 
+* **Atualização In-App Anônima via GitHub Releases (22/11):**
+  * **O que foi feito:** Criação do serviço de atualização in-app (`lib/shared/app_update/`). Ao abrir o app, ele consulta o endpoint público `/releases/latest` do GitHub (sem login nem token, com timeout de 5 s) e compara a `tag_name` com a versão instalada (`package_info_plus`). Havendo versão superior, abre um modal acolhedor (`AppUpdateDialog`) que, ao confirmar, baixa o APK com barra de progresso e abre o instalador do Android, pedindo "Instalar apps desconhecidos" só se ainda não concedida. Offline ou com falha na API, a verificação é ignorada. Também foram criados `AppVersion`, `ReleaseInfo`, `AppUpdateRepository`, `ApkDownloader` (confere tamanho e SHA-256), `AndroidApkInstaller`, `AppUpdateController` e `AppUpdatePrompter` (só abre o modal numa tela inicial, uma vez por execução), a integração em `main.dart` e `app_widget.dart` e as permissões no `AndroidManifest.xml`. O `ci_cd.yml` passou a publicar uma GitHub Release com o APK ao criar uma tag `vX.Y.Z`. Foram escritos 57 testes novos (`test/shared/app_update/`). O `CHANGELOG.md`, o `README.md` (responsabilidades e passo a passo de publicação de versão) e este registro foram atualizados na mesma tarefa.
+  * **Ferramenta utilizada:** Claude Code (Claude Sonnet 5.5).
+  * **Prompt utilizado:**
+    > **Atue como** um engenheiro de software sênior.
+    >
+    > **Tarefa:** Atualização In-App Anônima via GitHub Releases. Implementar um serviço próprio de verificação e atualização automática (In-App Update) integrado à API pública de Releases do repositório do projeto no GitHub. Sempre que uma nova versão (tag) contendo o arquivo `.apk` for publicada, o aplicativo deve detectar a atualização na inicialização, exibir um modal acolhedor ao usuário e, mediante confirmação, baixar o pacote em segundo plano e acionar o instalador nativo do Android, garantindo o anonimato total sem exigir login ou cadastro de testadores.
+    >
+    > **Critério de Aceite / DoD:**
+    > 1. Ao iniciar o aplicativo com acesso à internet, o sistema consulta o endpoint público `/releases/latest` da API do GitHub e compara a `tag_name` remota com a versão local instalada (`package_info_plus`).
+    > 2. Caso exista uma versão superior, um modal seguindo a identidade visual do MenteLeve (cores suaves, cantos arredondados e tom acolhedor) informa a novidade e oferece a opção de atualizar.
+    > 3. Ao confirmar no modal, o download do `.apk` é feito com barra de progresso visível e, ao concluir, o instalador de pacotes do Android é aberto automaticamente (exigindo a permissão "Instalar apps desconhecidos" apenas se ainda não concedida).
+    > 4. Em cenários offline ou de falha na API do GitHub (como rate limit), a verificação é ignorada silenciosamente, com timeout curto, sem travar o app.
+    > 5. O repositório no GitHub deve estar público (ou com releases acessíveis), para a requisição ocorrer sem token nem autenticação.
+    >
+    > **Diretrizes de homologação (UNIT):**
+    > 1. Compilação limpa, sem warnings críticos no `flutter analyze`.
+    > 2. Teste no emulador Android (API 24+ / Android 7.0+).
+    > 3. Commits individuais rastreáveis no GitHub, seguindo Conventional Commits.
+    >
+    > **Etapas:** primeiro apresentar o plano; depois de aprovado, construir todas as etapas e, ao concluir, atualizar o `docs/uso-de-ia.md`, o `CHANGELOG.md` e o `README.md` com as responsabilidades e as alterações feitas.
+  * **Como a IA ajudou:** Leu o projeto antes de planejar e viu que o repositório já era público, que o `ci_cd.yml` só enviava o APK ao Firebase App Distribution (sem criar Release, sem a qual `/releases/latest` devolve 404) e que o `AndroidManifest.xml` não tinha as permissões necessárias. Propôs separar o download (`ApkDownloader`, testável com `MockClient`) do instalador (`ApkInstaller`, que depende do Android) e reaproveitar o `CvvRouteObserver.currentRoute` para só mostrar o modal numa tela inicial, sem interromper o diário ou o chat. Notou que o `run_number` é contado por workflow e que um segundo workflow poderia gerar `versionCode` menor, e por isso pôs a publicação da Release no mesmo `ci_cd.yml`. Leu o código do `open_filex` e confirmou que o APK no cache do app dispensa permissão de armazenamento. Reaproveitou a paleta e o estilo do modal de apoio, escreveu os 57 testes e fez um commit por etapa, em Conventional Commits. Ao final, `flutter analyze` ficou sem problemas e os 334 testes da suíte passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Build quebrado pelo `permission_handler` 13.x:** `flutter analyze` e `flutter test` passaram, mas o `flutter build apk --debug` falhou, porque o `permission_handler_android` 14.x exige `compileSdk` 37 e o Android Gradle Plugin do projeto recomenda no máximo 36. A dependência foi fixada em `^12.0.1`. Só o build real mostrou o problema.
+    2. **Permissões que o app não usa:** o `open_filex` traz `READ_EXTERNAL_STORAGE` e `READ_MEDIA_*` para o manifesto. Como o APK fica no cache do app, elas foram removidas com `tools:node="remove"`, o que foi conferido com `aapt dump permissions` no APK gerado.
+    3. **Comparação de versões:** a IA tinha adicionado o `pub_semver`, mas ele foi trocado por uma comparação própria de `major.minor.patch`, com testes, por aceitar tags como `v1.2` e por ignorar pré-lançamento e build de forma previsível. O pacote foi removido do `pubspec.yaml`.
+    4. **"Em segundo plano":** foi interpretado como não bloquear a tela, com progresso visível. O download não continua com o app fechado, e o modal não pode ser fechado enquanto baixa.
+    5. **Versão e assinatura:** o app só se atualiza se a tag for maior que o `versionName` instalado, e o APK novo precisa ter a mesma assinatura (keystore dos Secrets) e `versionCode` maior. Na primeira versão da pipeline o `versionName` vinha do `pubspec.yaml` nos builds comuns e da tag nos builds de tag; isso fez um build da branch (1.0.1) ficar igual à Release (v1.0.1) e o modal não aparecer. Depois a pipeline passou a calcular a versão sozinha (última tag + incremento pelos commits), com `versionCode` derivado da versão, para o Android não recusar a Release por downgrade. Um APK de debug local não é atualizado por um APK de release.
+    6. **Validação parcial:** a IA rodou `flutter analyze` (sem problemas), os 334 testes, o `flutter build apk --debug` e abriu o app no emulador `Pixel_6_API_34` (API 34), sem falhas. A homologação em API 24 e o fluxo completo (modal, download, permissão e instalador) com uma Release real ainda dependem de o integrante publicar a primeira tag, porque ainda não existe nenhuma Release no repositório. A IA não publicou tag nem Release por ser uma ação externa.
+    7. **Pipeline e publicação automática:** o passo de versão do `ci_cd.yml` foi testado localmente em repositórios git temporários (sem tag, só docs, `fix:`, `feat:`, breaking, dispatch manual e limite de versão) mas o fluxo completo (tag, Release e modal no app) só é confirmado rodando no GitHub. A publicação passou a ser automática a cada push na `main` que altere arquivos do app, com tag e Release criadas pelo workflow. A IA não publicou tag nem Release; os commits foram feitos pelo integrante.
+    8. **Limite da API:** a API pública do GitHub permite cerca de 60 requisições por hora por IP, e sem token (para manter o anonimato) quem estoura o limite só não recebe a oferta de atualização, sem erro visível.
+    9. **Arquivos regenerados:** rodar o Flutter no Windows alterou os registros de plugins de `macos/` e `windows/`. Essas mudanças ficaram fora dos commits.
+
 ### Rayelen de Jesus Oliveira
 
 * **Guia e Lista de Canais Oficiais de Denúncia e Apoio (RF06 / SCRUM-34) (19/11 a 21/11):**
@@ -517,6 +700,11 @@ Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.ya
 | `flutter_svg` | ^2.3.2 | Renderiza SVG. Avatares, mascote e ilustrações da home são vetoriais, o que mantém nitidez em qualquer densidade de tela e reduz o tamanho dos assets. | Seleção de avatar, diário, modal de apoio e widgets da home |
 | `lucide_icons_flutter` | ^4.0.2 | Conjunto de ícones Lucide, de traço leve e consistente, que complementa os ícones nativos do Material. | Onboarding, telas de autenticação, diário, home e botão CVV |
 | `url_launcher` | ^6.3.2 | Abre aplicativos externos a partir do app. Faz a ligação para o CVV (188), um canal de apoio emergencial. | `cvv_button.dart` |
+| `http` | ^1.6.0 | Cliente HTTP. Consulta o `releases/latest` do GitHub e baixa o APK da atualização em stream, o que permite mostrar o progresso. Aceita `MockClient` nos testes. | `app_update_repository.dart`, `apk_downloader.dart` |
+| `package_info_plus` | ^10.2.2 | Lê o `versionName` instalado para compará-lo com a tag da release. | `app_update_controller.dart` |
+| `path_provider` | ^2.1.6 | Localiza a pasta de cache do app, onde o APK é baixado sem exigir permissão de armazenamento. | `apk_downloader.dart` |
+| `open_filex` | ^5.0.0 | Abre o APK baixado pelo instalador nativo do Android (via FileProvider). | `apk_installer.dart` |
+| `permission_handler` | ^12.0.1 | Confere e pede a permissão "Instalar apps desconhecidos" só se ainda não concedida. Fixado em 12.x, porque a 13.x exige `compileSdk` 37. | `apk_installer.dart` |
 | `cupertino_icons` | ^1.0.8 | Fonte de ícones estilo iOS, incluída pelo template do Flutter. **Não há uso direto em `lib/` hoje**; pode ser removida sem impacto se a equipe preferir enxugar o `pubspec.yaml`. | — |
 
 ### Dependências de desenvolvimento (`dev_dependencies`)

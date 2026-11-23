@@ -8,72 +8,81 @@ Código-fonte do diagrama:
 
 ```mermaid
 erDiagram
-  USUARIOS {
+  USERS {
     string uid PK "id do documento = uid do Firebase Auth"
-    string nome
-    string papel "psicologa ou responsavel"
-    timestamp criadoEm
+    string name
+    string role "psychologist ou parent"
+    timestamp createdAt
   }
   FAQ {
     string id PK
-    string pergunta
-    string resposta
-    timestamp criadoEm
-    timestamp atualizadoEm
-    string atualizadoPor FK "uid em usuarios"
+    string question
+    string answer
+    timestamp createdAt
+    timestamp updatedAt
+    string updatedBy FK "uid em users"
   }
-  GUIAS {
+  GUIDES {
     string id PK
-    string titulo
-    string descricao
-    string texto
-    string categoria "opcional"
-    timestamp criadoEm
-    timestamp atualizadoEm
-    string autorUid FK "uid em usuarios"
+    string title
+    string description
+    string text
+    string category "opcional"
+    timestamp createdAt
+    timestamp updatedAt
+    string authorUid FK "uid em users"
   }
-  CANAIS {
+  CHANNELS {
     string id PK
-    string nome
-    string descricao
-    string telefone "opcional"
-    number ordem
+    string name
+    string description
+    string phone "opcional"
+    number order
   }
-  DENUNCIAS {
+  REPORTS {
     string id PK
-    string alunoUid "uid da auth anonima"
-    string tipo "bullying, cyberbullying ou outros"
-    string descricao
-    string status "pendente ou respondida"
-    timestamp criadoEm
-    map resposta "texto, respondidaEm, psicologaUid (opcional)"
+    string studentUid "uid da auth anonima"
+    string type "bullying, cyberbullying ou other"
+    string description
+    string status "pending, inMediation ou answered"
+    string severity "low, medium ou high (opcional)"
+    timestamp createdAt
   }
-  USUARIOS ||--o{ FAQ : "atualizadoPor"
-  USUARIOS ||--o{ GUIAS : "autorUid"
-  USUARIOS ||--o{ DENUNCIAS : "resposta.psicologaUid"
+  MESSAGES {
+    string id PK
+    string senderRole "student ou psychologist"
+    string text
+    timestamp createdAt
+  }
+  USERS ||--o{ FAQ : "updatedBy"
+  USERS ||--o{ GUIDES : "authorUid"
+  REPORTS ||--o{ MESSAGES : "subcoleção messages"
 ```
+
+Todos os nomes de coleções e de campos do Firestore ficam em inglês, como já fazem `users` e `faq` no código. Só o texto exibido na tela é em português.
 
 ## Estrutura de coleções
 
 ```
-usuarios/{uid}          perfil de psicóloga e responsável (criado pela escola, fora do app)
-faq/{faqId}             perguntas e respostas (leitura pública)
-guias/{guiaId}          guias para responsáveis
-canais/{canalId}        canais de apoio externos (cadastro pelo console)
-denuncias/{denunciaId}  relatos anônimos, com a resposta da psicóloga dentro do documento
+users/{uid}          perfil de psicóloga e responsável (criado pela escola, fora do app)
+faq/{faqId}          perguntas e respostas (leitura pública)
+guides/{guideId}     guias para responsáveis
+channels/{channelId} canais de apoio externos (cadastro pelo console)
+reports/{studentUid} relato anônimo do aluno; o id é o uid da autenticação anônima
+reports/{studentUid}/messages/{messageId}   mensagens do chat entre o aluno e a psicóloga
 ```
 
-Obs: A resposta é um campo do tipo map dentro da denúncia, porque cada denúncia tem no máximo uma resposta.
+Obs: Cada aluno tem uma única conversa, no documento `reports/{uid}`. A primeira mensagem cria o relato e as seguintes entram na subcoleção `messages`, que o app acompanha em tempo real. O id do relato ser o `uid` evita consulta e índice para achar a conversa do aluno.
 
 ## Campos
 
-**usuarios/{uid}**
+**users/{uid}**
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| nome | string | Exibido no painel ("Olá, Camila!") |
-| papel | string | `psicologa` ou `responsavel` |
-| criadoEm | timestamp | |
+| name | string | Exibido no painel ("Olá, Camila!") |
+| role | string | `psychologist` ou `parent` |
+| createdAt | timestamp | |
 
 O id do documento é o `uid` do Firebase Auth. Aluno anônimo não tem documento aqui.
 
@@ -81,45 +90,58 @@ O id do documento é o `uid` do Firebase Auth. Aluno anônimo não tem documento
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| pergunta | string | Título exibido no ExpansionTile |
-| resposta | string | Conteúdo expandido |
-| criadoEm, atualizadoEm | timestamp | |
-| atualizadoPor | string | `uid` da psicóloga |
+| question | string | Título exibido no ExpansionTile |
+| answer | string | Conteúdo expandido |
+| createdAt, updatedAt | timestamp | |
+| updatedBy | string | `uid` da psicóloga |
 
-**guias/{guiaId}**
-
-| Campo | Tipo | Observação |
-|---|---|---|
-| titulo, descricao, texto | string | Os três campos do formulário de publicação |
-| categoria | string, opcional | Etiqueta do cartão (por exemplo, saúde mental juvenil) |
-| criadoEm, atualizadoEm | timestamp | |
-| autorUid | string | `uid` da psicóloga |
-
-**canais/{canalId}**
+**guides/{guideId}**
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| nome, descricao | string | |
-| telefone | string, opcional | Quando existe, o botão disca |
-| ordem | number | Ordem de exibição |
+| title, description, text | string | Os três campos do formulário de publicação |
+| category | string, opcional | Etiqueta do cartão (por exemplo, saúde mental juvenil) |
+| createdAt, updatedAt | timestamp | |
+| authorUid | string | `uid` da psicóloga |
 
-**denuncias/{denunciaId}**
+**channels/{channelId}**
 
 | Campo | Tipo | Observação |
 |---|---|---|
-| alunoUid | string | `uid` da autenticação anônima |
-| tipo | string | `bullying`, `cyberbullying` ou `outros` |
-| descricao | string | Texto livre do aluno |
-| status | string | `pendente` ao criar, `respondida` depois da resposta |
-| criadoEm | timestamp | Gravado com o horário do servidor |
-| resposta | map, opcional | `texto`, `respondidaEm`, `psicologaUid` |
+| name, description | string | |
+| phone | string, opcional | Quando existe, o botão disca |
+| order | number | Ordem de exibição |
+
+**reports/{reportId}**
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| studentUid | string | `uid` da autenticação anônima. O painel de triagem nunca lê este campo |
+| type | string | `bullying`, `cyberbullying` ou `other` |
+| description | string | Texto livre do aluno |
+| status | string | `pending` ao criar, `inMediation` enquanto a equipe acompanha o relato e `answered` depois da resposta |
+| severity | string, opcional | `low`, `medium` ou `high`. O aluno não envia: o painel de triagem estima pelo tipo e pelo texto quando o campo falta |
+| createdAt | timestamp | Gravado com o horário do servidor |
+
+O id do documento é o `studentUid`. `description` guarda a primeira mensagem da conversa, que é o que o painel de triagem mostra. Quando o aluno escreve de novo num relato `answered`, o app devolve o `status` para `pending`.
+
+**reports/{studentUid}/messages/{messageId}**
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| senderRole | string | `student` ou `psychologist` |
+| text | string | De 1 a 2000 caracteres |
+| createdAt | timestamp | Gravado com o horário do servidor |
+
+A mensagem não guarda nome nem nenhum dado do aluno. O app lê a subcoleção com `orderBy('createdAt')` e `snapshots(includeMetadataChanges: true)`, e usa `metadata.hasPendingWrites` para mostrar "Enviando…".
 
 ## Índices compostos
 
 | Consulta | Índice |
 |---|---|
-| Triagem da psicóloga: denúncias pendentes da mais antiga para a mais nova | `status` crescente, `criadoEm` crescente |
-| Lista do aluno: as próprias denúncias, da mais recente para a mais antiga | `alunoUid` crescente, `criadoEm` decrescente |
+| Painel de triagem (RF09): todos os relatos, do mais recente para o mais antigo | `createdAt` decrescente (índice simples, automático). A ordem de triagem (gravidade e antiguidade) é aplicada no app |
+| Triagem da psicóloga: relatos pendentes do mais antigo para o mais novo | `status` crescente, `createdAt` crescente |
+| Chat do aluno: mensagens da conversa em ordem de envio | `createdAt` crescente (índice simples, automático) |
 
 
 ## Regras de segurança
@@ -129,74 +151,105 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function logado() {
+    function signedIn() {
       return request.auth != null;
     }
-    function papelDe(uid) {
-      return get(/databases/$(database)/documents/usuarios/$(uid)).data.papel;
+    function roleOf(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
     }
-    function ehPsicologa() {
-      return logado()
-        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
-        && papelDe(request.auth.uid) == 'psicologa';
+    function isPsychologist() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && roleOf(request.auth.uid) == 'psychologist';
     }
-    function ehResponsavel() {
-      return logado()
-        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
-        && papelDe(request.auth.uid) == 'responsavel';
+    function isParent() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && roleOf(request.auth.uid) == 'parent';
     }
 
-    match /usuarios/{uid} {
-      allow get: if logado() && request.auth.uid == uid;
+    match /users/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
       allow list, write: if false;
     }
 
     match /faq/{id} {
       allow read: if true;
-      allow write: if ehPsicologa();
+      allow write: if isPsychologist();
     }
 
-    match /canais/{id} {
+    match /channels/{id} {
       allow read: if true;
       allow write: if false;
     }
 
-    match /guias/{id} {
-      allow read: if ehPsicologa() || ehResponsavel();
-      allow write: if ehPsicologa();
+    match /guides/{id} {
+      allow read: if isPsychologist() || isParent();
+      allow write: if isPsychologist();
     }
 
-    match /denuncias/{id} {
-      allow create: if logado()
-        && request.resource.data.keys().hasOnly(['alunoUid', 'tipo', 'descricao', 'status', 'criadoEm'])
-        && request.resource.data.alunoUid == request.auth.uid
-        && request.resource.data.status == 'pendente'
-        && request.resource.data.tipo in ['bullying', 'cyberbullying', 'outros']
-        && request.resource.data.descricao is string
-        && request.resource.data.descricao.size() > 0
-        && request.resource.data.descricao.size() <= 2000
-        && request.resource.data.criadoEm == request.time;
+    match /reports/{id} {
+      allow create: if signedIn()
+        && id == request.auth.uid
+        && request.resource.data.keys().hasOnly(['studentUid', 'type', 'description', 'status', 'createdAt'])
+        && request.resource.data.studentUid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.type in ['bullying', 'cyberbullying', 'other']
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.description.size() <= 2000
+        && request.resource.data.createdAt == request.time;
 
-      allow read: if logado()
-        && (resource.data.alunoUid == request.auth.uid || ehPsicologa());
+      // resource == null permite ao aluno acompanhar a própria conversa
+      // antes de enviar a primeira mensagem.
+      allow read: if signedIn()
+        && ((resource == null && id == request.auth.uid)
+          || (resource != null && (resource.data.studentUid == request.auth.uid || isPsychologist())));
 
-      allow update: if ehPsicologa()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'resposta'])
-        && request.resource.data.status in ['pendente', 'respondida'];
+      allow update: if (
+          isPsychologist()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'severity'])
+          && request.resource.data.status in ['pending', 'inMediation', 'answered']
+        ) || (
+          signedIn()
+          && resource.data.studentUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status == 'pending'
+        );
 
       allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if signedIn() && (id == request.auth.uid || isPsychologist());
+
+        allow create: if signedIn()
+          && request.resource.data.keys().hasOnly(['senderRole', 'text', 'createdAt'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && request.resource.data.createdAt == request.time
+          && ((request.resource.data.senderRole == 'student' && id == request.auth.uid)
+            || (request.resource.data.senderRole == 'psychologist' && isPsychologist()));
+
+        allow update, delete: if false;
+      }
     }
   }
 }
 ```
 
-A descrição da denúncia tem limite de 2000 caracteres.
+A descrição do relato tem limite de 2000 caracteres.
+
+O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentUid`. Na regra de `update`, a psicóloga pode mudar `status` e `severity` (o app só grava `status`, ao responder) e o aluno só pode devolver o relato para `pending` ao escrever de novo. Nenhuma tela do app grava `inMediation` ou `severity`: são valores que a equipe pode definir pelo console. A regra de `create` das mensagens aceita `psychologist` para a resposta da psicóloga (RF10). O repositório não versiona o arquivo `firestore.rules`, então as regras precisam ser publicadas no console do Firebase.
 
 ## Comportamento sem internet
 
 - Leituras do FAQ, dos canais e dos guias usam o cache do Firestore depois da primeira carga.
-- A denúncia criada sem internet entra na fila do Firestore e é enviada quando a conexão volta. Enquanto isso, a tela mostra o estado "aguardando envio".
-- Respostas da psicóloga só aparecem para o aluno depois que ele abrir o app com internet.
+- A mensagem escrita sem internet entra na fila do Firestore e é enviada quando a conexão volta. Enquanto isso, o balão mostra "Enviando…".
+- Com internet, o chat funciona em tempo real: a resposta da psicóloga aparece na tela do aluno assim que é gravada, sem recarregar, e a mensagem do aluno aparece na tela da psicóloga do mesmo jeito. O painel de triagem também acompanha `reports` em tempo real.
+- A resposta da psicóloga grava a mensagem (`senderRole: psychologist`) e, no mesmo lote, muda o `status` do relato para `answered` se ele estava `pending`.
+- Sem internet e sem cache, o aluno não vê respostas novas, que chegam quando a conexão volta.
+- O aluno que entrou só com a sessão local (sem login anônimo no Firebase) não consegue enviar; o chat avisa para conectar à internet.
 
 ## O que fica fora do Firestore
 
@@ -206,6 +259,6 @@ O gatilho de apoio por sofrimento intenso (UC20, RN11) também não usa o Firest
 
 ## Observações
 
-- O papel do usuário é lido do documento em `usuarios`.
+- O papel do usuário é lido do documento em `users`.
 - A autenticação anônima gera um identificador que o Firebase associa ao aparelho. O projeto não usa Firebase Analytics nem Crashlytics.
 - Se o aluno desinstalar o app, perde o acesso às respostas, porque o identificador anônimo é descartado.
