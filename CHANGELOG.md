@@ -285,16 +285,29 @@
 - Tela do chat do aluno (`AnonymousChatView`): passou a usar os widgets de chat compartilhados, sem mudar o comportamento.
 - Mensagem de erro do painel de triagem: separa falta de rede, permissão negada e demais falhas, e registra o erro real no log.
 - Chat do aluno (`AnonymousChatView`): o assunto da conversa deixou de vir pré-selecionado em "Bullying". O aluno precisa escolher o assunto (bullying, cyberbullying ou outros) antes de enviar a primeira mensagem; sem escolher, a mensagem não é enviada e a tela avisa "Escolha o assunto da conversa antes de enviar.". Testes em `test/modules/student/chat/`.
-<<<<<<< HEAD
 - Responsabilidades de Abraão Luiz Ribeiro da Cruz Dantas atualizadas em `README.md` (diário reflexivo, Breno, um sentimento por dia, PIN do diário, persistência offline e bateria de testes offline).
-=======
 - Pipeline de CI/CD: o workflow passou a rodar também em tags `v*` e a ter `permissions: contents: write`, usado só para criar a Release em builds de tag. A versão do app deixou de depender do `pubspec.yaml`: o `versionName` vem da última tag (ou da próxima, quando há Release) e o `versionCode` passou a ser `(MAJOR*10000 + MINOR*100 + PATCH) * 10000 + run_number`. Assim, o APK de uma Release mais nova sempre tem código maior que qualquer build de versão anterior, inclusive os da `main` distribuídos no Firebase, e o Android não recusa a atualização por downgrade.
 - `AndroidManifest.xml`: as permissões de armazenamento e mídia que o `open_filex` traz (`READ_EXTERNAL_STORAGE`, `READ_MEDIA_*`) foram removidas do manifesto final, porque o app não as usa (o APK fica no cache do próprio app).
 - `permission_handler` fixado na linha 12.x: a 13.x exige `compileSdk` 37, acima do que o Android Gradle Plugin do projeto recomenda (36), e quebrava o build.
->>>>>>> origin/main
 
 ### Removido
 
 - Filtros de **gravidade** e de **status de mediação** da tela de triagem (`ReportsView`), que não estavam no protótipo do Figma, junto do estado "Nenhuma denúncia com esses filtros" e do botão "Limpar filtros". A lista continua na ordem de triagem (mais grave primeiro e, na mesma gravidade, o mais antigo), e o `ReportsController` perdeu `filterBySeverity`, `filterByStatus`, `clearFilters` e `visible` (agora `sorted`).
 - Painel "Gerenciar relato" do chat da psicóloga (`PsychologistChatView`), com os seletores de status de mediação e de gravidade, e o código que o sustentava (`setStatus` e `setSeverity` no `PsychologistChatController` e no `PsychologistChatRepository`). A ideia de filtro e de classificação manual não existe no protótipo; o chat da psicóloga ficou só com a conversa, como no Figma.
 - `CLAUDE.md` (instruções locais do assistente de IA) removido do repositório e adicionado ao `.gitignore`, junto da pasta `.claude/`.
+
+## [23/11/2026]
+
+### Corrigido
+
+- `CHANGELOG.md`: removidos os marcadores de conflito de merge (`<<<<<<<`, `=======`, `>>>>>>>`) que tinham ido para a `main` na entrada de 22/11. Os dois trechos foram mantidos.
+
+### Modificado
+
+- Documentação alinhada ao código da `main` (SCRUM-48):
+  - `docs/modelagem/02` a `05`: coleções e campos do Firestore em inglês (`users`, `faq`, `reports`, `messages`, `guides`), como no código. A resposta da psicóloga passou a ser descrita como mensagem do chat em `reports/{uid}/messages`, no lugar do antigo campo `resposta`. Os canais de apoio passaram a ser descritos como lista fixa no app (`officialChannels`), sem a coleção `channels`. Os exemplos de código do `04` foram trocados pelos modelos reais (`Report`, `ChatMessage`, `FaqModel`) e o catálogo do `05` marca FAQ, relato e chat como implementados.
+  - Armazenamento local: `01` (RN02), `03`, `eap.md` e `justificativas.md` deixaram de citar diário criptografado, SQLite e Room. O diário fica no `SharedPreferences`, sem criptografia, e só o PIN é guardado como hash.
+  - `justificativas.md`: a navegação por abas foi trocada pelos cards da Home e pelas rotas reais.
+  - `eap.md` e `escopo.md`: status dos pacotes e checklists das sprints atualizados conforme o que está na `main`. iOS marcado como fora do escopo também na RNF04 do `requisitos.md`.
+  - `uso-de-ia.md`: tabela de bibliotecas com o `crypto`, a pasta `test/` e os arquivos que usam `cloud_firestore`, `shared_preferences` e `url_launcher`. O registro da SCRUM-34 foi para a Sprint 3, e foram corrigidos a referência ao `docs/README.md`, que não existe, e o formato do bloco "Integração via MCP do Jira".
+  - `README.md`: a linha de Marcos Paulo deixou de citar `firebase.rules`, que não existe no repositório. A linha de Rayelen de Jesus Oliveira passou a incluir a implementação do gatilho de apoio emergencial.

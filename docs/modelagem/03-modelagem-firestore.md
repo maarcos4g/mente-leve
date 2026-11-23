@@ -32,13 +32,6 @@ erDiagram
     timestamp updatedAt
     string authorUid FK "uid em users"
   }
-  CHANNELS {
-    string id PK
-    string name
-    string description
-    string phone "opcional"
-    number order
-  }
   REPORTS {
     string id PK
     string studentUid "uid da auth anonima"
@@ -67,10 +60,13 @@ Todos os nomes de coleções e de campos do Firestore ficam em inglês, como já
 users/{uid}          perfil de psicóloga e responsável (criado pela escola, fora do app)
 faq/{faqId}          perguntas e respostas (leitura pública)
 guides/{guideId}     guias para responsáveis
-channels/{channelId} canais de apoio externos (cadastro pelo console)
 reports/{studentUid} relato anônimo do aluno; o id é o uid da autenticação anônima
 reports/{studentUid}/messages/{messageId}   mensagens do chat entre o aluno e a psicóloga
 ```
+
+Os canais de apoio (Disque 100, Conselho Tutelar e Ouvidoria Escolar) não ficam no Firestore. Eles são uma lista fixa no app (`officialChannels`, em `lib/modules/student/official_channels/models/official_channel.dart`), para funcionar offline desde a primeira abertura. A coleção `channels`, prevista no início do projeto, não foi criada.
+
+A coleção `guides` é usada pela branch `feat/parents-home-e-guias-psicologa` (RF11, UC17 e UC19), que ainda não foi mesclada na `main`. Os campos descritos abaixo são os que essa branch grava.
 
 Obs: Cada aluno tem uma única conversa, no documento `reports/{uid}`. A primeira mensagem cria o relato e as seguintes entram na subcoleção `messages`, que o app acompanha em tempo real. O id do relato ser o `uid` evita consulta e índice para achar a conversa do aluno.
 
@@ -103,14 +99,6 @@ O id do documento é o `uid` do Firebase Auth. Aluno anônimo não tem documento
 | category | string, opcional | Etiqueta do cartão (por exemplo, saúde mental juvenil) |
 | createdAt, updatedAt | timestamp | |
 | authorUid | string | `uid` da psicóloga |
-
-**channels/{channelId}**
-
-| Campo | Tipo | Observação |
-|---|---|---|
-| name, description | string | |
-| phone | string, opcional | Quando existe, o botão disca |
-| order | number | Ordem de exibição |
 
 **reports/{reportId}**
 
@@ -178,11 +166,6 @@ service cloud.firestore {
       allow write: if isPsychologist();
     }
 
-    match /channels/{id} {
-      allow read: if true;
-      allow write: if false;
-    }
-
     match /guides/{id} {
       allow read: if isPsychologist() || isParent();
       allow write: if isPsychologist();
@@ -244,7 +227,7 @@ O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentU
 
 ## Comportamento sem internet
 
-- Leituras do FAQ, dos canais e dos guias usam o cache do Firestore depois da primeira carga.
+- Leituras do FAQ e dos guias usam o cache do Firestore depois da primeira carga. O FAQ também fica salvo no aparelho (`SharedPreferences`, chave `faq_cache`), para o aluno ler sem internet. Os canais de apoio são fixos no app e não dependem de rede.
 - A mensagem escrita sem internet entra na fila do Firestore e é enviada quando a conexão volta. Enquanto isso, o balão mostra "Enviando…".
 - Com internet, o chat funciona em tempo real: a resposta da psicóloga aparece na tela do aluno assim que é gravada, sem recarregar, e a mensagem do aluno aparece na tela da psicóloga do mesmo jeito. O painel de triagem também acompanha `reports` em tempo real.
 - A resposta da psicóloga grava a mensagem (`senderRole: psychologist`) e, no mesmo lote, muda o `status` do relato para `answered` se ele estava `pending`.
@@ -253,7 +236,7 @@ O painel de triagem (RF09) só lê a coleção `reports` e nunca usa o `studentU
 
 ## O que fica fora do Firestore
 
-O diário do aluno (humor, texto, pontos positivos e histórico) e o codinome ficam no aparelho, em caixa criptografada. A decisão vem do aditivo e do RNF03. O mapeamento dessas classes está em `04-mapeamento-dart-firestore.md`.
+O diário do aluno (humor, texto, pontos positivos e histórico) e o codinome ficam só no aparelho, no `SharedPreferences`, e nunca vão para a nuvem (aditivo e RNF03). Esses dados não são criptografados: só o PIN do diário é guardado como hash SHA-256 com salt (chave `diario_pin`). A proteção vem de os dados nunca saírem do aparelho e do PIN que bloqueia a tela do diário. O mapeamento dessas classes está em `04-mapeamento-dart-firestore.md`.
 
 O gatilho de apoio por sofrimento intenso (UC20, RN11) também não usa o Firestore: ele lê o diário no aparelho e guarda só o próprio estado de controle (`EstadoGatilhoApoio`) localmente. Não há coleção nova, nem mudança em `firestore.rules`, nem leitura ou escrita no Firestore, e a escola não fica sabendo que o modal apareceu.
 

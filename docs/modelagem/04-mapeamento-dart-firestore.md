@@ -1,232 +1,161 @@
 # Mapeamento das classes Dart para o Firebase e o aparelho
 
-Mostra para onde cada classe de domínio vai e como os campos são convertidos.
+Mostra para onde cada classe de domínio vai e como os campos são convertidos. Os nomes de classes e de campos gravados estão em inglês, como no código. O nome em português, usado no diagrama de classes (`02`), aparece entre parênteses.
 
 ![Mapeamento](../diagramas/mapeamento-dart-firestore.png)
 
 ```mermaid
 flowchart LR
-  Usuario
-  PerguntaFaq
-  Guia
-  CanalApoio
-  Denuncia
-  RespostaDenuncia
+  UserModel["UserModel (Usuario)"]
+  FaqModel["FaqModel (PerguntaFaq)"]
+  GuideModel["GuideModel (Guia)*"]
+  Report["Report (Denuncia)"]
+  ChatMessage["ChatMessage (MensagemChat)"]
+  OfficialChannel["OfficialChannel (CanalApoio)"]
   RegistroDiario
-  PerfilLocal
-  EstadoGatilhoApoio
+  LocalUserModel["LocalUserModel (PerfilLocal)"]
+  SupportTriggerState["SupportTriggerState (EstadoGatilhoApoio)"]
 
   subgraph FS["Cloud Firestore"]
-    cUsuarios[("usuarios/{uid}")]
+    cUsers[("users/{uid}")]
     cFaq[("faq/{id}")]
-    cGuias[("guias/{id}")]
-    cCanais[("canais/{id}")]
-    cDenuncias[("denuncias/{id}")]
+    cGuides[("guides/{id}")]
+    cReports[("reports/{uid}")]
+    cMessages[("reports/{uid}/messages/{id}")]
   end
   AUTH["Firebase Auth<br/>anônima, e-mail e senha"]
-  subgraph HV["Aparelho: SharedPreferences"]
-    bDiario[("chave diario")]
-    bPerfil[("chave profile")]
-  end
   subgraph SP["Aparelho: SharedPreferences"]
-    kGatilho[("chave support_trigger_state")]
+    kDiario[("diario")]
+    kPin[("diario_pin")]
+    kProfile[("profile")]
+    kFaqCache[("faq_cache")]
+    kGatilho[("support_trigger_state")]
   end
+  APP["Código do app<br/>(lista fixa)"]
 
-  Usuario --> cUsuarios
-  Usuario -. "credenciais" .-> AUTH
-  PerguntaFaq --> cFaq
-  Guia --> cGuias
-  CanalApoio --> cCanais
-  Denuncia --> cDenuncias
-  Denuncia -. "alunoUid" .-> AUTH
-  RespostaDenuncia -. "campo resposta (map)" .-> cDenuncias
-  RegistroDiario --> bDiario
-  PerfilLocal --> bPerfil
-  EstadoGatilhoApoio --> kGatilho
-  EstadoGatilhoApoio -. "lê (RN11)" .-> bDiario
+  UserModel --> cUsers
+  UserModel -. "credenciais" .-> AUTH
+  FaqModel --> cFaq
+  FaqModel -. "cópia offline" .-> kFaqCache
+  GuideModel --> cGuides
+  Report --> cReports
+  Report -. "id = uid anônimo" .-> AUTH
+  ChatMessage --> cMessages
+  OfficialChannel --> APP
+  RegistroDiario --> kDiario
+  LocalUserModel --> kProfile
+  SupportTriggerState --> kGatilho
+  SupportTriggerState -. "lê (RN11)" .-> kDiario
 ```
 
-> A imagem `mapeamento-dart-firestore.png` ainda não mostra `EstadoGatilhoApoio`. O código-fonte Mermaid acima é a versão atual.
+\* `GuideModel` está na branch `feat/parents-home-e-guias-psicologa`, ainda não mesclada na `main`.
+
+> A imagem `mapeamento-dart-firestore.png` está desatualizada: ainda mostra as coleções `usuarios`, `denuncias`, `guias` e `canais` e o campo `resposta`. O código-fonte Mermaid acima é a versão atual.
 
 ## Tabela de mapeamento
 
 | Classe Dart | Destino | Caminho | Conversão |
 |---|---|---|---|
-| Usuario | Firestore e Firebase Auth | `usuarios/{uid}` | `uid` é o id do documento. `papel` vira texto (`Papel.name`). As credenciais ficam no Auth, não no documento. |
-| PerguntaFaq | Firestore | `faq/{id}` | `id` é o id do documento. As datas viram `Timestamp`. |
-| Guia | Firestore | `guias/{id}` | Igual ao FAQ. `categoria` é omitida quando nula. |
-| CanalApoio | Firestore | `canais/{id}` | `telefone` é omitido quando nulo. `podeDiscar` é calculado (`telefone != null`) e não é gravado. |
-| Denuncia | Firestore | `denuncias/{id}` | `tipo` e `status` viram texto. `criadoEm` usa `FieldValue.serverTimestamp()`. `aguardandoEnvio` não é gravado: vem de `metadata.hasPendingWrites`. |
-| RespostaDenuncia | Firestore | campo `resposta` (map) em `denuncias/{id}` | Vira `{texto, respondidaEm, psicologaUid}`. Ausente enquanto a denúncia está pendente. |
-| RegistroDiario | Aparelho | SharedPreferences, chave `diario` | JSON `{id: registro}`; cada registro vem do `toMap`: `humor` pelo nome do enum, `dataHora` em texto ISO 8601. |
-| PerfilLocal | Aparelho | SharedPreferences, chave `profile` | JSON com codinome e avatar (`ProfileStore`). |
-| EstadoGatilhoApoio (`SupportTriggerState`) | Aparelho | SharedPreferences, chave `support_trigger_state` | JSON `{lastShownAt, countFrom}`, datas em texto ISO 8601, gravado pelo `SupportTriggerStateStore`. Se a chave estiver corrompida, é lida como estado vazio. Fica no mesmo armazenamento do diário: se o diário passar a ser criptografado, esta chave também deve ser. Nunca vai para o Firestore. |
+| `UserModel` | Firestore e Firebase Auth | `users/{uid}` | `uid` é o id do documento. `role` é lido com `Role.values.byName`. Só leitura: o documento é criado pela escola. As credenciais ficam no Auth. |
+| `FaqModel` | Firestore e aparelho | `faq/{id}` e chave `faq_cache` | `id` é o id do documento. No Firestore as datas viram `Timestamp` e `updatedAt` usa `FieldValue.serverTimestamp()`. No cache local, as datas viram texto ISO 8601. |
+| `GuideModel` | Firestore | `guides/{id}` | Igual ao FAQ. `category` e `authorUid` são omitidos quando vazios. |
+| `Report` | Firestore | `reports/{uid}` | O id do documento é o `uid` anônimo do aluno. `type`, `status` e `severity` são gravados pelo nome do enum. `createdAt` usa `FieldValue.serverTimestamp()`. O `studentUid` é gravado, mas nunca lido pelo app. |
+| `ChatMessage` | Firestore | `reports/{uid}/messages/{id}` | `senderRole` é `student` ou `psychologist`. `createdAt` usa `FieldValue.serverTimestamp()`. `isPending` não é gravado: vem de `metadata.hasPendingWrites`. |
+| `OfficialChannel` | Código do app | `officialChannels` | Lista constante. Não é gravada em lugar nenhum. |
+| `RegistroDiario` | Aparelho | SharedPreferences, chave `diario` | JSON `{id: registro}`; cada registro vem do `toMap`: `humor` pelo nome do enum, `dataHora` em texto ISO 8601. |
+| PIN do diário | Aparelho | SharedPreferences, chave `diario_pin` | Hash SHA-256 com salt (`DiaryLockRepository`). O PIN em si nunca é gravado. |
+| `LocalUserModel` | Aparelho | SharedPreferences, chave `profile` | JSON com codinome e avatar (`ProfileStore`). |
+| `SupportTriggerState` | Aparelho | SharedPreferences, chave `support_trigger_state` | JSON `{lastShownAt, countFrom}`, datas em texto ISO 8601, gravado pelo `SupportTriggerStateStore`. Se a chave estiver corrompida, é lida como estado vazio. Nunca vai para o Firestore. |
 
-Os enums são gravados pelo nome (`Humor.comRaiva` vira `"comRaiva"`) e lidos com `values.byName`.
+Os enums são gravados pelo nome (`Humor.comRaiva` vira `"comRaiva"`). `Report` e `ChatMessage` leem com `fromName`, que troca um valor desconhecido por um padrão seguro (status desconhecido volta para `pending`, remetente desconhecido nunca é tratado como o aluno). `UserModel` usa `values.byName`, que lança erro.
 
-## Exemplo: Denuncia no Firestore
+## Exemplo: relato e chat no Firestore
 
-Conversão entre o objeto Dart e o documento do Firestore.
+A primeira mensagem do aluno cria o relato e a mensagem no mesmo lote (`ChatRepository.send`):
 
 ```dart
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-enum TipoRelato { bullying, cyberbullying, outros }
-enum StatusDenuncia { pendente, respondida }
-
-class RespostaDenuncia {
-  final String texto;
-  final DateTime respondidaEm;
-  final String psicologaUid;
-
-  const RespostaDenuncia({
-    required this.texto,
-    required this.respondidaEm,
-    required this.psicologaUid,
+final batch = _firestore.batch();
+batch.set(report.collection('messages').doc(), {
+  'senderRole': ChatSender.student.name,
+  'text': text,
+  'createdAt': FieldValue.serverTimestamp(),
+});
+if (_status == null) {
+  // Primeira mensagem: cria o relato que a psicóloga vê na triagem.
+  batch.set(report, {
+    'studentUid': report.id,
+    'type': type.name,
+    'description': text,
+    'status': ReportStatus.pending.name,
+    'createdAt': FieldValue.serverTimestamp(),
   });
-
-  factory RespostaDenuncia.fromMap(Map<String, dynamic> m) => RespostaDenuncia(
-        texto: m['texto'] as String,
-        respondidaEm: (m['respondidaEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-        psicologaUid: m['psicologaUid'] as String,
-      );
+} else if (_status == ReportStatus.answered) {
+  // O aluno voltou a escrever: o relato volta para a fila da triagem.
+  batch.update(report, {'status': ReportStatus.pending.name});
 }
+// Sem internet, o commit fica na fila local do Firestore.
+await batch.commit().timeout(queueTimeout);
+```
 
-class Denuncia {
-  final String id;
-  final String alunoUid;
-  final TipoRelato tipo;
-  final String descricao;
-  final StatusDenuncia status;
-  final DateTime criadoEm;
-  final RespostaDenuncia? resposta;
-  final bool aguardandoEnvio; // não vai para o Firestore
+A resposta da psicóloga (`PsychologistChatRepository`) grava uma mensagem com `senderRole: psychologist` e, no mesmo lote, muda o `status` do relato para `answered` se ele estava `pending`.
 
-  const Denuncia({
-    required this.id,
-    required this.alunoUid,
-    required this.tipo,
-    required this.descricao,
-    required this.status,
-    required this.criadoEm,
-    this.resposta,
-    this.aguardandoEnvio = false,
-  });
+Leitura do relato no painel de triagem (`Report.fromMap`). Campo ausente ou inválido usa um valor seguro, para um documento malformado não derrubar a triagem:
 
-  bool get estaPendente => status == StatusDenuncia.pendente;
-
-  // Leitura: documento do Firestore para objeto Dart
-  factory Denuncia.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snap,
-    SnapshotOptions? options,
-  ) {
-    final d = snap.data()!;
-    final resposta = d['resposta'];
-    return Denuncia(
-      id: snap.id,
-      alunoUid: d['alunoUid'] as String,
-      tipo: TipoRelato.values.byName(d['tipo'] as String),
-      descricao: d['descricao'] as String,
-      status: StatusDenuncia.values.byName(d['status'] as String),
-      // enquanto o servidor não confirma, o campo pode vir nulo
-      criadoEm: (d['criadoEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      resposta: resposta == null
-          ? null
-          : RespostaDenuncia.fromMap(Map<String, dynamic>.from(resposta as Map)),
-      aguardandoEnvio: snap.metadata.hasPendingWrites,
-    );
-  }
-
-  // Criação: objeto Dart para documento (só os campos que as regras aceitam)
-  Map<String, dynamic> toFirestoreCriacao() => {
-        'alunoUid': alunoUid,
-        'tipo': tipo.name,
-        'descricao': descricao,
-        'status': StatusDenuncia.pendente.name,
-        'criadoEm': FieldValue.serverTimestamp(),
-      };
-}
-
-// Referência tipada da coleção
-final denuncias = FirebaseFirestore.instance
-    .collection('denuncias')
-    .withConverter<Denuncia>(
-      fromFirestore: Denuncia.fromFirestore,
-      toFirestore: (d, _) => d.toFirestoreCriacao(),
-    );
-
-// Resposta da psicóloga (atualiza só status e resposta, como as regras exigem)
-Future<void> responder(String denunciaId, String texto, String psicologaUid) {
-  return FirebaseFirestore.instance.collection('denuncias').doc(denunciaId).update({
-    'status': StatusDenuncia.respondida.name,
-    'resposta': {
-      'texto': texto,
-      'respondidaEm': FieldValue.serverTimestamp(),
-      'psicologaUid': psicologaUid,
-    },
-  });
+```dart
+factory Report.fromMap(String id, Map<String, dynamic> data) {
+  final type = ReportType.fromName(data['type'] as String?);
+  final description = (data['description'] as String?) ?? '';
+  final rawCreatedAt = data['createdAt'];
+  return Report(
+    id: id,
+    type: type,
+    description: description,
+    status: ReportStatus.fromName(data['status'] as String?),
+    // Enquanto o servidor não confirma o horário, o campo vem nulo.
+    createdAt: rawCreatedAt is Timestamp ? rawCreatedAt.toDate() : DateTime.now(),
+    severity: ReportSeverity.tryFromName(data['severity'] as String?) ??
+        ReportSeverity.infer(type, description),
+  );
 }
 ```
 
-Para o estado "aguardando envio" atualizar na tela quando a denúncia sincronizar, a consulta precisa de `snapshots(includeMetadataChanges: true)`.
+Para o balão mostrar "Enviando…" e atualizar quando a mensagem sincronizar, a consulta das mensagens usa `orderBy('createdAt')` e `snapshots(includeMetadataChanges: true)`, e passa `doc.metadata.hasPendingWrites` para `ChatMessage.fromMap`.
 
-## Exemplo: PerguntaFaq e busca
+## Exemplo: FaqModel e busca
 
 ```dart
-class PerguntaFaq {
-  final String id;
-  final String pergunta;
-  final String resposta;
-  final DateTime criadoEm;
-  final DateTime atualizadoEm;
-  final String atualizadoPor;
-
-  const PerguntaFaq({
-    required this.id,
-    required this.pergunta,
-    required this.resposta,
-    required this.criadoEm,
-    required this.atualizadoEm,
-    required this.atualizadoPor,
-  });
-
-  bool corresponde(String termo) {
-    final t = termo.trim().toLowerCase();
-    return t.isEmpty ||
-        pergunta.toLowerCase().contains(t) ||
-        resposta.toLowerCase().contains(t);
+factory FaqModel.fromFirestore(
+  DocumentSnapshot<Map<String, dynamic>> snapshot,
+  SnapshotOptions? options,
+) {
+  final data = snapshot.data();
+  if (data == null) {
+    throw StateError('Documento de FAQ vazio ou inexistente: ${snapshot.id}');
   }
-
-  factory PerguntaFaq.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snap,
-    SnapshotOptions? options,
-  ) {
-    final d = snap.data()!;
-    return PerguntaFaq(
-      id: snap.id,
-      pergunta: d['pergunta'] as String,
-      resposta: d['resposta'] as String,
-      criadoEm: (d['criadoEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      atualizadoEm: (d['atualizadoEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      atualizadoPor: d['atualizadoPor'] as String,
-    );
-  }
-
-  Map<String, dynamic> toFirestore() => {
-        'pergunta': pergunta,
-        'resposta': resposta,
-        'criadoEm': Timestamp.fromDate(criadoEm),
-        'atualizadoEm': FieldValue.serverTimestamp(),
-        'atualizadoPor': atualizadoPor,
-      };
+  return FaqModel(
+    id: snapshot.id,
+    question: (data['question'] as String?) ?? '',
+    answer: (data['answer'] as String?) ?? '',
+    createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    updatedBy: (data['updatedBy'] as String?) ?? '',
+  );
 }
+
+Map<String, dynamic> toFirestore() => {
+  'question': question,
+  'answer': answer,
+  'createdAt': Timestamp.fromDate(createdAt),
+  'updatedAt': FieldValue.serverTimestamp(),
+  'updatedBy': updatedBy,
+};
 ```
 
-A busca roda no aparelho, sobre a lista já carregada, porque o Firestore não faz busca de texto e o FAQ é pequeno.
+A busca (`FaqModel.matches`) roda no aparelho, sobre a lista já carregada, porque o Firestore não faz busca de texto e o FAQ é pequeno.
 
 ## Exemplo: RegistroDiario no aparelho
 
-O diário vai para o `SharedPreferences`, na chave `diario`, como um JSON `{id: registro}` (`PrefsDiaryRepository`). É o mesmo pacote que já guarda o perfil do aluno, então não há dependência nova. Os dados ficam só no aparelho, mas sem criptografia.
+O diário vai para o `SharedPreferences`, na chave `diario`, como um JSON `{id: registro}` (`PrefsDiaryRepository`). É o mesmo pacote que já guarda o perfil do aluno, então não há dependência nova. Os dados ficam só no aparelho, mas sem criptografia. O que protege o diário é o PIN, guardado só como hash.
 
 ```dart
 enum Humor { feliz, neutro, triste, ansioso, comRaiva, cansado }
@@ -264,4 +193,4 @@ class RegistroDiario {
 }
 ```
 
-Usuario, Guia e CanalApoio seguem o mesmo padrão de `fromFirestore` e `toFirestore` mostrado acima.
+`UserModel` e `GuideModel` seguem o mesmo padrão de `fromFirestore` mostrado no FAQ.

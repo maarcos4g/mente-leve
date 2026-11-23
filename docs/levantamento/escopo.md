@@ -100,51 +100,51 @@ O cronograma de desenvolvimento foi estruturado em **4 Sprints semanais**, total
 ### Planejamento Detalhado por Box de Sprint
 
 #### 🟦 Box Sprint 1: Fundação, EAP & Modelagem de Domínio
-> **Período:** 01/11/2026 a 08/11/2026 &nbsp;|&nbsp; **Carga:** 39 Story Points (13 Tarefas) &nbsp;|&nbsp; **Status:** Ativa no Quadro  
+> **Período:** 01/11/2026 a 08/11/2026 &nbsp;|&nbsp; **Carga:** 39 Story Points (13 Tarefas) &nbsp;|&nbsp; **Status:** Concluída  
 > **Meta da Sprint (*Sprint Goal*):** Estruturar a governança ágil, formalizar EAP e escopo, produzir diagramas de classe e banco Firestore, e configurar o ambiente Flutter com Design System.
 > 
 > * **Entregáveis Técnicos:**
 >   - [x] Declaração de Escopo do Projeto formalizada (`docs/levantamento/escopo.md`)
->   - [ ] Estrutura Analítica do Projeto simplificada (`docs/eap.md`)
->   - [ ] Diagrama de Casos de Uso com novas regras de negócio (`docs/modelagem/01-casos-de-uso.md`)
->   - [ ] Diagrama de Classes e Modelos de Domínio Dart (`docs/modelagem/02-diagrama-de-classes.md`)
->   - [ ] Modelagem do Banco Firestore e Mapeamento Objeto-Documento (`docs/modelagem/03-modelagem-firestore.md`)
->   - [ ] Setup do projeto Flutter, arquitetura em camadas e `ThemeData` (paleta azul-céu e Poppins)
->   - [ ] Telas iniciais (Home com card de humor e Login Institucional)
+>   - [x] Estrutura Analítica do Projeto simplificada (`docs/eap.md`)
+>   - [x] Diagrama de Casos de Uso com novas regras de negócio (`docs/modelagem/01-casos-de-uso.md`)
+>   - [x] Diagrama de Classes e Modelos de Domínio Dart (`docs/modelagem/02-diagrama-de-classes.md`)
+>   - [x] Modelagem do Banco Firestore e Mapeamento Objeto-Documento (`docs/modelagem/03-modelagem-firestore.md`)
+>   - [x] Setup do projeto Flutter, arquitetura em camadas e `ThemeData` (paleta azul-céu e Poppins)
+>   - [x] Telas iniciais (Home com card de humor e Login Institucional)
 
 #### 🟩 Box Sprint 2: Core Features, Autenticação & Diário Offline
-> **Período:** 08/11/2026 a 15/11/2026 &nbsp;|&nbsp; **Carga:** 38 Story Points (8 Tarefas) &nbsp;|&nbsp; **Status:** Planejada  
+> **Período:** 08/11/2026 a 15/11/2026 &nbsp;|&nbsp; **Carga:** 38 Story Points (8 Tarefas) &nbsp;|&nbsp; **Status:** Concluída  
 > **Meta da Sprint (*Sprint Goal*):** Conectar serviços Firebase Core, implementar login restrito da equipe e entregar o núcleo do Diário de Emoções com suporte a funcionamento offline.
 > 
 > * **Entregáveis Técnicos:**
->   - [ ] Configuração do Firebase Core e inicialização segura no Android
->   - [ ] Autenticação Firebase Auth (e-mail institucional para psicóloga e pais)
->   - [ ] Camada de persistência local offline (SharedPreferences)
->   - [ ] Interface do Diário de Sentimentos por Emojis grandes (registro em até 3 toques)
->   - [ ] Diário reflexivo livre e checklist de pontos positivos
->   - [ ] Mascote de acolhimento interativo com devolutivas empáticas ao humor
+>   - [x] Configuração do Firebase Core e inicialização segura no Android
+>   - [x] Autenticação Firebase Auth (e-mail institucional para psicóloga e pais)
+>   - [x] Camada de persistência local offline (SharedPreferences)
+>   - [x] Interface do Diário de Sentimentos por Emojis grandes (registro em até 3 toques)
+>   - [x] Diário reflexivo livre e checklist de pontos positivos
+>   - [x] Mascote de acolhimento interativo com devolutivas empáticas ao humor
 
 #### 🟨 Box Sprint 3: Suporte, Informação & Mediação Institucional
-> **Período:** 15/11/2026 a 22/11/2026 &nbsp;|&nbsp; **Carga:** 24 Story Points (6 Tarefas) &nbsp;|&nbsp; **Status:** Planejada  
+> **Período:** 15/11/2026 a 22/11/2026 &nbsp;|&nbsp; **Carga:** 24 Story Points (6 Tarefas) &nbsp;|&nbsp; **Status:** Concluída  
 > **Meta da Sprint (*Sprint Goal*):** Desenvolver o Botão de Emergência CVV 188 offline, o FAQ dinâmico sincronizado via Firestore e o painel de triagem de relatos da psicóloga.
 > 
 > * **Entregáveis Técnicos:**
->   - [ ] Botão flutuante de emergência CVV 188 com discagem nativa sem internet (`url_launcher`)
->   - [ ] FAQ empático com cards expansíveis sincronizados com o Firestore e fallback offline
->   - [ ] Tela de contatos e canais oficiais de denúncia e proteção
->   - [ ] Painel administrativo de triagem e visualização de relatos anônimos recebidos
->   - [ ] CRUD no Firestore para a psicóloga gerenciar perguntas do FAQ
->   - [ ] Regras de segurança de banco de dados (`firestore.rules`) com controle RBAC
+>   - [x] Botão flutuante de emergência CVV 188 com discagem nativa sem internet (`url_launcher`)
+>   - [x] FAQ empático com cards expansíveis sincronizados com o Firestore e fallback offline
+>   - [x] Tela de contatos e canais oficiais de denúncia e proteção
+>   - [x] Painel administrativo de triagem e visualização de relatos anônimos recebidos
+>   - [x] CRUD no Firestore para a psicóloga gerenciar perguntas do FAQ
+>   - [ ] Regras de segurança de banco de dados (`firestore.rules`) com controle RBAC. As regras estão escritas em `docs/modelagem/03-modelagem-firestore.md` e são publicadas direto no console do Firebase; o arquivo `firestore.rules` não está versionado no repositório
 
 #### 🟧 Box Sprint 4: Homologação no Emulador, Governança de IA & Defesa Oral
-> **Período:** 22/11/2026 a 01/12/2026 &nbsp;|&nbsp; **Carga:** 20 Story Points (7 Tarefas) &nbsp;|&nbsp; **Status:** Planejada  
+> **Período:** 22/11/2026 a 01/12/2026 &nbsp;|&nbsp; **Carga:** 20 Story Points (7 Tarefas) &nbsp;|&nbsp; **Status:** Em andamento  
 > **Meta da Sprint (*Sprint Goal*):** Homologar a execução limpa no emulador Android, documentar formalmente o uso de IA (`docs/uso-de-ia.md`) e preparar a apresentação da defesa oral.
 > 
 > * **Entregáveis Técnicos:**
 >   - [ ] Registro completo de uso de IA generativa (`docs/uso-de-ia.md`) com prompts, erros mitigados e justificativas de bibliotecas
 >   - [ ] Auditoria de código para garantir ausência de bugs de IA que impeçam compilação
 >   - [ ] Homologação de build APK limpa e execução no emulador Android (API 24+)
->   - [ ] Bateria de testes de conexão intermitente e modo offline
+>   - [x] Bateria de testes de conexão intermitente e modo offline
 >   - [ ] Elaboração dos slides de apresentação e ensaio da defesa oral (2,0 pts)
 >   - [ ] Fechamento do repositório no GitHub, `README.md`, `CHANGELOG.md` e submissão no Teams
 

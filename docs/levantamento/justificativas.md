@@ -62,20 +62,21 @@ A definição de 14sp como tamanho mínimo para campos de formulário e rótulos
 
 ### Estrutura adotada
 
-O app foi organizado em até **5 a 8 telas principais** (conforme restrição RNF06), com uma navegação por abas na parte inferior:
+O app foi organizado em até **5 a 8 telas principais** (conforme restrição RNF06). A proposta inicial era uma barra de abas na parte inferior, mas o protótipo do Figma e o app final usam **cards de acesso na Home** de cada perfil, sem barra de abas. Na Home do aluno:
 
-| Aba             | Funcionalidade principal                   |
-|-----------------|---------------------------------------------|
-| Início / Diário | Registro de humor com emojis (RF01)         |
-| Escrever        | Diário reflexivo e pontos positivos (RF02)  |
-| Ajuda           | FAQ e canais de denúncia (RF03 / RF04)      |
-| Emergência      | Botão CVV e contatos de apoio (RF05)        |
+| Card / elemento        | Funcionalidade principal                          | Rota                    |
+|------------------------|---------------------------------------------------|-------------------------|
+| Card de humor          | Registro de humor com emojis (RF01)               | `/diary`                |
+| Diário                 | Diário reflexivo e pontos positivos (RF02)        | `/diary/reflection`     |
+| Chat anônimo           | Relato e conversa com a psicóloga (RF05, RF10)    | `/report`               |
+| Canais de Apoio & FAQ  | FAQ (RF04) e canais oficiais (RF06)               | `/faq` e `/faq/canais-oficiais` |
+| Botão "Ajuda (CVV)"    | Discagem do CVV 188, fixo nas telas do aluno (RF03) | —                     |
 
 ### Justificativa
 
 A organização das informações priorizou a **funcionalidade central na tela de abertura** (registro de humor via emojis), de modo que o usuário possa completar a ação principal em até 3 interações: abrir o app → tocar no emoji → salvar. Isso atende diretamente à restrição RNF05 e ao padrão de comportamento da persona Lucas, que usa o app de forma rápida e discreta.
 
-A separação em abas garante que funcionalidades secundárias (FAQ, canais de denúncia) não poluam a tela principal, mantendo a interface enxuta e evitando sobrecarga cognitiva para um usuário em estado de vulnerabilidade emocional.
+A separação em cards garante que funcionalidades secundárias (FAQ, canais de denúncia) não poluam a tela principal, mantendo a interface enxuta e evitando sobrecarga cognitiva para um usuário em estado de vulnerabilidade emocional.
 
 ---
 
@@ -220,11 +221,11 @@ O MenteLeve adota uma arquitetura em camadas com separação entre **apresentaç
        ┌────────────┴────────────┐
        │                         │
 ┌──────▼──────┐         ┌────────▼────────┐
-│ Local DB    │         │   Firebase      │
-│ (SQLite /   │         │ (Conteúdo FAQ,  │
-│  Room)      │         │  denúncias)     │
-│ Diário,     │         │  — somente      │
-│ histórico   │         │  quando online  │
+│ Local       │         │   Firebase      │
+│ (Shared-    │         │ (FAQ, relatos   │
+│ Preferences)│         │  e chat, com    │
+│ Diário,     │         │  cache offline) │
+│ histórico   │         │                 │
 └─────────────┘         └─────────────────┘
 ```
 
@@ -232,9 +233,9 @@ O MenteLeve adota uma arquitetura em camadas com separação entre **apresentaç
 
 A separação entre UI e lógica de negócio facilita a **manutenção e testabilidade** do código, além de permitir que diferentes membros da equipe trabalhem em camadas distintas sem conflito.
 
-A divisão entre **armazenamento local (Room/SQLite)** e **Firebase** responde diretamente às restrições do projeto:
+A divisão entre **armazenamento local (`SharedPreferences`)** e **Firebase** responde diretamente às restrições do projeto. A proposta inicial era Room/SQLite; o grupo trocou por `SharedPreferences`, que já guardava o perfil do aluno e é suficiente para o volume do diário:
 
-- **Room (local):** garante o funcionamento offline do diário de sentimentos e o anonimato total do aluno, já que os dados nunca saem do dispositivo (RNF01, RNF02, RNF03).
-- **Firebase:** utilizado apenas para conteúdo estático — respostas do FAQ, mensagens do mascote e denúncias anônimas — conforme a restrição RNF09. A sincronização ocorre apenas quando há conexão disponível.
+- **`SharedPreferences` (local):** garante o funcionamento offline do diário de sentimentos e o anonimato total do aluno, já que os dados nunca saem do dispositivo (RNF01, RNF02, RNF03). Os registros não são criptografados; o diário é protegido por PIN, guardado só como hash.
+- **Firebase:** usado para o FAQ, os relatos anônimos e o chat com a psicóloga, conforme a restrição RNF09. O cache offline do Firestore mantém o FAQ legível e enfileira as mensagens enviadas sem internet até a conexão voltar.
 
 Essa arquitetura é compatível com o **Android 7.0+** (RNF04) e permite que o app opere dentro do limite de 50–300 MB (RNF07), sem dependência de processamento pesado no cliente.
