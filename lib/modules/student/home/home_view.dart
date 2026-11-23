@@ -8,6 +8,7 @@ import 'package:mente_leve/shared/widgets/home/home_feature_card.dart';
 import 'package:mente_leve/shared/widgets/home/home_header.dart';
 import 'package:mente_leve/shared/widgets/home/mood_prompt_card.dart';
 import 'package:mente_leve/shared/widgets/home/week_summary.dart';
+import 'package:mente_leve/shared/widgets/profile/profile_sheet.dart';
 
 class StudentHomeView extends StatefulWidget {
   const StudentHomeView({
@@ -78,6 +79,7 @@ class _StudentHomeViewState extends State<StudentHomeView> {
                     HomeHeader(
                       nickname: controller.nickname,
                       avatarAsset: controller.avatarAsset,
+                      onAvatarTap: () => showProfileSheet(context),
                     ),
                     const SizedBox(height: 21),
                     Center(
