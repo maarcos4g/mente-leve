@@ -15,8 +15,8 @@
 | **Produto**         | App mobile em Flutter de acolhimento emocional anônimo para adolescentes de 10 a 17 anos                   |
 | **Usuário central** | Aluno (sem login, dados apenas no dispositivo)                                                             |
 | **Usuários de apoio** | Psicóloga escolar / equipe pedagógica e pais/responsáveis (login restrito)                              |
-| **Plataforma-alvo** | Android 7.0+ (API 24+), com compatibilidade iOS (RNF04)                                                    |
-| **Persistência**    | Local (SQLite) para o diário; Firebase apenas para conteúdo estático e denúncias anônimas (RNF03, RNF09)  |
+| **Plataforma-alvo** | Android 7.0+ (API 24+). iOS ficou fora do escopo (ver `escopo.md`)                                         |
+| **Persistência**    | Local (`SharedPreferences`, sem criptografia; PIN do diário guardado como hash) para o diário e o perfil; Firebase para FAQ, relatos anônimos e chat (RNF03, RNF09) |
 | **Níveis da EAP**   | Nível 0 (produto) → Nível 1 (fases/módulos) → Nível 2 (entregas) → Nível 3 (pacotes de trabalho)           |
 
 ---
@@ -57,7 +57,7 @@ flowchart LR
     G4 --> G4a["4.1 Setup do projeto Flutter"]
     G4 --> G4b["4.2 Arquitetura e navegação"]
     G4 --> G4c["4.3 Tema e componentes base"]
-    G4 --> G4d["4.4 Persistência local (SQLite)"]
+    G4 --> G4d["4.4 Persistência local (SharedPreferences)"]
     G4 --> G4e["4.5 Integração Firebase"]
 
     G5 --> G5a["5.1 Onboarding e codinome"]
@@ -120,7 +120,7 @@ flowchart LR
 │   ├── 4.1 Setup do projeto Flutter (minSdk 24, lints, estrutura de pastas)
 │   ├── 4.2 Arquitetura em camadas e navegação (abas + rotas por perfil)
 │   ├── 4.3 Tema (paleta sky/zinc, Poppins/Noto Sans, modo noturno) e componentes base
-│   ├── 4.4 Persistência local (SQLite) para diário e codinome
+│   ├── 4.4 Persistência local (SharedPreferences) para diário e codinome
 │   └── 4.5 Integração Firebase (conteúdo estático, denúncias, autenticação)
 ├── 5. Módulo Aluno (sem login)
 │   ├── 5.1 Onboarding e escolha de codinome
@@ -163,8 +163,8 @@ Legenda de status: ✅ Concluído · 🔄 Em andamento · ⏳ Pendente.
 | ID  | Pacote de trabalho             | Descrição / entregável                                                        | Critério de aceite                                                              | Prior. | Status |
 | --- | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | :----: | :----: |
 | 1.1 | Planejamento e EAP             | `docs/eap.md` com EAP visual, textual e dicionário                            | Cobre todas as entregas do app e está arquivada em `docs/eap.md`                |   —    |   ✅   |
-| 1.2 | Cronograma e responsabilidades | Tabela de integrantes × responsabilidades no README e marcos por unidade      | Cada pacote da EAP possui responsável definido                                  |   —    |   🔄   |
-| 1.3 | Controle de versão             | Repositório GitHub, commits em Conventional Commits, `CHANGELOG.md` atualizado | Commits individuais rastreáveis por integrante; CHANGELOG atualizado por marco  |   —    |   🔄   |
+| 1.2 | Cronograma e responsabilidades | Tabela de integrantes × responsabilidades no README e marcos por unidade      | Cada pacote da EAP possui responsável definido                                  |   —    |   ✅   |
+| 1.3 | Controle de versão             | Repositório GitHub, commits em Conventional Commits, `CHANGELOG.md` atualizado | Commits individuais rastreáveis por integrante; CHANGELOG atualizado por marco  |   —    |   ✅   |
 
 ### 2. Concepção e Documentação
 
@@ -183,63 +183,63 @@ Legenda de status: ✅ Concluído · 🔄 Em andamento · ⏳ Pendente.
 | 3.1 | Protótipo de baixa fidelidade     | `docs/prototipos/prototipoBaixaFidelidade.pdf`                         | Fluxos principais dos três perfis desenhados                         |   —    |   ✅   |
 | 3.2 | Protótipo de alta fidelidade      | `docs/prototipos/prototipoAltaFidelidade.pdf` (Figma)                  | Telas de onboarding, multi-login, auth e home finalizadas             |   —    |   ✅   |
 | 3.3 | Design system e justificativas    | `docs/levantamento/justificativas.md` (tokens de cor, tipografia, navegação)        | Tokens documentados e aderentes ao RNF08                              |   —    |   ✅   |
-| 3.4 | Ilustrações, emojis e mascote     | Assets otimizados (SVG/WebP) do mascote e dos emojis de humor          | Assets leves, legíveis em tela pequena e no modo noturno              |   E    |   ⏳   |
+| 3.4 | Ilustrações, emojis e mascote     | Assets otimizados (SVG/WebP) do mascote e dos emojis de humor          | Assets leves, legíveis em tela pequena e no modo noturno              |   E    |   ✅   |
 
 ### 4. Arquitetura e Infraestrutura
 
 | ID  | Pacote de trabalho        | Descrição / entregável                                                                  | Critério de aceite                                                                  | RF/RNF            | Prior. | Status |
 | --- | ------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------- | :----: | :----: |
-| 4.1 | Setup Flutter             | Projeto criado, `minSdkVersion 24`, `analysis_options.yaml` com `flutter_lints`         | `flutter analyze` sem erros; app abre no emulador API 24                            | RNF04             |   E    |   ⏳   |
-| 4.2 | Arquitetura e navegação   | Camadas (UI / domínio / dados), rotas por perfil, barra inferior com 4 abas            | Total de telas principais entre 4 e 8; profundidade máx. de 2 níveis               | RNF06             |   E    |   ⏳   |
-| 4.3 | Tema e componentes base   | `ThemeData` claro/escuro com a paleta do Figma, fontes Poppins/Noto Sans, botões, cards | Componentes reutilizados em todas as telas; modo noturno funcional                 | RNF08             |   E    |   ⏳   |
-| 4.4 | Persistência local        | Banco SQLite (ex.: `sqflite`/`drift`) para emoções, diário, checklist e codinome        | Dados do diário nunca enviados à rede; leitura/escrita funcionam offline           | RNF02, RNF03      |   E    |   ⏳   |
-| 4.5 | Integração Firebase       | Firestore para FAQ/mensagens/denúncias, Firebase Auth para perfis institucionais, cache offline | Nenhum dado do diário no Firebase; conteúdo estático disponível em cache offline | RNF01, RNF09      |   I    |   ⏳   |
+| 4.1 | Setup Flutter             | Projeto criado, `minSdkVersion 24`, `analysis_options.yaml` com `flutter_lints`         | `flutter analyze` sem erros; app abre no emulador API 24                            | RNF04             |   E    |   ✅   |
+| 4.2 | Arquitetura e navegação   | Módulos por perfil (`modules/`, `shared/`), rotas nomeadas por perfil e cards de acesso na Home (sem barra de abas) | Total de telas principais entre 4 e 8; profundidade máx. de 2 níveis               | RNF06             |   E    |   ✅   |
+| 4.3 | Tema e componentes base   | `ThemeData` com a paleta do Figma, fontes Poppins/Noto Sans, botões, cards. Feito só o tema claro: o modo noturno não foi implementado | Componentes reutilizados em todas as telas; modo noturno funcional                 | RNF08             |   E    |   🔄   |
+| 4.4 | Persistência local        | `SharedPreferences` (JSON) para emoções, diário, checklist, codinome e hash do PIN      | Dados do diário nunca enviados à rede; leitura/escrita funcionam offline           | RNF02, RNF03      |   E    |   ✅   |
+| 4.5 | Integração Firebase       | Firestore para FAQ/mensagens/denúncias, Firebase Auth para perfis institucionais, cache offline | Nenhum dado do diário no Firebase; conteúdo estático disponível em cache offline | RNF01, RNF09      |   I    |   ✅   |
 
 ### 5. Módulo Aluno
 
 | ID  | Pacote de trabalho              | Descrição / entregável                                                                     | Critério de aceite                                                                              | RF/RNF              | Prior. | Status |
 | --- | ------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------- | :----: | :----: |
-| 5.1 | Onboarding e codinome           | Tela de entrada, CTA do aluno e escolha de codinome salvo localmente                       | Nenhum dado identificável solicitado; codinome persiste após reabrir o app                     | RNF01               |   E    |   ⏳   |
-| 5.2 | Registro rápido de emoções      | Seletor de emojis grandes na home, salvando emoji + data/hora (CREATE)                    | Registro concluído em até 3 interações (abrir → emoji → salvar), inclusive offline             | RF01, RNF05         |   E    |   ⏳   |
-| 5.3 | Diário reflexivo e positivos    | Escrita livre e checklist de pontos positivos do dia (CREATE)                              | Texto e checklist salvos localmente; funcionam sem internet                                    | RF02, RNF03         |   E    |   ⏳   |
-| 5.4 | Histórico local                 | Lista/timeline de registros anteriores e resumo semanal da home (READ)                    | Registros exibidos em ordem cronológica, lidos apenas do dispositivo                           | RF06, RNF03         |   I    |   ⏳   |
-| 5.5 | Mascote de acolhimento          | Personagem que reage ao humor registrado com mensagens validadas e sugere o CVV em humores críticos | Mensagem exibida após cada registro; sequência de humores negativos exibe encaminhamento ao CVV 188 | Estudo de caso | E | ⏳ |
-| 5.6 | Botão de emergência CVV 188     | Pill button fixo que abre o discador com `tel:188`                                         | Visível nas telas do aluno; aciona com 1 toque; funciona em modo avião (sem dados)             | RF03, RNF02         |   E    |   ⏳   |
-| 5.7 | FAQ educativo                   | Lista de perguntas e respostas acolhedoras (READ), com cache local                        | Conteúdo exibido online e offline (após primeira sincronização)                                | RF04, RNF09         |   E    |   ⏳   |
-| 5.8 | Canais de denúncia e queixa     | Lista de canais oficiais e formulário de denúncia anônima (CREATE)                        | Envio sem login nem dado identificável; fila local quando offline e envio ao reconectar        | RF05, RNF01         |   E    |   ⏳   |
+| 5.1 | Onboarding e codinome           | Tela de entrada, CTA do aluno e escolha de codinome salvo localmente                       | Nenhum dado identificável solicitado; codinome persiste após reabrir o app                     | RNF01               |   E    |   ✅   |
+| 5.2 | Registro rápido de emoções      | Seletor de emojis grandes na home, salvando emoji + data/hora (CREATE)                    | Registro concluído em até 3 interações (abrir → emoji → salvar), inclusive offline             | RF01, RNF05         |   E    |   ✅   |
+| 5.3 | Diário reflexivo e positivos    | Escrita livre e checklist de pontos positivos do dia (CREATE)                              | Texto e checklist salvos localmente; funcionam sem internet                                    | RF02, RNF03         |   E    |   ✅   |
+| 5.4 | Histórico local                 | Lista/timeline de registros anteriores e resumo semanal da home (READ)                    | Registros exibidos em ordem cronológica, lidos apenas do dispositivo                           | RF06, RNF03         |   I    |   ✅   |
+| 5.5 | Mascote de acolhimento          | Personagem que reage ao humor registrado com mensagens validadas e sugere o CVV em humores críticos | Mensagem exibida após cada registro; sequência de humores negativos exibe encaminhamento ao CVV 188 | Estudo de caso | E | ✅ |
+| 5.6 | Botão de emergência CVV 188     | Pill button fixo que abre o discador com `tel:188`                                         | Visível nas telas do aluno; aciona com 1 toque; funciona em modo avião (sem dados)             | RF03, RNF02         |   E    |   ✅   |
+| 5.7 | FAQ educativo                   | Lista de perguntas e respostas acolhedoras (READ), com cache local                        | Conteúdo exibido online e offline (após primeira sincronização)                                | RF04, RNF09         |   E    |   ✅   |
+| 5.8 | Canais de denúncia e queixa     | Lista fixa de canais oficiais e chat anônimo com a escola, em tempo real (CREATE)         | Envio sem login nem dado identificável; fila local quando offline e envio ao reconectar        | RF05, RNF01         |   E    |   ✅   |
 
 ### 6. Módulo Psicóloga Escolar
 
 | ID  | Pacote de trabalho           | Descrição / entregável                                                 | Critério de aceite                                                     | RF/RNF | Prior. | Status |
 | --- | ---------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------ | :----: | :----: |
-| 6.1 | Autenticação institucional   | Login por e-mail institucional + senha via bottom sheet de multi-login | Acesso negado a credenciais não cadastradas; logout disponível        | RF07   |   I    |   ⏳   |
-| 6.2 | Gestão de conteúdos          | CRUD de itens do FAQ e mensagens de apoio (CREATE/READ/UPDATE)         | Conteúdo publicado aparece no app do aluno após sincronização         | RF08   |   I    |   ⏳   |
-| 6.3 | Triagem de denúncias         | Painel com lista, filtros e detalhes das denúncias anônimas (READ)     | Todas as denúncias enviadas aparecem, sem dados que identifiquem o aluno | RF09 |   I    |   ⏳   |
-| 6.4 | Resposta à queixa            | Registro de resposta e mudança de status pendente → respondida (CREATE/UPDATE) | Status atualizado no painel; resposta vinculada à denúncia      | RF10   |   I    |   ⏳   |
+| 6.1 | Autenticação institucional   | Login por e-mail institucional + senha via bottom sheet de multi-login | Acesso negado a credenciais não cadastradas; logout disponível        | RF07   |   I    |   ✅   |
+| 6.2 | Gestão de conteúdos          | CRUD de itens do FAQ e dos guias para responsáveis (CREATE/READ/UPDATE/DELETE) | Conteúdo publicado aparece no app do aluno após sincronização         | RF08   |   I    |   ✅   |
+| 6.3 | Triagem de denúncias         | Painel com a lista das denúncias anônimas em ordem de triagem, por gravidade e antiguidade (READ). Os filtros foram removidos por não estarem no Figma | Todas as denúncias enviadas aparecem, sem dados que identifiquem o aluno | RF09 |   I    |   ✅   |
+| 6.4 | Resposta à queixa            | Resposta pelo chat em tempo real e mudança de status pendente → respondida (CREATE/UPDATE) | Status atualizado no painel; resposta vinculada à denúncia      | RF10   |   I    |   ✅   |
 
 ### 7. Módulo Pais e Responsáveis
 
 | ID  | Pacote de trabalho          | Descrição / entregável                                                 | Critério de aceite                                                     | RF/RNF | Prior. | Status |
 | --- | --------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------ | :----: | :----: |
-| 7.1 | Cadastro backoffice         | Cadastro prévio dos responsáveis feito pela escola fora do app (ex.: console Firebase/planilha de importação) | Responsáveis não conseguem se autocadastrar pelo app | RNF10 |   S    |   ⏳   |
-| 7.2 | Autenticação do responsável | Login por número de identificação + senha fornecida pela escola       | Somente credenciais pré-cadastradas acessam o painel                   | RF12   |   S    |   ⏳   |
-| 7.3 | Conteúdos informativos      | Guias e artigos sobre sinais de alerta, bullying e prevenção (READ)   | Conteúdos exibidos após login, gerenciáveis pela psicóloga (6.2)      | RF11   |   S    |   ⏳   |
+| 7.1 | Cadastro backoffice         | Cadastro prévio dos responsáveis feito pela escola fora do app (ex.: console Firebase/planilha de importação) | Responsáveis não conseguem se autocadastrar pelo app | RNF10 |   S    |   ✅   |
+| 7.2 | Autenticação do responsável | Login por número de identificação + senha fornecida pela escola       | Somente credenciais pré-cadastradas acessam o painel                   | RF12   |   S    |   ✅   |
+| 7.3 | Conteúdos informativos      | Guias e artigos sobre sinais de alerta, bullying e prevenção (READ). Home dos responsáveis (`/parents/home`) e leitura do guia (`/parents/guide`) | Conteúdos exibidos após login, gerenciáveis pela psicóloga (6.2)      | RF11   |   S    |   ✅   |
 
 ### 8. Qualidade e Homologação (UNIT)
 
 | ID  | Pacote de trabalho                | Descrição / entregável                                                        | Critério de aceite                                                                    | Status |
 | --- | --------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | :----: |
-| 8.1 | Análise estática                  | Execução de `flutter analyze` a cada entrega                                  | Compilação limpa, sem erros nem warnings críticos                                    |   ⏳   |
-| 8.2 | Testes unitários e de widget      | `flutter test` cobrindo repositórios locais, regras do mascote e telas-chave | Todos os testes passando antes do merge                                               |   ⏳   |
-| 8.3 | Testes em emulador Android        | Roteiro manual em AVD com API 24 (Android 7.0) e uma API recente             | Todos os fluxos dos módulos 5, 6 e 7 executados sem falhas                            |   ⏳   |
-| 8.4 | Verificação dos RNF               | Checklist: modo avião, contagem de toques, número de telas, tamanho do APK, ausência de dados pessoais | Todos os itens RNF01–RNF10 marcados como atendidos             |   ⏳   |
+| 8.1 | Análise estática                  | Execução de `flutter analyze` a cada entrega                                  | Compilação limpa, sem erros nem warnings críticos                                    |   ✅   |
+| 8.2 | Testes unitários e de widget      | `flutter test` cobrindo repositórios locais, regras do mascote e telas-chave | Todos os testes passando antes do merge                                               |   ✅   |
+| 8.3 | Testes em emulador Android        | Roteiro manual em AVD com API 24 (Android 7.0) e uma API recente             | Todos os fluxos dos módulos 5, 6 e 7 executados sem falhas                            |   🔄   |
+| 8.4 | Verificação dos RNF               | Checklist: modo avião, contagem de toques, número de telas, tamanho do APK, ausência de dados pessoais | Todos os itens RNF01–RNF10 marcados como atendidos             |   🔄   |
 
 ### 9. Implantação e Encerramento
 
 | ID  | Pacote de trabalho      | Descrição / entregável                                         | Critério de aceite                                               | Status |
 | --- | ----------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | :----: |
-| 9.1 | Build de release        | `flutter build apk --release` (e AAB) assinado                 | APK instala e executa no emulador API 24; tamanho entre 50 e 300 MB (RNF07) | ⏳ |
-| 9.2 | Documentação final      | README com instruções de build, CHANGELOG e manual de uso     | Qualquer integrante consegue rodar o projeto seguindo o README  |   ⏳   |
+| 9.1 | Build de release        | `flutter build apk --release` (e AAB) assinado                 | APK instala e executa no emulador API 24; tamanho entre 50 e 300 MB (RNF07) | 🔄 |
+| 9.2 | Documentação final      | README com instruções de build, CHANGELOG e manual de uso     | Qualquer integrante consegue rodar o projeto seguindo o README  |   🔄   |
 | 9.3 | Apresentação final      | Slides e demonstração do app funcionando                       | Apresentado e entregue na data da disciplina                     |   ⏳   |
 
 ---
@@ -265,7 +265,7 @@ Garante que **todo requisito tem ao menos um pacote de trabalho** que o entrega.
 | RNF01     | Anonimato total do aluno                        | 5.1, 5.8, 4.5, 8.4   |
 | RNF02     | Arquitetura offline first                       | 4.4, 5.2, 5.6, 8.4   |
 | RNF03     | Armazenamento local de dados sensíveis          | 4.4, 5.3, 5.4        |
-| RNF04     | Android 7.0+ e iOS                              | 4.1, 8.3             |
+| RNF04     | Android 7.0+ (iOS fora do escopo)               | 4.1, 8.3             |
 | RNF05     | Função central em até 3 interações              | 5.2, 8.4             |
 | RNF06     | Interface com 4 a 8 telas                       | 4.2, 8.4             |
 | RNF07     | Tamanho 50–300 MB e animações leves             | 3.4, 9.1             |

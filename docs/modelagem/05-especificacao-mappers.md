@@ -17,7 +17,7 @@ Regras comuns:
 
 1. O mapper vive **na entidade** (ou ao lado dela), nunca na view nem no controller. A entidade não conhece `SharedPreferences` nem `FirebaseFirestore`; só os tipos de dados (`Timestamp`, `DocumentSnapshot`) no caso dos conversores do Firestore.
 2. O `id` do documento Firestore **não é campo**: vem de `snapshot.id` e não entra no `toFirestore()`. No JSON local o `id` é gravado dentro do mapa, e o repositório também o usa como chave (`{id: registro}`).
-3. Campos calculados (`isInstitutional`, `temTexto`, `podeDiscar`, `estaPendente`) e de estado em tempo de execução (`aguardandoEnvio`) **não são gravados**.
+3. Campos calculados (`isInstitutional`, `temTexto`, `canDial`, `Report.isPending`) e de estado em tempo de execução (`ChatMessage.isPending`) **não são gravados**.
 4. A entidade é imutável (`final`, construtor `const` quando possível). Alterações passam por `copyWith`/`editar` e geram novo objeto, que é regravado inteiro.
 5. Mapper é função pura: sem I/O, sem `await`, sem relógio, exceto o fallback de `DateTime.now()` descrito na seção 3.2.
 
@@ -31,7 +31,6 @@ Regras comuns:
 | `enum` | `enum.name` | `enum.name` | Leitura com `values.byName(texto)`; valor desconhecido lança `ArgumentError` |
 | `DateTime` | texto ISO 8601 (`toIso8601String()`); leitura com `DateTime.parse` | `Timestamp.fromDate(d)` / `FieldValue.serverTimestamp()`; leitura com `(x as Timestamp?)?.toDate()` | `DateTime` local sai sem sufixo de fuso; UTC sai com `Z`. Os dois são lidos de volta sem perda |
 | `List<String>` | array de strings | array de strings | Leitura com `List<String>.from(x as Iterable)`, que copia a lista |
-| `Map` aninhado (`resposta`) | objeto | map | Leitura com `Map<String, dynamic>.from(x as Map)` |
 | `T?` | chave com `null` ou ausente | campo ausente (preferido) | Ver seção 3 |
 
 ### 1.3 Serialização JSON
@@ -56,12 +55,13 @@ aparelho --getString(chave)--> String --jsonDecode--> Map (dynamic) --fromMap()-
 | `RegistroDiario` | Aparelho | `diario` | `toMap`, `fromMap` | Implementado |
 | `SupportTriggerState` (EstadoGatilhoApoio) | Aparelho | `support_trigger_state` | `toMap`, `fromMap` | Implementado |
 | `MoodRecord` | Aparelho (só leitura de `diario`) | `diario` | parser privado `_parse` | Implementado, projeção de `RegistroDiario` |
-| `Denuncia` / `RespostaDenuncia` | Firestore | `denuncias/{id}` | `fromFirestore`, `toFirestoreCriacao`, `fromMap` | Planejado (modelo em `04`) |
-| `PerguntaFaq` | Firestore | `faq/{id}` | `fromFirestore`, `toFirestore` | Planejado |
-| `Guia` | Firestore | `guias/{id}` | `fromFirestore`, `toFirestore` | Planejado |
-| `CanalApoio` | Firestore | `canais/{id}` | `fromFirestore` | Planejado (sem escrita: cadastro pelo console) |
+| `FaqModel` (PerguntaFaq) | Firestore e aparelho | `faq/{id}` e `faq_cache` | `fromFirestore`, `toFirestore`, `toMap`, `fromMap` | Implementado |
+| `Report` (Denuncia) | Firestore | `reports/{uid}` | `fromFirestore`, `fromMap(id, data)` | Implementado. A criação é feita por mapa literal no `ChatRepository.send` (ver `04`) |
+| `ChatMessage` (MensagemChat) | Firestore | `reports/{uid}/messages/{id}` | `fromMap(id, data, isPending:)` | Implementado. A escrita é feita por mapa literal nos repositórios do chat |
+| `GuideModel` (Guia) | Firestore e aparelho | `guides/{id}` e `guides_cache` | `fromFirestore`, `toFirestore`, `toMap`, `fromMap` | Implementado |
+| `OfficialChannel` (CanalApoio) | Código do app | `officialChannels` | nenhum | Lista constante, sem persistência |
 
-> **Nomes divergentes entre código e documentação.** O código usa nomes em inglês (`users`, `name`, `role`, `createdAt`, `Role.student/parent/psychologist`) e os documentos `03` e `04` usam português (`usuarios`, `nome`, `papel`, `criadoEm`, `psicologa/responsavel`). Este documento descreve o **código atual** nas entidades implementadas e a **modelagem** nas planejadas. A decisão de qual nomenclatura vale (e a mudança correspondente em `firestore.rules`, que lê `usuarios/{uid}.papel`) está em aberto; ver seção 6.
+> **Nomenclatura.** Os nomes de coleções e de campos do Firestore estão em inglês (`users`, `role`, `name`, `createdAt`, `faq`, `question`, `answer`, `reports`, `messages`, `guides`), como no código e no `03`. As regras de segurança leem `users/{uid}.role`. Os nomes em português (Usuario, Denuncia etc.) aparecem só no diagrama de classes (`02`), que descreve o domínio.
 
 ## 3. Tratamento de nulos
 
@@ -191,19 +191,16 @@ Contrato:
 
 É a única leitura que descarta dado inválido em vez de falhar, de propósito: o gatilho de apoio não pode ser desligado por um registro ruim.
 
-### 4.6 Entidades planejadas (Firestore)
+### 4.6 Entidades do Firestore: FAQ, relato e chat
 
-Contrato dos conversores ainda não implementados, conforme `04-mapeamento-dart-firestore.md`.
+Os conversores do FAQ, do relato e do chat são **tolerantes**: campo ausente ou de tipo errado vira um valor seguro em vez de lançar erro. É diferente do `UserModel` (seção 4.1), que falha. A escolha é de propósito: um documento malformado não pode esconder o FAQ nem derrubar a triagem.
 
-| Entidade | `fromFirestore` | Escrita | Nulos |
+| Entidade | Leitura | Escrita | Nulos e valores desconhecidos |
 |---|---|---|---|
-| `Denuncia` | `id` ← `snap.id`; `tipo` e `status` por `byName`; `criadoEm` com fallback `DateTime.now()`; `aguardandoEnvio` ← `snap.metadata.hasPendingWrites`; `resposta` via `RespostaDenuncia.fromMap` | `toFirestoreCriacao()` grava só `alunoUid, tipo, descricao, status('pendente'), criadoEm(serverTimestamp)`, exatamente as chaves que a regra de `create` aceita | `resposta` ausente = pendente; `aguardandoEnvio` nunca gravado |
-| `RespostaDenuncia` | `fromMap(Map<String, dynamic>)`: `texto`, `psicologaUid` obrigatórios; `respondidaEm` com fallback | gravada pelo `update` da psicóloga como map `{texto, respondidaEm(serverTimestamp), psicologaUid}` junto de `status: 'respondida'` | Nunca nula quando existe |
-| `PerguntaFaq` | todos os campos obrigatórios; datas com fallback | `toFirestore()`: `criadoEm` preservado, `atualizadoEm` = `serverTimestamp()` | Nenhum opcional |
-| `Guia` | idem; `categoria` opcional | `toFirestore()` omite `categoria` quando `null` | `categoria` |
-| `CanalApoio` | `ordem` como `int`; `telefone` opcional | sem escrita (`toFirestore` lança `UnsupportedError`, como em `UserModel`) | `telefone`; `podeDiscar` = `telefone != null`, não gravado |
-
-Observação: o `toFirestoreCriacao()` da `Denuncia` ignora `status` e `criadoEm` do objeto de propósito. O servidor define o horário e a regra exige `status == 'pendente'`.
+| `FaqModel` (`lib/shared/models/faq_model.dart`) | `fromFirestore`: `question` e `answer` com fallback `''`; datas com fallback `DateTime.now()`; `updatedBy` com fallback `''`. Documento vazio lança `StateError` | `toFirestore()`: `createdAt` preservado, `updatedAt` = `serverTimestamp()`. `toMap()`/`fromMap()` para o cache `faq_cache`, com datas em ISO 8601 | Nenhum campo opcional |
+| `Report` (`lib/shared/models/report_model.dart`) | `fromMap(id, data)`: `type` e `status` por `fromName`; `createdAt` nulo (escrita pendente) vira `DateTime.now()`; `severity` ausente é estimada por `ReportSeverity.infer(type, description)` | Não tem `toFirestore`. O `ChatRepository.send` grava `studentUid, type, description, status('pending'), createdAt(serverTimestamp)`, exatamente as chaves que a regra de `create` aceita | `type` desconhecido → `other`; `status` desconhecido → `pending` (nunca some da triagem). `studentUid` é ignorado na leitura |
+| `ChatMessage` (`lib/shared/models/chat_message.dart`) | `fromMap(id, data, isPending:)`: `senderRole` por `ChatSender.fromName`; `text` com fallback `''`; `createdAt` com fallback `DateTime.now()` | Mapa literal `{senderRole, text, createdAt(serverTimestamp)}` | `senderRole` desconhecido → `psychologist`, para nunca ser exibido como mensagem do próprio aluno. `isPending` vem de `metadata.hasPendingWrites` e não é gravado |
+| `GuideModel` (`lib/shared/models/guide_model.dart`) | `fromFirestore`; `category` opcional | `toFirestore()` omite `category` e `authorUid` quando vazios. `toMap()`/`fromMap()` para o cache `guides_cache` | `category`, `authorUid` |
 
 ## 5. Critérios de teste dos mappers
 
@@ -224,8 +221,7 @@ Para o `UserModel`, use `fake_cloud_firestore` ou um `DocumentSnapshot` simulado
 
 | # | Ponto | Impacto |
 |---|---|---|
-| 1 | Nomenclatura divergente entre código (`users`, `role`, `name`, `createdAt`, `parent`/`psychologist`) e documentação (`usuarios`, `papel`, `nome`, `criadoEm`, `responsavel`/`psicologa`) | Os documentos reais do Firestore precisam seguir o que o `fromFirestore` lê; `firestore.rules` e `03` precisam ser alinhados |
+| 1 | ~~Nomenclatura divergente entre código e documentação~~ | Resolvido: tudo em inglês no Firestore, no código e no `03` (ver seção 2) |
 | 2 | `RegistroDiario.getAll()` falha a lista inteira com um registro inválido | Um registro corrompido esconde todo o diário; avaliar tolerância como no `PrefsMoodRecordRepository` |
 | 3 | `RegistroDiario.fromMap` aceita `id` ausente como `''` | Pode gerar registro não removível por `delete(id)` |
-| 4 | Diário e perfil em `SharedPreferences` sem criptografia (o `03` fala em caixa criptografada) | Divergência entre texto da modelagem e implementação, já registrada em `04` |
-| 5 | Mappers de `Denuncia`, `PerguntaFaq`, `Guia` e `CanalApoio` ainda não existem | A seção 4.6 é a especificação a implementar |
+| 4 | Diário e perfil em `SharedPreferences` sem criptografia | Decisão do grupo, registrada no `03` e no `04`: os dados nunca saem do aparelho e o diário é protegido por PIN (guardado como hash). Criptografar o armazenamento fica como melhoria futura |

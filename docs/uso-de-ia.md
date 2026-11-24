@@ -34,7 +34,7 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Dificuldades e ajustes manuais:** A IA considerou recursos muito recentes do Flutter (como `spacing` em Row/Column), mas mantivemos o uso de `SizedBox` para evitar problemas de compilação em computadores com versões anteriores do SDK.
 
 * **Organização do Repositório e Documentação (05/11):**
-  * **O que foi feito:** Reorganização da pasta `docs/`, padronização dos nomes dos fluxogramas e criação do sumário (`docs/README.md`).
+  * **O que foi feito:** Reorganização da pasta `docs/`, padronização dos nomes dos fluxogramas e proposta de um sumário (`docs/README.md`). O sumário não chegou a ser versionado: o arquivo não existe no repositório.
   * **Ferramenta utilizada:** Antigravity (Gemini 3.6 flash).
   * **Prompt utilizado:**
     > Atue como um especialista em documentação de projetos. Reorganize a pasta `docs/` separando apresentações, protótipos e diagramas, padronize os nomes dos fluxogramas e crie um sumário para facilitar a navegação no GitHub.
@@ -280,11 +280,11 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
     2. **Divergência de armazenamento:** a modelagem prevê Hive criptografado, mas o código usa `SharedPreferences` sem criptografia. A decisão ficou registrada como pendente para o grupo.
     3. **Validação clínica:** o texto do modal e os limites do gatilho precisam ser revisados pela psicóloga da escola.
 
-### 2. Integração via MCP do Jira
-- Conexão do assistente de IA ao Jira Cloud por meio do servidor MCP (*Model Context Protocol*) da Atlassian, permitindo que a IA consulte e manipule o backlog diretamente, sem a necessidade de scripts intermediários.
-- Consulta de épicos, stories e tasks do projeto SCRUM via JQL para apoiar revisões de escopo e acompanhamento das sprints.
-- Criação e atualização de issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de comandos em linguagem natural.
-- Autenticação feita via OAuth com a conta Atlassian do time, respeitando as permissões já configuradas no projeto.
+* **Integração do assistente de IA com o Jira via MCP (12/11):**
+  * **O que foi feito:** Conexão do assistente de IA ao Jira Cloud pelo servidor MCP (*Model Context Protocol*) da Atlassian, para a IA consultar e atualizar o backlog diretamente, sem scripts intermediários.
+  * **Ferramenta utilizada:** Claude (Claude Sonnet 5.5), com o conector do Jira (Atlassian MCP).
+  * **Como a IA ajudou:** Consultou épicos, stories e tasks do projeto SCRUM via JQL para apoiar revisões de escopo e o acompanhamento das sprints, e criou e atualizou issues (descrições, critérios de aceite, status e vínculos com épicos) a partir de pedidos em linguagem natural.
+  * **Dificuldades e ajustes manuais:** A autenticação é feita via OAuth com a conta Atlassian do time e respeita as permissões já configuradas no projeto.
 
 
 ---
@@ -604,7 +604,20 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
   * **Como a IA ajudou:** Mapeou a Home, a roleta e o repositório do diário com um agente de exploração; propôs o plano (regra de pontuação, janela de 7 dias, recarga da Home ao voltar da roleta); implementou a regra e o destaque reaproveitando o brilho e a opacidade do `MoodBubble`; escreveu 8 testes unitários e rodou `flutter analyze` e `flutter test` (150 testes passando).
   * **Dificuldades e ajustes manuais:** O primeiro plano criava um widget de mascote novo; a correção do usuário (o mascote são os 5 cérebros do resumo) refez o plano. O mapeamento humor→nota foi definido com o usuário: raiva 1, triste 2, confuso 3, neutro 4, feliz 5, e "cansado" (sem cérebro próprio) conta como 2. O destaque é o brilho verde do próprio cérebro, não um contorno desenhado. A conferência visual no aparelho foi feita pelo integrante. Uma suíte e2e com Playwright foi iniciada, mas cancelada por decisão do grupo e mantida só localmente, sem entrar no repositório.
 
-*(A preencher pelo integrante)*
+### Rayelen de Jesus Oliveira
+
+* **Guia e Lista de Canais Oficiais de Denúncia e Apoio (RF06 / SCRUM-34) (19/11 a 21/11):**
+  * **O que foi feito:** A IA consultou o ticket no Jira e verificou o que já existia no código. Depois, rebaseou a branch sobre a `main` já com o FAQ da SCRUM-33/36 e implementou a tela "Canais Oficiais" (`OfficialChannelsView`, rota `/faq/canais-oficiais`). A tela traz Disque 100, Conselho Tutelar e Ouvidoria Escolar, cada um com o que é, quando procurar e como entrar em contato. A IA também criou o card de acesso na tela "Canais de Apoio & FAQ", a função de discagem compartilhada (`dialPhoneNumber`), os testes e os textos da documentação (`CHANGELOG.md`, `README.md` e este registro).
+  * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5), com o conector do Jira (Atlassian MCP).
+  * **Prompts utilizados:**
+    * > verfique agora no jira o SCRUM-34 DO JIRA
+    * > faça uma branch nova a partir da main e verifique se tudo que tem na scrum-34 tem no projeto.
+    * > verfique a main, faça rebase e verifique se tem tudo que precisa para finalizar esse ticket
+  * **Como a IA ajudou:** Comparou o critério de aceite do ticket com o código e com uma branch ainda não mergeada. Assim, apontou que a tela de canais nascia na SCRUM-33/36 e que o rebase deveria esperar o merge dela. Reaproveitou o padrão visual da `StudentFaqView` e colocou a rota nova sob `/faq`, para o botão "Ajuda (CVV)" continuar visível. Escreveu 13 testes novos, que cobrem a lista de canais, a discagem do 100 e a falha do discador. Ao final, `flutter analyze` não acusou nenhum problema e os 174 testes passaram.
+  * **Dificuldades e ajustes manuais:**
+    1. **Números sem alcance nacional:** só o Disque 100 tem número nacional. O Conselho Tutelar é municipal e a ouvidoria depende de cada escola, então os dois aparecem como guia de como encontrá-los, sem botão de ligar. Se a escola informar os números locais, eles podem ser incluídos.
+    2. **Arquivos regenerados pelo Flutter:** rodar `flutter analyze` e `flutter test` no Windows reescreveu os registros de plugins de `linux/`, `macos/` e `windows/`, mudando só a quebra de linha (LF para CRLF). Essas alterações foram descartadas para não entrarem no commit.
+    3. **Rótulo de acessibilidade:** o primeiro teste do leitor de tela falhou porque o botão estava envolto em outro `Semantics`. O rótulo passou para o `semanticsLabel` do texto do botão.
 
 ## Sprint 4
 
@@ -679,18 +692,13 @@ O objetivo é manter o registro transparente: a IA é utilizada como suporte té
 
 ### Rayelen de Jesus Oliveira
 
-* **Guia e Lista de Canais Oficiais de Denúncia e Apoio (RF06 / SCRUM-34) (19/11 a 21/11):**
-  * **O que foi feito:** A IA consultou o ticket no Jira e verificou o que já existia no código. Depois, rebaseou a branch sobre a `main` já com o FAQ da SCRUM-33/36 e implementou a tela "Canais Oficiais" (`OfficialChannelsView`, rota `/faq/canais-oficiais`). A tela traz Disque 100, Conselho Tutelar e Ouvidoria Escolar, cada um com o que é, quando procurar e como entrar em contato. A IA também criou o card de acesso na tela "Canais de Apoio & FAQ", a função de discagem compartilhada (`dialPhoneNumber`), os testes e os textos da documentação (`CHANGELOG.md`, `README.md` e este registro).
+* **Revisão final de consistência entre Jira, documentação e código (SCRUM-48) (23/11):**
+  * **O que foi feito:** A IA cruzou os 48 tickets do Jira com a `main` e com a documentação e apontou as divergências. Depois, resolveu o conflito de merge que tinha ficado no `CHANGELOG.md` e alinhou a documentação ao código: modelagem (`01` a `05`, com as coleções em inglês, o chat em `reports/{uid}/messages`, os canais como lista fixa e o armazenamento sem criptografia), `README.md`, `escopo.md`, `eap.md`, `justificativas.md` e este registro.
   * **Ferramenta utilizada:** Claude Code (Claude Opus 5.5), com o conector do Jira (Atlassian MCP).
   * **Prompts utilizados:**
-    * > verfique agora no jira o SCRUM-34 DO JIRA
-    * > faça uma branch nova a partir da main e verifique se tudo que tem na scrum-34 tem no projeto.
-    * > verfique a main, faça rebase e verifique se tem tudo que precisa para finalizar esse ticket
-  * **Como a IA ajudou:** Comparou o critério de aceite do ticket com o código e com uma branch ainda não mergeada. Assim, apontou que a tela de canais nascia na SCRUM-33/36 e que o rebase deveria esperar o merge dela. Reaproveitou o padrão visual da `StudentFaqView` e colocou a rota nova sob `/faq`, para o botão "Ajuda (CVV)" continuar visível. Escreveu 13 testes novos, que cobrem a lista de canais, a discagem do 100, a falha do discador. Ao final, `flutter analyze` não acusou nenhum problema e os 174 testes passaram.
-  * **Dificuldades e ajustes manuais:**
-    1. **Números sem alcance nacional:** só o Disque 100 tem número nacional. O Conselho Tutelar é municipal e a ouvidoria depende de cada escola, então os dois aparecem como guia de como encontrá-los, sem botão de ligar. Se a escola informar os números locais, eles podem ser incluídos.
-    2. **Arquivos regenerados pelo Flutter:** rodar `flutter analyze` e `flutter test` no Windows reescreveu os registros de plugins de `linux/`, `macos/` e `windows/`, mudando só a quebra de linha (LF para CRLF). Essas alterações foram descartadas para não entrarem no commit.
-    3. **Rótulo de acessibilidade:** o primeiro teste do leitor de tela falhou porque o botão estava envolto em outro `Semantics`. O rótulo passou para o `semanticsLabel` do texto do botão.
+    * > Faça uma revisão de consistência entre o Jira, a documentação e o código do MenteLeve. Compare cada ticket do projeto SCRUM com a `main` atual do GitHub e com a pasta `docs/`. Para cada ticket marcado como "Concluído", confira se o critério de aceite foi cumprido no código. Aponte também funcionalidades documentadas que não estão na `main`, documentos que descrevem uma versão antiga do app e pendências no próprio Jira. Separe o resultado em: o que impede a entrega, o que precisa de decisão do grupo e o que confere. Não altere nenhum arquivo nem ticket. Informe o que não foi verificado (testes, emulador, console do Firebase).
+  * **Como a IA ajudou:** Conferiu cada divergência no código (coleções gravadas, campos lidos pelos modelos, chaves do `SharedPreferences`, rotas e autoria no `git log`) e comparou a branch dos guias, que na hora da revisão ainda não tinha sido mesclada, com a modelagem do `03`.
+   
 
 ### Alexandre Pedro de Matos Ferreira
 
@@ -729,13 +737,14 @@ Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.ya
 | `flutter` (SDK) | — | Framework de UI multiplataforma, base do app. | Todo o projeto |
 | `firebase_core` | ^5.1.0 | Inicializa o Firebase, pré-requisito dos demais pacotes `firebase_*`. | `main.dart` |
 | `firebase_auth` | ^7.0.1 | Autenticação: login anônimo do aluno (`signInAnonymously`) e login por e-mail/senha da psicóloga e do responsável. Dispensa backend próprio de credenciais. | `auth_repository.dart`, `auth_notifier.dart` |
-| `cloud_firestore` | ^7.1.0 | Banco NoSQL gerenciado, usado para o papel institucional do usuário e para conteúdos institucionais (FAQ, guias, canais, denúncias). Dados do aluno não são gravados nele. | `auth_repository.dart`, `user_model.dart` |
+| `cloud_firestore` | ^7.1.0 | Banco NoSQL gerenciado, com cache offline. Guarda o papel institucional do usuário (`users`), o FAQ (`faq`) e os relatos anônimos com o chat em tempo real (`reports` e `messages`). O diário e o perfil do aluno não são gravados nele. | `auth_repository.dart`, `faq_repository.dart`, `report_repository.dart`, `chat_repository.dart`, `psychologist_chat_repository.dart` e os modelos em `lib/shared/models/` |
 | `provider` | ^6.1.5+1 | Gerência de estado e injeção de dependência (`ChangeNotifierProvider`). Solução oficialmente recomendada, simples e suficiente para o porte do projeto. | `app_widget.dart`, `main.dart` e views de todos os perfis |
-| `shared_preferences` | ^2.5.6 | Armazenamento local chave-valor. Mantém no aparelho o perfil do aluno (codinome e avatar), o diário e o estado do gatilho de apoio, preservando o anonimato. | `profile_store.dart`, `prefs_diary_repository.dart`, `prefs_mood_record_repository.dart`, `support_trigger_state_store.dart` |
+| `shared_preferences` | ^2.5.6 | Armazenamento local chave-valor, sem criptografia. Mantém no aparelho o perfil do aluno (codinome e avatar), o diário, o hash do PIN do diário, o estado do gatilho de apoio e a cópia offline do FAQ, preservando o anonimato. | `profile_store.dart`, `prefs_diary_repository.dart`, `diary_lock_repository.dart`, `prefs_mood_record_repository.dart`, `support_trigger_state_store.dart`, `faq_repository.dart` |
+| `crypto` | ^3.0.6 | SHA-256. Guarda o PIN do diário só como hash com salt e confere a integridade do APK baixado na atualização in-app. | `diary_lock_repository.dart`, `apk_downloader.dart` |
 | `google_fonts` | ^8.2.1 | Carrega a família Poppins definida no padrão visual, sem empacotar arquivos de fonte manualmente. | `app_text_styles.dart` e telas do diário |
 | `flutter_svg` | ^2.3.2 | Renderiza SVG. Avatares, mascote e ilustrações da home são vetoriais, o que mantém nitidez em qualquer densidade de tela e reduz o tamanho dos assets. | Seleção de avatar, diário, modal de apoio e widgets da home |
 | `lucide_icons_flutter` | ^4.0.2 | Conjunto de ícones Lucide, de traço leve e consistente, que complementa os ícones nativos do Material. | Onboarding, telas de autenticação, diário, home e botão CVV |
-| `url_launcher` | ^6.3.2 | Abre aplicativos externos a partir do app. Faz a ligação para o CVV (188), um canal de apoio emergencial. | `cvv_button.dart` |
+| `url_launcher` | ^6.3.2 | Abre aplicativos externos a partir do app. Abre o discador nativo para o CVV (188) e para o Disque 100, sem precisar de internet. | `phone_dialer.dart` (usado pelo `CvvButton` e pela tela de canais oficiais) |
 | `http` | ^1.6.0 | Cliente HTTP. Consulta o `releases/latest` do GitHub e baixa o APK da atualização em stream, o que permite mostrar o progresso. Aceita `MockClient` nos testes. | `app_update_repository.dart`, `apk_downloader.dart` |
 | `package_info_plus` | ^10.2.2 | Lê o `versionName` instalado para compará-lo com a tag da release. | `app_update_controller.dart` |
 | `path_provider` | ^2.1.6 | Localiza a pasta de cache do app, onde o APK é baixado sem exigir permissão de armazenamento. | `apk_downloader.dart` |
@@ -747,7 +756,7 @@ Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.ya
 
 | Pacote | Versão | Finalidade |
 |---|---|---|
-| `flutter_test` (SDK) | — | Framework de testes de unidade e de widget. Ainda não há pasta `test/` no repositório. |
+| `flutter_test` (SDK) | — | Framework de testes de unidade e de widget. Os testes ficam em `test/` (47 arquivos, incluindo a bateria offline em `test/offline/` e o teste de acessibilidade WCAG). |
 | `flutter_lints` | ^6.0.0 | Conjunto de regras de lint recomendado, ativado em `analysis_options.yaml`. Padroniza o código e é executado por `flutter analyze`. |
 
 ### Assets e configuração

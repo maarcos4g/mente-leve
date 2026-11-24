@@ -118,7 +118,7 @@
 * **RNF01 – Anonimato Total do Aluno:** O aplicativo não deve solicitar login, cadastro ou dados identificáveis do adolescente.
 * **RNF02 – Arquitetura Offline First:** O diário de sentimentos, registro de emoções e o botão de emergência (CVV 188) devem funcionar integralmente sem sinal de internet.
 * **RNF03 – Armazenamento Local de Dados Sensíveis:** Os dados do diário de sentimentos do aluno devem ser salvos exclusivamente no armazenamento local do dispositivo.
-* **RNF04 – Compatibilidade de Sistema Operacional:** O sistema deve ser compatível com dispositivos móveis rodando Android 7.0 ou superior e com dispositivos IOS.
+* **RNF04 – Compatibilidade de Sistema Operacional:** O sistema deve ser compatível com dispositivos móveis rodando Android 7.0 ou superior e com dispositivos IOS. *(Na Unidade II, o escopo limitou a validação ao Android; o iOS ficou fora do escopo, ver `escopo.md`.)*
 * **RNF05 – Agilidade de Navegação:** A funcionalidade central (registro de humor) deve ser realizada em até 3 interações (abrir > tocar no emoji > salvar).
 * **RNF06 – Limite de Telas:** A interface principal do aplicativo deve ser enxuta, possuindo entre 4 a 8 telas.
 * **RNF07 – Tamanho e Otimização do Aplicativo:** A aplicação deve manter um tamanho inicial entre 50 MB e 300 MB, utilizando animações leves que rodem fluidamente em celulares de entrada.

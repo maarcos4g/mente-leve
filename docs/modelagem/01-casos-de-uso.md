@@ -64,7 +64,7 @@ O UC12 (tratar falha de conexão) é incluído por todo caso de uso que lê ou g
 | Código | Regra | Origem |
 |---|---|---|
 | RN01 | O aluno não faz login nem informa dado identificável. | Aditivo 2c, RNF01 |
-| RN02 | O diário fica só no aparelho, criptografado, e nunca é enviado à nuvem. | Aditivo, Unidade II, RNF03 |
+| RN02 | O diário fica só no aparelho, protegido por PIN, e nunca é enviado à nuvem. Os registros não são criptografados; só o PIN é guardado como hash. | Aditivo, Unidade II, RNF03 |
 | RN03 | O FAQ vem do Firestore. A leitura é pública e só a psicóloga autenticada escreve. | Unidade II |
 | RN04 | O botão do CVV aparece em todas as telas, de forma discreta, e disca sem internet. | Aditivo 4b, Unidade II, RF03 |
 | RN05 | O aluno cria a denúncia. Só o autor e a psicóloga leem. Só a psicóloga responde. | Decisão do grupo (a validar com a professora) |
