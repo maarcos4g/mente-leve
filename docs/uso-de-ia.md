@@ -758,6 +758,7 @@ Esta seção documenta o motivo técnico de cada pacote declarado no `pubspec.ya
 |---|---|---|
 | `flutter_test` (SDK) | — | Framework de testes de unidade e de widget. Os testes ficam em `test/` (47 arquivos, incluindo a bateria offline em `test/offline/` e o teste de acessibilidade WCAG). |
 | `flutter_lints` | ^6.0.0 | Conjunto de regras de lint recomendado, ativado em `analysis_options.yaml`. Padroniza o código e é executado por `flutter analyze`. |
+| `flutter_launcher_icons` | ^0.14.4 | Gera os ícones do app em todas as plataformas a partir de `assets/images/icon.png`, conforme a seção `flutter_launcher_icons:` do `pubspec.yaml`. Roda só sob demanda (`dart run flutter_launcher_icons`) e não entra no app compilado. |
 
 ### Assets e configuração
 
