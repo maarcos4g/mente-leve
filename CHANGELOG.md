@@ -319,3 +319,15 @@
   - `uso-de-ia.md`: tabela de bibliotecas com o `crypto`, a pasta `test/` e os arquivos que usam `cloud_firestore`, `shared_preferences` e `url_launcher`. O registro da SCRUM-34 foi para a Sprint 3, e foram corrigidos a referência ao `docs/README.md`, que não existe, e o formato do bloco "Integração via MCP do Jira".
   - `README.md`: a linha de Marcos Paulo deixou de citar `firebase.rules`, que não existe no repositório. A linha de Rayelen de Jesus Oliveira passou a incluir a implementação do gatilho de apoio emergencial e esta revisão.
   - Guias para responsáveis, já mesclados na `main`: `02` a `05` e `eap.md` passaram a tratar o `GuideModel` como implementado, com a coleção `guides`, o cache `guides_cache` e as rotas `/psychologist/guides`, `/parents/home` e `/parents/guide`. Os pacotes 6.2 e 7.3 da EAP foram marcados como concluídos.
+
+## [24/11/2026]
+
+### Modificado
+
+- Nome do app: de `mente_leve` para **Mente Leve** em tudo que o usuário vê. Android (`android:label` no `AndroidManifest.xml`), iOS (`CFBundleName`), web (`<title>`, `apple-mobile-web-app-title` e `manifest.json`), Windows (título da janela e `Runner.rc`) e Linux (título da janela). O `applicationId` (`com.example.mente_leve`), o nome do pacote Dart e o nome dos binários **não mudaram**, porque o `google-services.json` e as atualizações in-app dependem deles.
+- Ícone do app: o logo padrão do Flutter foi trocado pelo mascote de `assets/images/icon.png` (a versão PNG foi usada no lugar do SVG, porque o gerador só aceita raster). Gerado com o `flutter_launcher_icons` para Android (ícone legado e ícone adaptativo com fundo `#FAFAFA`), iOS (sem canal alfa), web (favicon e ícones do PWA), Windows (`app_icon.ico`) e macOS.
+- `web/manifest.json`: `background_color` e `theme_color` passaram para `#FAFAFA` (cor do fundo do ícone) e a descrição deixou de ser "A new Flutter project.".
+
+### Adicionado
+
+- `flutter_launcher_icons` (^0.14.4) nas `dev_dependencies` e a seção `flutter_launcher_icons:` no `pubspec.yaml`. Para trocar o ícone no futuro, substitua `assets/images/icon.png` (1024x1024, com o desenho dentro de ~66% da largura central) e rode `dart run flutter_launcher_icons`.
